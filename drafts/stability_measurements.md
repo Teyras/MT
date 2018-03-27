@@ -1,11 +1,14 @@
 # Evaluation of Measurement Stability in Virtualized Environments
 
 - The ability to measure time usage consistently is crucial for a fair 
-  evaluation of submissions
+  evaluation of submissions (and for a number of other applications in 
+  performance evaluation as well)
 - Virtualization eases building large-scale distributed applications that are 
   scalable (even on demand)
-  - But it comes with an overhead (which is not a big problem if the added time 
-    stays the same)
+  - But it comes with an overhead, which is not a big problem if the added time 
+    stays the same. It becomes a problem when the overhead is large enough to 
+    "shadow" the results of our measurements. Therefore, we have to measure how 
+    big the overhead is.
     - There are also non-deterministic factors at work here - multiple levels of 
       scheduling, virtual memory, interference with other VMs, ...
   - It might be possible to save money/energy if it proved feasible to measure 
@@ -13,7 +16,8 @@
   - IaaS/PaaS providers offer little to no guarantee regarding the way the host 
     is utilized (source?)
   - Could virtualization also shield us from interference with other processes 
-    on the same hardware?
+    on the same hardware? (can we measure a lot of stuff on the same machine 
+    more reliably if we wrap it in VMs?)
 
 ## "Discussion"
 
@@ -28,7 +32,9 @@
 - The most important quantity is time
 - Wall clock time is inherently less stable, but necessary for some workloads 
   (heavily parallelized programs) -> we are primarily concerned with CPU time
-- Memory usage should always be the same
+- Memory usage should always be the same for low-level languages (without GC)
+  - It would be interesting to see how garbage collected languages deal with 
+    restricted space and how it affects the time
 - As opposed to student submissions, we can modify the programs to "measure
   themselves" - we shall examine any potential discrepancies between these 
   results and the values reported by isolate
@@ -51,6 +57,9 @@ in C (closest to the metal).
 - random access memory reads - binary search
 - memory reads and writes - sorting
 
+- a synthetic workload where the ratio between memory and cpu usage can be 
+  tuned, e.g. scrypt
+
 ### Non-essential Workloads
 
 - a workload that employs more parts of the CPU (e.g. matrix multiplication)
@@ -71,10 +80,12 @@ metal
 ## Worker Configurations
 
 We will try to simulate situations where multiple workers use the same server 
-(that cannot be reasonably used by a single worker)
+(that cannot be reasonably used by a single worker). This will be tested under 
+different isolation technologies and all the workers will be isolated in the 
+same way (bare processes/Linux containers/VMs/...)..
 
-- one process per logical CPU (assess the influence of hyperthreading)
-- one process per physical CPU
-- one process per two CPUs
-- one process per CPU group (assess the influence of L2 cache)
+- one worker per logical CPU (assess the influence of hyperthreading)
+- one worker per physical CPU
+- one worker per two CPUs
+- one worker per CPU group (assess the influence of L2 cache)
 
