@@ -30,6 +30,8 @@
 ## Measured Data
 
 - The most important quantity is time
+- CPU time is not dependent on external factors such as IO waits, which is why 
+  it is often the first choice as a performance metric (even more so in ReCodEx)
 - Wall clock time is inherently less stable, but necessary for some workloads 
   (heavily parallelized programs) -> we are primarily concerned with CPU time
 - Memory usage should always be the same for low-level languages (without GC)
