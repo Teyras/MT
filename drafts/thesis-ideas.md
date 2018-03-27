@@ -51,6 +51,9 @@
 - Broker would have to accept jobs that are not processable at the moment. Then 
   it shall start the workers (via a management API of some sort) and keep the 
   jobs for them - that is a non-trivial implementation task
+- An alternative approach would be letting the worker itself manage a Docker 
+  container (for each environment) that would receive a volume with input files 
+  (the "box" in current worker) and run commands in it using `docker exec`.
 
 ## Broker fault tolerance
 
