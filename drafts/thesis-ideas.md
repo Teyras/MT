@@ -40,6 +40,18 @@
   -- neither network traffic nor CPU load corellate with the actual load factor
 	- each load balancing algorithm has its own way of telling the load
 
+## Dockerized Workers
+
+- We could ship a base image that contains a pre-configured ReCodEx worker that 
+  can be adjusted with environment variables
+- This would facilitate easy deployment of user-defined runtime environments
+- Exotic workers could easily be started on demand and bound to arbitrary ports
+- On-demand worker deployment would require a manager service connected to the 
+  Docker daemon on the host that communicates with the broker
+- Broker would have to accept jobs that are not processable at the moment. Then 
+  it shall start the workers (via a management API of some sort) and keep the 
+  jobs for them - that is a non-trivial implementation task
+
 ## Broker fault tolerance
 
 - offloading jobs to persistent storage (HDD/DB/...) so that they survive a 
