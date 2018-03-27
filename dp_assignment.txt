@@ -1,0 +1,51 @@
+Load Balancing in an Evaluation System for Programming Assignments 
+------------------------------------------------------------------
+
+The objective of the thesis is to research the problem of efficient automated
+evaluation of programming assignments on a large number of computers. A
+central aspect of this problem is the choice of load balancing algorithm that
+determines the way of distributing evaluation tasks between computers. Such
+algorithm must reflect machine eligibility constraints and other criteria,
+since different tasks may have different requirements.
+
+Infrastructures based on both physical and virtual machines will be
+examined and the influence of various virtualization techniques on
+the measurements of performance of tested code submissions will be assessed.
+The benefits of virtual environments such as the possibility of spawning
+new virtual machines when the system is under a heavy load or suspending virtual
+machines when the system is idle, will be also researched.
+
+The experiments will be performed using ReCodEx -- an evaluation system for
+programming assignments developed at the departement of the supervisor.
+Presumably, the experiments will require modifications of the system, some of
+which might be incorporated into it permanently to improve its performance.
+Furthermore, the system is currently being deployed for several courses, so real
+data regarding assignments evaluation will be available for our research purposes. 
+
+Keywords: Load balancing, Sandboxing, Performance evaluation, Cloud computing
+
+
+Vyvažování zátěže v systému pro vyhodnocování programátorských úloh
+-------------------------------------------------------------------
+
+Cílem práce je zkoumat problém, jak efektivně automaticky vyhodnocovat úlohy z
+programování na větším počtu počítačů. Součástí problému je volba algoritmu
+pro vyvažování zátěže, který bude určovat, jakým způsobem budou vyhodnocané
+úlohy mezi tyto počítače rozdělovány. Takový algoritmus musí odrážet kritéria
+pro volbu vhodného počítače, neboť různé úlohy mohou mít odlišné požadavky.
+
+Předmětem zkoumání budou infrastruktury založené jak na fyzických, tak
+virtualizovaných strojích. Rovněž bude zhodnocen vliv různých technik
+virtualizace na výsledky měření výkonu odevzdaných programů. Předmětem práce
+bude i průzkum možností nabízených virtualizovaným prostředím, jako například
+možnost vytvořit nové virtualní stroje ve chvíli, kdy je systém vytížený, a
+uspávat je, pokud nejsou využívány.
+
+Experimenty budou prováděny na systému pro vyhodnocování programátorksých úloh
+ReCodEx, který byl vyvinut na katedře vedoucího. Lze předpokládat, že tyto
+experimenty budou vyžadovat modifikace systému, z nichž by některé mohly být
+permanentně začleněny za účelem zlepšení jeho výkonu. ReCodEx je nyní
+nasazován do provozu v několika kurzech, což našemu výzkumu zajistí dostatek
+dat o průběhu vyhodnocování a reálné zátěži systému.
+
+Klíčová slova: Vyvažování zátěže, Sandboxing, Měření výkonu, Cloud computing
