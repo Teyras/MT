@@ -81,6 +81,20 @@ metal
 - virtualbox (GNU/Linux) - "home-level" virtualization technology
 - vsphere - enterprise-grade technology
 
+## CPU Affinity
+
+Explicitly assigning workers to CPUs might lead to better isolation. We shall 
+perform measurements both with and without affinity settings to see its effects.
+
+- No virtualization - use `taskset`
+- Docker - use the `--cpuset-cpus` option (`taskset` has no effect here - the 
+  container is started by the Docker daemon)
+- vSphere - there is a CPU affinity option in the web UI. The documentation 
+  claims it is better to give the workers more than one CPU.
+- VirtualBox - there is a possibility of setting the number of cores that should 
+  be used by the VM. Alas, we have no guarantee that the VM will use the same 
+  cores for all of its lifetime.
+
 ## Worker Configurations
 
 We will try to simulate situations where multiple workers use the same server 
