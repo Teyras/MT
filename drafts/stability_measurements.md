@@ -61,6 +61,8 @@ in C (closest to the metal).
 
 - a synthetic workload where the ratio between memory and cpu usage can be 
   tuned, e.g. scrypt
+  - we could also use stress-ng for this, provided that we specify a maximum for 
+    each operation type so that we can compare the individual runs
 
 ### Non-essential Workloads
 
