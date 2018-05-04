@@ -4,7 +4,11 @@
 
 #include "../common.c"
 
+#ifdef FLOAT
+typedef float num_t;
+#else
 typedef double num_t;
+#endif
 
 num_t exp_approx(int x, int n)
 {
