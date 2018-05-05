@@ -4,7 +4,8 @@
 #include "../common.c"
 
 void insertion_sort(int *a, int n) {
-	for (size_t i = 1; i < n; ++i) {
+	size_t i;
+	for (i = 1; i < n; ++i) {
 		int tmp = a[i];
 		size_t j = i;
 		while(j > 0 && tmp < a[j - 1]) {
