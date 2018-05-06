@@ -16,12 +16,12 @@ for i in $(seq $iterations); do
 		--dir=/data=$(realpath $(dirname $cmd)) \
 		--run /data/$(basename $cmd) < $data > /dev/null 2> /dev/null
 
-	echo -n "${label}iso-cpu:  "
-	cat $META | grep "^time:" | cut -d: -f2
-
-	echo -n "${label}iso-wall: "
+	echo -n "${label} iso-wall: "
 	cat $META | grep "^time-wall:" | cut -d: -f2
 
-	isolate --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s/^/$label/"
+	echo -n "${label} iso-cpu:  "
+	cat $META | grep "^time:" | cut -d: -f2
+
+	isolate --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s@^@$label @"
 	isolate --cg --cleanup
 done
