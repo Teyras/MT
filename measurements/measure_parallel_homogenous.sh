@@ -8,10 +8,13 @@ fi
 workers=$1
 shift
 
+measure_cmd=$1
+shift
+
 label=$1
 shift
 
-cmd="./measure_workload.sh \"$label,$workers,cpu-{}\" $@"
+cmd="$measure_cmd \"$label,$workers,cpu-{}\" $@"
 
 if [ -n "$taskset" ]; then
 	cmd="taskset -c {} $cmd"
