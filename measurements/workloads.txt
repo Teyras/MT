@@ -1,2 +1,6 @@
-exp/exp_float 16384 500
-exp/exp_double 16384 500
+exp/exp_float 16384 400
+exp/exp_double 16384 400
+bsearch/bsearch 32768_4096 400
+gray/gray2bin 524288 400
+sort/insertion_sort 131072 400
+sort/qsort 131072 400

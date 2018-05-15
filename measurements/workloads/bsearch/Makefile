@@ -5,3 +5,4 @@ bsearch: bsearch.c
 
 clean:
 	rm -f bsearch
+	rm -f data.*.in
