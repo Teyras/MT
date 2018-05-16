@@ -1,4 +1,4 @@
-exp/exp_float 16384 50
-bsearch/bsearch 8192_1024 50
-gray/gray2bin 131072 50
-sort/qsort 16384 50
+exp/exp_float 16384 10
+bsearch/bsearch 8192_1024 10
+gray/gray2bin 131072 10
+sort/qsort 16384 10

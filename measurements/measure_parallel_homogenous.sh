@@ -8,17 +8,13 @@ fi
 workers=$1
 shift
 
-measure_cmd=$1
-shift
-
-label=$1
-shift
-
-cmd="$measure_cmd \"$label,$workers,cpu-{}\" $@"
+cmd="$@"
 
 if [ -n "$taskset" ]; then
 	cmd="taskset -c {} $cmd"
 fi
+
+cmd="WORKER={} LABEL=\"$LABEL,$workers,cpu-{}\" $cmd"
 
 top_worker=$(($(nproc --all) - 1))
 step=$((2 * $(nproc --all) / $workers))
