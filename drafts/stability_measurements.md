@@ -34,6 +34,8 @@
   it is often the first choice as a performance metric (even more so in ReCodEx)
 - Wall clock time is inherently less stable, but necessary for some workloads 
   (heavily parallelized programs) -> we are primarily concerned with CPU time
+- We might want to assess if the difference between wall clock time measured by 
+  isolate and the by the program itself stays constant
 - Memory usage should always be the same for low-level languages (without GC)
   - It would be interesting to see how garbage collected languages deal with 
     restricted space and how it affects the time
