@@ -10,5 +10,5 @@ _gray: gray
 	cd gray && $(MAKE) && ./gendata.sh 524288 && ./gendata.sh 131072
 
 _sort: sort
-	cd sort && $(MAKE) && ./gendata.sh 131072 && ./gendata.sh 16384
+	cd sort && $(MAKE) && ./gendata.sh 131072 && ./gendata.sh 16384 && ./gendata.sh 32768
 

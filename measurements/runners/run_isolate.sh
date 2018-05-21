@@ -14,6 +14,7 @@ for i in $(seq $iterations); do
 	isolate -b $WORKER --cg --init > /dev/null
 	isolate -b $WORKER -M $META \
 		--cg --cg-timing \
+		--processes=42 \ # This is to prevent "resource temporarily unavailable" errors from execve
 		--stdout=/dev/null \
 		--stderr=/box/isolate.err \
 		--dir=/data=$(realpath $(dirname $cmd)) \
@@ -28,7 +29,9 @@ for i in $(seq $iterations); do
 	fi
 
 	isolate -b $WORKER --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s@^@$LABEL @"
-	until isolate -b $WORKER --cg --cleanup; do
+	i=0
+	until isolate -b $WORKER --cg --cleanup || test $i -ge 5; do
+		i=$(($i + 1))
 		sleep 0.5
 	done
 done

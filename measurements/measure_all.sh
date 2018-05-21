@@ -8,6 +8,11 @@ else
 	workloads="$1"
 fi
 
+# Clean old isolate boxes
+for i in $(ls /var/local/lib/isolate); do
+	isolate -b $i --cg --cleanup
+done
+
 # Compile everything and generate test data
 pushd workloads
 make
@@ -34,8 +39,8 @@ cat $workloads | while read workload size iters; do
 done
 
 # Measure the same workload on multiple cores at once
-#for workers in 2 10 20 40; do
-for workers in 2; do
+for workers in 2 10 20 40; do
+#for workers in 2; do
 	cat $workloads | while read workload size iters; do
 		echo ">>> $workload $size $iters ($workers workers, parallel-homogenous)"
 
