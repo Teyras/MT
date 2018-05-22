@@ -57,9 +57,9 @@ for workers in 2 10 20 40; do
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
 		LABEL="isolate parallel-homogenous-taskset" $root/measure_parallel_homogenous.sh --taskset $workers ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
-		LABEL="docker-bare parallel-homogenous" $root/measure_parallel_homogenous.sh --taskset $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL="docker-bare parallel-homogenous-taskset" $root/measure_parallel_homogenous.sh --taskset $workers ./run_docker.sh ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL="docker-isolate parallel-homogenous" $root/measure_parallel_homogenous.sh --taskset $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL="docker-isolate parallel-homogenous-taskset" $root/measure_parallel_homogenous.sh --taskset $workers ./run_docker.sh ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
 	done
 done
