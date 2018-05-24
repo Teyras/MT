@@ -26,13 +26,18 @@ make_plot <- function (metric, workload, isolation, limit, taskset=FALSE) {
 			theme(text=element_text(size=6)) +
 			annotate("text", label="N/A", size=25, x=.5, y=.5) + 
 			geom_point() + 
-			xlim(0, 1) + 
+			xlim(0, limit) + 
 			ylim(0, 1)
 		return(plot)
 	}
 
+	title <- isolation
+	if (taskset) {
+		title <- paste(title, "taskset", sep="+")
+	}
+
 	plot <- ggplot(subset, aes(x="", y=value)) +
-		labs(title=isolation, y=metric, x="") +
+		labs(title=title, y=metric, x="") +
 		theme(text=element_text(size=6)) +
 		geom_boxplot(lwd=0.15, outlier.size=0.15) +
 		ylim(0, limit) +
@@ -44,13 +49,17 @@ make_plot <- function (metric, workload, isolation, limit, taskset=FALSE) {
 # Plots a metric for a workload into a file
 plot_workload_by_setup <- function (metric, workload, limit) {
 	#png(filename=gsub("/", "-", paste(metric, "-", workload, ".png", sep="")), width=1920, height=1200)
+	subset <- values[values$workload == workload & values$metric == metric,]
+	limit <- max(subset$value)
 
-	ggarrange(
+	plot <- ggarrange(
 		  make_plot(metric, workload, "bare", limit), make_plot(metric, workload, "bare", limit, TRUE),
 		  make_plot(metric, workload, "isolate", limit), make_plot(metric, workload, "isolate", limit, TRUE),
 		  make_plot(metric, workload, "docker-bare", limit), make_plot(metric, workload, "docker-bare", limit, TRUE),
 		  make_plot(metric, workload, "docker-isolate", limit), make_plot(metric, workload, "docker-isolate", limit, TRUE),
 		  ncol=2, nrow=4)
+	annotate_figure(plot, top=paste(workload, metric, sep=", "))
+	plot
 	ggsave(gsub("/", "-", paste(workload, "-", metric, ".png", sep="")))
 
 	#dev.off()
