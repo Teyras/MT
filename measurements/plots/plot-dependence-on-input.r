@@ -2,6 +2,8 @@
 library("ggplot2")
 library("ggpubr")
 
+options(width = 150)
+
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) == 0) {
@@ -19,9 +21,12 @@ means <- aggregate(value ~ workload + input_size + metric + iteration, values, m
 characteristics <- aggregate(value ~ workload + input_size + metric, means, mean)
 characteristics$sd <- aggregate(value ~ workload + input_size + metric, means, sd)$value
 characteristics$cv <- (characteristics$sd * 100) / characteristics$value
+characteristics$min <- aggregate(value ~ workload + input_size + metric, means, min)$value
+characteristics$max <- aggregate(value ~ workload + input_size + metric, means, max)$value
+characteristics$span <- characteristics$max / characteristics$min
 names(characteristics)[4] = "mean"
 
-print(characteristics[order(characteristics$cv),])
+print(characteristics[order(characteristics$span),])
 
 ggplot(means, aes(x="", y=value)) +
 	geom_boxplot() +
