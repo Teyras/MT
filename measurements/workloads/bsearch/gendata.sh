@@ -1,7 +1,7 @@
 #!/bin/sh
 
-n=$1
-m=$2
+n=$(echo $1 | cut -d "_" -f 1)
+m=$(echo $1 | cut -d "_" -f 2)
 
 echo $n > data.${n}_${m}.in
 echo $m > data.${n}_${m}.in

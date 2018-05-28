@@ -1,0 +1,7 @@
+bsearch/bsearch 8192_1024 10
+bsearch/bsearch 8192_16384 10
+bsearch/bsearch 8192_32768 10
+bsearch/bsearch 32768_1024 10
+bsearch/bsearch 32768_16384 10
+bsearch/bsearch 32768_65536 10
+bsearch/bsearch 32768_131072 10
