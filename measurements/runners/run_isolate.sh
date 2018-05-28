@@ -12,9 +12,11 @@ META=meta-$WORKER.inf
 
 for i in $(seq $iterations); do
 	isolate -b $WORKER --cg --init > /dev/null
+	
+	# The --processes option is to prevent "resource temporarily unavailable" errors from execve
 	isolate -b $WORKER -M $META \
 		--cg --cg-timing \
-		--processes=42 \ # This is to prevent "resource temporarily unavailable" errors from execve
+		--processes=42 \
 		--stdout=/dev/null \
 		--stderr=/box/isolate.err \
 		--dir=/data=$(realpath $(dirname $cmd)) \
