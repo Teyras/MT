@@ -2,19 +2,8 @@
 library("ggplot2")
 library("ggpubr")
 
-args <- commandArgs(trailingOnly=TRUE)
-
-if (length(args) == 0) {
-	stop("Please, supply a result file as a CLI argument")
-}
-
 # Read the data
-lines = readLines(args[1])
-values = as.data.frame(do.call(rbind, strsplit(lines, split="[ :]+")), stringsAsFactors=FALSE)
-names(values) = c("isolation", "setup", "workload", "input_size", "metric", "value")
-values$value <- as.numeric(values$value)
-values$setup <- gsub(",cpu-\\d+", "", values$setup)
-values$taskset <- grepl("taskset", values$setup)
+values <- load.stability.results(filename.from.args())
 
 # Plots a subset of the data (see the arguments)
 make_plot <- function (metric, workload, isolation, limit, taskset=FALSE) {
