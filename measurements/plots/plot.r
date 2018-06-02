@@ -2,6 +2,8 @@
 library("ggplot2")
 library("ggpubr")
 
+source("helpers.r")
+
 # Read the data
 values <- load.stability.results(filename.from.args())
 

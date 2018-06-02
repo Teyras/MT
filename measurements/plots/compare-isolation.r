@@ -1,5 +1,7 @@
 #!/usr/bin/Rscript
 
+library("formattable")
+
 source("helpers.r")
 
 options(width=200)
@@ -28,8 +30,14 @@ process_workload_data <- function(workload, input_size, label, aggregation_func)
 			frame[nrow(frame) + 1, ] <- c(setup, data)
 		}
 
-		print(paste(workload, input_size, metric, label, sep=" "))
-		print(frame)
+		filename <- sprintf("isolation-comparison-%s.html", label)
+
+		table <- format_table(frame, list(
+			area(col = 1:length(isolations)+1) ~ color_tile("white", "red")
+		))
+
+		cat(sprintf("<h3>%s</h3>", paste(workload, input_size, metric, label, sep=" ")), file=filename, append=TRUE)
+		cat(table, file=filename, append=TRUE)
 	}
 }
 
