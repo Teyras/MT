@@ -16,7 +16,7 @@ for i in $(seq $iterations); do
 	# The --processes option is to prevent "resource temporarily unavailable" errors from execve
 	isolate -b $WORKER -M $META \
 		--cg --cg-timing \
-		--processes=99999 \
+		--processes=999999 \
 		--stdout=/dev/null \
 		--stderr=/box/isolate.err \
 		--dir=/data=$(realpath $(dirname $cmd)) \
@@ -24,13 +24,9 @@ for i in $(seq $iterations); do
 
 	echo "${LABEL},${i},iso-wall,$(cat $META | grep "^time-wall:" | cut -d: -f2)"
 	echo "${LABEL},${i},iso-cpu,$(cat $META | grep "^time:" | cut -d: -f2)"
+	echo "${LABEL},${i},iso-mem,$(cat $META | grep "^cg-mem:" | cut -d: -f2)"
 
-	# TODO
-	if ! grep "^time" $META; then
-		cat $META | sed "s@^@$LABEL@"
-	fi
-
-	isolate -b $WORKER --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s@^@$LABEL,${i},@"
+	isolate -b $WORKER --processes=999999 --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s@^@$LABEL,${i},@"
 
 	attempt=0
 	until isolate -b $WORKER --cg --cleanup || test $attempt -ge 5; do

@@ -2,5 +2,5 @@ exp/exp_float 65536 100
 exp/exp_double 65536 100
 bsearch/bsearch 65536_1048576 100
 gray/gray2bin 1048576 100
-sort/insertion_sort 32768 100
+sort/insertion_sort 16384 100
 sort/qsort 1048576 100
