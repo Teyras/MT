@@ -6,3 +6,4 @@ if echo $affinity | grep -v '-' > /dev/null 2> /dev/null; then
 fi
 
 docker run -e LABEL="$LABEL" $args --rm --privileged recodex-measurements:latest "$@" | sed 's/$//'
+

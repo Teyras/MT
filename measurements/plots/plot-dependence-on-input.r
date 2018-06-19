@@ -5,17 +5,11 @@ library("ggpubr")
 source("helpers.r")
 
 options(width = 150)
-
-args <- commandArgs(trailingOnly=TRUE)
-
-if (length(args) == 0) {
-	stop("Please, supply a result file as a CLI argument")
-}
+file <- filename.from.args()
 
 # Read the data
-lines = readLines(args[1])
-values = as.data.frame(do.call(rbind, strsplit(lines, split="[ :]+")), stringsAsFactors=FALSE)
-names(values) = c("iteration", "workload", "input_size", "metric", "value")
+values <-  read.csv(file)
+names(values) = c("workload", "input_size", "iteration", "metric", "value")
 values$value <- as.numeric(values$value)
 
 means <- aggregate(value ~ workload + input_size + metric + iteration, values, mean)

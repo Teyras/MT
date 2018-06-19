@@ -1,5 +1,8 @@
 #!/usr/bin/Rscript
 
+# TODO make coloring document-wide
+# TODO separate taskset measurements
+
 library("formattable")
 
 source("helpers.r")
@@ -44,6 +47,14 @@ process_workload_data <- function(workload, input_size, label, aggregation_func)
 for (row_workloads in 1:nrow(workloads)) {
 	workload <- workloads[row_workloads, "workload"]
 	input_size <- workloads[row_workloads, "input_size"]
+
+	process_workload_data(workload, input_size, "sd", function(metric) {
+		return(sd)
+	})
+
+	process_workload_data(workload, input_size, "cv", function(metric) {
+		return(cv)
+	})
 
 	process_workload_data(workload, input_size, "span", function(metric) {
 		return(span)

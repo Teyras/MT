@@ -14,10 +14,10 @@ void timespec_diff(struct timespec *start, struct timespec *stop,
 	return;
 }
 
-void print_timespec_diff(struct timespec *start, struct timespec *stop, FILE *fd)
+void print_timespec_diff(struct timespec *start, struct timespec *stop, FILE *fd, const char *label)
 {
 	struct timespec result;
 	timespec_diff(start, stop, &result);
-	fprintf(fd, "%zu.%09zu\n", result.tv_sec, result.tv_nsec);
+	fprintf(fd, "%s,%zu.%09zu\n", label, result.tv_sec, result.tv_nsec);
 }
 

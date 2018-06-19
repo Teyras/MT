@@ -14,7 +14,7 @@ if [ -n "$taskset" ]; then
 	cmd="taskset -c {} $cmd"
 fi
 
-cmd="WORKER={} LABEL=\"$LABEL,$workers,cpu-{}\" $cmd"
+cmd="WORKER={} LABEL=\"$LABEL;$workers;cpu-{}\" $cmd"
 
 top_worker=$(($(nproc --all) - 1))
 step=$((2 * $(nproc --all) / $workers))

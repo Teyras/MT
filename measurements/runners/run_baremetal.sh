@@ -8,7 +8,7 @@ err=$(mktemp)
 
 for i in $(seq $iterations); do
 	$cmd > /dev/null < $data 2> $err
-	cat $err | sed "s@^@$LABEL @"
+	cat $err | sed "s@^@$LABEL,${i},@"
 done 2>&1
 
 rm $err

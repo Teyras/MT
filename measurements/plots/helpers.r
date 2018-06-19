@@ -17,9 +17,8 @@ filename.from.args <- function () {
 }
 
 load.stability.results <- function(file) {
-	lines = readLines(file)
-	values = as.data.frame(do.call(rbind, strsplit(lines, split="[ :]+")), stringsAsFactors=FALSE)
-	names(values) = c("isolation", "setup", "workload", "input_size", "metric", "value")
+	values <- read.csv(file)
+	names(values) = c("isolation", "setup", "workload", "input_size", "iteration", "metric", "value")
 	values$value <- as.numeric(values$value)
 	values$setup <- gsub(",cpu-\\d+", "", values$setup)
 	values$taskset <- grepl("taskset", values$setup)

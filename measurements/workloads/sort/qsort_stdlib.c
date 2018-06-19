@@ -36,10 +36,8 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_REALTIME, &after_wall);
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &after_cpu);
 
-	fprintf(stderr, "wall: ");
-	print_timespec_diff(&before_wall, &after_wall, stderr);
-	fprintf(stderr, "cpu:  ");
-	print_timespec_diff(&before_cpu, &after_cpu, stderr);
+	print_timespec_diff(&before_wall, &after_wall, stderr, "wall");
+	print_timespec_diff(&before_cpu, &after_cpu, stderr, "cpu");
 
 
 	return 0;
