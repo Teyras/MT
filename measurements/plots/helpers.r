@@ -20,7 +20,7 @@ load.stability.results <- function(file) {
 	values <- read.csv(file)
 	names(values) = c("isolation", "setup", "workload", "input_size", "iteration", "metric", "value")
 	values$value <- as.numeric(values$value)
-	values$setup <- gsub(",cpu-\\d+", "", values$setup)
+	values$setup <- gsub(";cpu-\\d+", "", values$setup)
 	values$taskset <- grepl("taskset", values$setup)
 	return(values)
 }

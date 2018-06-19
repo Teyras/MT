@@ -11,9 +11,6 @@ values <- values[values$isolation %in% isolations, ]
 #data <- data.frame(matrix(NA, nrow=0, ncol=))
 #names(data) <- c("isolation", "setup", "workload", "input_size", "cpu", "iso_cpu", "wall", "iso_wall")
 
-print(aggregate(value ~ setup + isolation + workload, values[values$metric == "cpu", ], length))
-print(aggregate(value ~ setup + isolation + workload, values[values$metric == "iso-cpu", ], length))
-
 data <- values[values$metric == "cpu", c("setup", "isolation", "workload", "input_size", "value")]
 names(data)[names(data) == "value"] <- "cpu"
 
