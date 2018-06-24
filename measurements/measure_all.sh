@@ -1,6 +1,7 @@
 #!/bin/sh
 
 root=$(dirname $(realpath $0))
+export MEASUREMENTS_ROOT=$root
 
 if [ $# -lt 1 ]; then
 	workloads=$root/workloads.txt
@@ -35,6 +36,10 @@ cat $workloads | while read workload size iters; do
 	LABEL="docker-bare,single" $root/run_docker.sh ./measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
 	LABEL="docker-isolate,single" $root/run_docker.sh ./measure_workload.sh \
+		runners/run_isolate.sh $workload $size $iters >> $results_file
+	LABEL="vbox-bare,single" $root/run_vbox.sh ./measure_workload.sh \
+		runners/run_baremetal.sh $workload $size $iters >> $results_file
+	LABEL="vbox-isolate,single" $root/run_vbox.sh ./measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
 done
 
