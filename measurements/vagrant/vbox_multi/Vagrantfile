@@ -6,15 +6,17 @@ Vagrant.configure("2") do |config|
     raise Vagrant::Errors::VagrantError.new, "MEASUREMENTS_ROOT env var not set"
   end
 
-  for i in 0..39
+  (0..39).each do |i|
     config.vm.define "vbox_#{i}" do |vbox|
       vbox.vm.box = "recodex-measurements-template"
-      vbox.vm.box_url = "file://#{ENV["MEASUREMENTS_ROOT"]}/runners/package.box"
+      vbox.vm.box_url = "file://#{ENV["MEASUREMENTS_ROOT"]}/vagrant/template.box"
 
       vbox.vm.synced_folder '.', '/vagrant', disabled: true
       vbox.vm.synced_folder ENV["MEASUREMENTS_ROOT"], "/measurements", type: "rsync"
 
-      vbox.vm.network :forwarded_port, guest: 22, host: (2222 + i)
+      #vbox.vm.network :forwarded_port, guest: 22, host: 2222, disabled: true
+      vbox.vm.network :forwarded_port, id: "ssh", guest: 22, host: (9000 + i)
+      vbox.ssh.guest_port = (9000 + i)
 
       vbox.vm.provision "shell", inline: <<-SHELL
         cd /measurements

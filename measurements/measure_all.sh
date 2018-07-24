@@ -22,6 +22,9 @@ popd
 # Prepare docker image
 ./build_docker.sh
 
+# Prepare vbox VMs
+./build_vbox.sh
+
 # Make a new file to contain the results
 results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
 
