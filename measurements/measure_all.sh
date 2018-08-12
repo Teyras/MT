@@ -32,17 +32,17 @@ results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
 cat $workloads | while read workload size iters; do
 	echo ">>> $workload $size $iters"
 
-	LABEL="bare,single" $root/measure_workload.sh \
+	LABEL="bare,single,1,cpu-0" $root/measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
-	LABEL="isolate,single" $root/measure_workload.sh \
+	LABEL="isolate,single,1,cpu-0" $root/measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
-	LABEL="docker-bare,single" $root/run_docker.sh ./measure_workload.sh \
+	LABEL="docker-bare,single,1,cpu-0" $root/run_docker.sh ./measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
-	LABEL="docker-isolate,single" $root/run_docker.sh ./measure_workload.sh \
+	LABEL="docker-isolate,single,1,cpu-0" $root/run_docker.sh ./measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
-	LABEL="vbox-bare,single" $root/run_vbox.sh ./measure_workload.sh \
+	LABEL="vbox-bare,single,1,cpu-0" $root/run_vbox.sh ./measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
-	LABEL="vbox-isolate,single" $root/run_vbox.sh ./measure_workload.sh \
+	LABEL="vbox-isolate,single,1,cpu-0" $root/run_vbox.sh ./measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
 done
 

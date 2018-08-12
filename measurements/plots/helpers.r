@@ -17,10 +17,10 @@ filename.from.args <- function () {
 }
 
 load.stability.results <- function(file) {
-	values <- read.csv(file)
-	names(values) = c("isolation", "setup", "workload", "input_size", "iteration", "metric", "value")
+	values <- read.csv(file, header=FALSE)
+	names(values) = c("isolation", "setup_type", "setup_size", "worker", "workload", "input_size", "iteration", "metric", "value")
 	values$value <- as.numeric(values$value)
-	values$setup <- gsub(";cpu-\\d+", "", values$setup)
+	values$setup <- paste(values$setup_type, values$setup_size, sep=",")
 	values$taskset <- grepl("taskset", values$setup)
 	return(values)
 }

@@ -10,7 +10,6 @@ values <- load.stability.results(filename.from.args())
 # Plots a subset of the data (see the arguments)
 make_plot <- function (metric, workload, isolation, limit, taskset=FALSE) {
 	subset <- values[values$metric == metric & values$workload == workload & values$isolation == isolation & values$taskset == taskset,]
-
 	if (length(subset$value) == 0) {
 		plot <- ggplot(data.frame()) + 
 			labs(title=isolation, y=metric, x="") +
@@ -27,12 +26,18 @@ make_plot <- function (metric, workload, isolation, limit, taskset=FALSE) {
 		title <- paste(title, "taskset", sep="+")
 	}
 
-	plot <- ggplot(subset, aes(x="", y=value)) +
+	subset <- subset[subset$worker == subset$worker[1],]
+	setups <- unique(subset[,c("setup_type", "setup_size", "setup")])
+	setups <- setups[order(setups$setup_size, setups$setup_type),]$setup
+	subset$setup_cat <- factor(subset$setup, levels=setups)
+
+	plot <- ggplot(subset, aes(subset$value)) +
 		labs(title=title, y=metric, x="") +
 		theme(text=element_text(size=6)) +
-		geom_boxplot(lwd=0.15, outlier.size=0.15) +
-		ylim(0, limit) +
-		facet_grid(. ~ setup)
+		# geom_boxplot(lwd=0.15, outlier.size=0.15) +
+		geom_histogram(breaks=seq(0, limit, by=limit/30)) +
+		# ylim(0, limit) +
+		facet_grid(cols=vars(subset$setup_cat))
 
 	return(plot)
 }
@@ -48,10 +53,12 @@ plot_workload_by_setup <- function (metric, workload, limit) {
 		  make_plot(metric, workload, "isolate", limit), make_plot(metric, workload, "isolate", limit, TRUE),
 		  make_plot(metric, workload, "docker-bare", limit), make_plot(metric, workload, "docker-bare", limit, TRUE),
 		  make_plot(metric, workload, "docker-isolate", limit), make_plot(metric, workload, "docker-isolate", limit, TRUE),
-		  ncol=2, nrow=4)
+		  make_plot(metric, workload, "vbox-bare", limit), make_plot(metric, workload, "vbox-bare", limit, TRUE),
+		  make_plot(metric, workload, "vbox-isolate", limit), make_plot(metric, workload, "vbox-isolate", limit, TRUE),
+		  ncol=2, nrow=6)
 	annotate_figure(plot, top=paste(workload, metric, sep=", "))
 	plot
-	ggsave(gsub("/", "-", paste(workload, "-", metric, ".png", sep="")))
+	ggsave(gsub("/", "-", paste(workload, "-", metric, ".png", sep="")), width=10, height=10, units="in")
 
 	#dev.off()
 }
