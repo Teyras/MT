@@ -24,3 +24,7 @@ load.stability.results <- function(file) {
 	values$taskset <- grepl("taskset", values$setup)
 	return(values)
 }
+
+mkdir <- function(dir) {
+	dir.create(file.path(".", dir), showWarnings=FALSE)
+}
