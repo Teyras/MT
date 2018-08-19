@@ -16,7 +16,5 @@ fi
 
 cmd="WORKER={} LABEL=\"$LABEL,$workers,cpu-{}\" $cmd"
 
-top_worker=$(($(nproc --all) - 1))
-step=$((2 * $(nproc --all) / $workers))
 
-(seq 0 $step $top_worker && seq 1 $step $top_worker) | parallel -j$workers "$cmd"
+$(dirname $0)/distribute_workers.sh $workers | parallel -j$workers "$cmd"

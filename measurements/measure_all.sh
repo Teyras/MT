@@ -1,5 +1,7 @@
 #!/bin/sh
 
+trap "exit" INT
+
 root=$(dirname $(realpath $0))
 export MEASUREMENTS_ROOT=$root
 
@@ -23,27 +25,32 @@ popd
 ./build_docker.sh
 
 # Prepare vbox VMs
-./build_vbox.sh
+#./build_vbox.sh
 
 # Make a new file to contain the results
 results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
 
 # Measure on a single core
 cat $workloads | while read workload size iters; do
-	echo ">>> $workload $size $iters"
+	echo ">>> $workload $size $iters (single)"
 
 	LABEL="bare,single,1,cpu-0" $root/measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
+
 	LABEL="isolate,single,1,cpu-0" $root/measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
+
 	LABEL="docker-bare,single,1,cpu-0" $root/run_docker.sh ./measure_workload.sh \
 		runners/run_baremetal.sh $workload $size $iters >> $results_file
+
 	LABEL="docker-isolate,single,1,cpu-0" $root/run_docker.sh ./measure_workload.sh \
 		runners/run_isolate.sh $workload $size $iters >> $results_file
+	
 	LABEL="vbox-bare,single,1,cpu-0" $root/run_vbox.sh ./measure_workload.sh \
-		runners/run_baremetal.sh $workload $size $iters >> $results_file
+		runners/run_baremetal.sh $workload $size $iters >> $results_file < /dev/null
+
 	LABEL="vbox-isolate,single,1,cpu-0" $root/run_vbox.sh ./measure_workload.sh \
-		runners/run_isolate.sh $workload $size $iters >> $results_file
+		runners/run_isolate.sh $workload $size $iters >> $results_file < /dev/null
 done
 
 # Measure the same workload on multiple cores at once
@@ -60,6 +67,10 @@ for workers in 2 10 20 40; do
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
 		LABEL="docker-isolate,parallel-homogenous" $root/measure_parallel_homogenous.sh $workers ./run_docker.sh ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
+		LABEL="vbox-bare,parallel-homogenous" $root/measure_parallel_homogenous.sh $workers $root/run_vbox.sh ./measure_workload.sh \
+			runners/run_baremetal.sh $workload $size $iters >> $results_file < /dev/null
+		LABEL="vbox-isolate,parallel-homogenous" $root/measure_parallel_homogenous.sh $workers $root/run_vbox.sh ./measure_workload.sh \
+			runners/run_isolate.sh $workload $size $iters >> $results_file < /dev/null
 
 		LABEL="bare,parallel-homogenous-taskset" $root/measure_parallel_homogenous.sh --taskset $workers ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
