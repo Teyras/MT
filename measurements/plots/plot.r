@@ -29,6 +29,16 @@ plot_boxplot <- function(subset, subset_single, title, metric, limit) {
 	return(plot)
 }
 
+plot_points <- function(subset, subset_single, title, metric, limit) {
+	plot <- ggplot(subset_single, aes(x=iteration, y=value)) +
+		labs(title=title, y=metric, x="iteration") +
+		geom_point(size=0.15) +
+		ylim(0, limit) +
+		facet_grid(cols=vars(subset_single$setup_cat))
+
+	return(plot)
+}
+
 plot_mad_over_setup <- function(subset, subset_single, title, metric, limit) {
 	data <- aggregate(value ~ setup_cat, subset, mad)
 	data_single <- aggregate(value ~ setup_cat, subset_single, mad)
@@ -112,7 +122,7 @@ plot_workload_by_setup <- function (dir, plot.function, metric, workload, limit)
 }
 
 plot_all_metrics_for_workload_by_setup <- function (workload) {
-	for (func.name in c("plot_hist", "plot_boxplot", "plot_mad_over_setup")) {
+	for (func.name in c("plot_hist", "plot_boxplot", "plot_mad_over_setup", "plot_points")) {
 		func <- get(func.name)
 		plot_workload_by_setup(func.name, func, "cpu", workload)
 		plot_workload_by_setup(func.name, func, "iso-cpu", workload)
