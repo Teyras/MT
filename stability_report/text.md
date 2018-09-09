@@ -142,6 +142,16 @@ according to the recommendations by the authors of isolate:
 - kernel address space randomization is disabled
 - transparent hugepage support is disabled
 
+The exact method of distributing the workloads over CPU cores when measuring 
+with `taskset` can be seen in the `distribute_workers.sh` script. The main idea 
+is that the workloads should be distributed evenly over physical CPUs (i.e. each 
+CPU should have the same amount of workloads running on it and it does not 
+matter which CPU cores in the same socket we choose because the cores only share 
+the last level cache and it is shared between all the cores). This script will 
+probably need changes if we replicate this experiment on other CPUs.
+
+TODO maybe we are using HT pairs unnecessarily.
+
 ## Preliminary Checks
 
 Considering the objective of our experiment, we had to ensure that the results 
@@ -202,8 +212,8 @@ values reported by isolate.
 To examine the stability of the deviations, we calculated the standard deviation 
 of the difference between the results from isolate and those from the program in 
 every iteration of the measurement for every workload and setup. We then 
-normalized this number with the mean of the runtime to obtain a relative error
-measure.
+normalized this number by dividing it with the mean of the runtime to obtain a 
+relative error measure.
 
 The error is rather small and stable for the CPU times (not higher than 2.5ms 
 +/- 0.5%). This result is not surprising -- starting a process is generally not 
@@ -233,6 +243,15 @@ TODO maybe add a table here?
 - tampering with the scheduler is probably a bad idea, but schedulers are 
   generally not concerned with measurement stability
 
+To explore how explicitly setting the CPU affinity influences the stability of 
+measurements, we made violin plots of our measurements for each combination of 
+workload, setup and isolation technology. In some instances, `taskset` caused 
+the measurement to be particularly - see iso-cpu measurements with 4 workers.
+
+TODO plot
+
+TODO do the results vary for any isolation technique?
+
 ### Comparing Parallel Worker Results
 
 - warmup/cooldown when workers are spawning/dying
@@ -242,9 +261,12 @@ TODO maybe add a table here?
 
 ## Conclusion
 
-Blah blah summary.
+WIP blah blah summary.
 
 Our experiment also yielded several smaller results. First, the wall-clock time 
 measured by isolate tends to be unstable and should not be trusted when high 
 precision measurements are required. Of course, this phenomenon should be 
 researched further, possibly on newer versions of the kernel.
+
+Second, setting the CPU affinity explicitly does not generally yield any 
+improvements. 

@@ -47,7 +47,6 @@ plot.rolling.sd <- function(data, title) {
 
 
 plots <- list()
-i <- 1
 
 for (row_workloads in 1:nrow(workloads)) {
 	for (metric in c("cpu", "wall")) {
@@ -61,11 +60,10 @@ for (row_workloads in 1:nrow(workloads)) {
 		, ], title=paste(workload, input_size, metric, sep=", "))
 
 		plots[[length(plots) + 1]] <- plot
-		i <- i + 1
 	}
 }
 
-plot <- ggarrange(plotlist=plots, ncol=2, nrow=6)
+plot <- ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
 
 plot
 
