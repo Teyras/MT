@@ -39,8 +39,8 @@ plot.rolling.sd <- function(data, title) {
 	data$rolling <- rollapply(data$value, 10, sd, align="center", fill=c(NA, NA, NA))
 	result <- ggplot(data, aes(x=iteration)) +
 		geom_path(aes(y=rolling)) +
-		geom_hline(yintercept=sd(data$value)) +
-		labs(title=title, x="t")
+		geom_hline(aes(yintercept=sd(data$value)), colour="blue") +
+		labs(title=title, x="iteration", y="time[s]")
 
 	return(result)
 }
@@ -63,8 +63,13 @@ for (row_workloads in 1:nrow(workloads)) {
 	}
 }
 
-plot <- ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
-
-plot
-
+ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
 ggsave(gsub("/", "-", paste("warmup", ".png", sep="")), width=10, height=10, units="in")
+
+plot.rolling.sd(values[
+	values$metric == "cpu" & 
+	values$workload == "bsearch/bsearch" &
+	values$input_size == "65536_1048576"
+, ], title="")
+
+ggsave(gsub("/", "-", paste("warmup-bsearch", ".png", sep="")), width=7, height=4, units="in")
