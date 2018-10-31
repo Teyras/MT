@@ -21,3 +21,7 @@ void print_timespec_diff(struct timespec *start, struct timespec *stop, FILE *fd
 	fprintf(fd, "%s,%zu.%09zu\n", label, result.tv_sec, result.tv_nsec);
 }
 
+void print_timespec(struct timespec *time, FILE *fd, const char *label)
+{
+	fprintf(fd, "%s,%zu.%09zu\n", label, time->tv_sec, time->tv_nsec);
+}
