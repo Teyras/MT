@@ -7,6 +7,8 @@ import os
 from matplotlib import colors
 from pathlib import Path
 
+from helpers import read_isolation_results
+
 
 def background_gradient(s, m, M, low=0, high=0):
     colormap = seaborn.light_palette("red", as_cmap=True)
@@ -63,15 +65,7 @@ def main(filename):
     target_dir = Path.cwd() / "isolation-comparison"
     os.makedirs(str(target_dir), exist_ok=True)
 
-    df = pd.read_csv(filename, header=None, names=[
-        "isolation", "setup_type", "setup_size", "worker", "workload", "input_size", "iteration", "metric", "value"
-    ], dtype=str, engine="c")
-
-    df = df.assign(
-        setup=df["setup_type"] + "," + df["setup_size"],
-        value=df["value"].apply(pd.to_numeric),
-        taskset=df["setup_type"].str.contains("taskset")
-    )
+    df = read_isolation_results(filename)
 
     for metric, values in df.groupby("metric"):
         for aggregation_func in (mad, value_range, np.std):

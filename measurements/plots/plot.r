@@ -169,23 +169,23 @@ plot_all_workloads_by_isolation <- function(dir, plot.function, metric, setup) {
 plot.functions <- c("plot_hist", "plot_boxplot", "plot_mad_over_setup", "plot_points")
 
 # Plot everything!
-#for (workload in workloads) {
-#	for (func.name in plot.functions) {
-#		func <- get(func.name)
-#		plot_workload_by_setup(func.name, func, "cpu", workload)
-#		#plot_workload_by_setup(func.name, func, "iso-cpu", workload)
-#		plot_workload_by_setup(func.name, func, "wall", workload)
-#		#plot_workload_by_setup(func.name, func, "iso-wall", workload)
-#	}
-#}
+for (workload in workloads) {
+	for (func.name in plot.functions) {
+		func <- get(func.name)
+		plot_workload_by_setup(func.name, func, "cpu", workload)
+		#plot_workload_by_setup(func.name, func, "iso-cpu", workload)
+		plot_workload_by_setup(func.name, func, "wall", workload)
+		#plot_workload_by_setup(func.name, func, "iso-wall", workload)
+	}
+}
 
-#for (setup in setups) {
-#	for (func.name in plot.functions) {
-#		func <- get(func.name)
-#		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "cpu", setup)
-#		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "wall", setup)
-#	}
-#}
+for (setup in setups) {
+	for (func.name in plot.functions) {
+		func <- get(func.name)
+		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "cpu", setup)
+		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "wall", setup)
+	}
+}
 
 ggarrange(
 	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker"),
