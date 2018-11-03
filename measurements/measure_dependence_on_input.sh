@@ -2,7 +2,7 @@
 
 root=$(dirname $(realpath $0))
 results_file=$root/results-dependence-on-input.$(date '+%Y-%m-%d_%H:%M:%S').csv
-iter_count=100
+iter_count=300
 
 if [ $# -lt 1 ]; then
 	workloads=$root/workloads.txt
