@@ -4,7 +4,7 @@ geometry: margin=0.8in
 
 # Stability of Time Measurements in Virtualized Environments
 
-The objective of our experiment is to verify that the results of time 
+The objective of our experiment is to verify the claim that the results of time 
 measurements performed on virtual machines tend to be less stable than those 
 performed with direct access to the hardware. In this context, less stable means 
 that the measured values tend to differ when the experiment is repeated. We also 
@@ -168,16 +168,16 @@ according to the recommendations by the authors of isolate in its documentation:
 - kernel address space randomization is disabled
 - transparent hugepage support is disabled
 
-The exact method of distributing the workloads over CPU cores when measuring 
-with `taskset` can be seen in the `distribute_workers.sh` script. The main idea 
-is that the workloads should be distributed evenly over physical CPUs (i.e. each 
-CPU should have the same amount of workloads running on it and it does not 
-matter which CPU cores in the same socket we choose because the cores only share 
-the last level cache and it is shared between all the cores). This script might 
-require adjustments if we replicate this experiment on other CPUs as it does not 
-cover all possible CPU configurations.
-
-<!-- TODO maybe we are using HT pairs unnecessarily. -->
+The exact method of distributing the workloads over CPU cores when measuring
+with `taskset` can be seen in the `distribute_workers.sh` script. The main idea
+is that the workloads should be distributed evenly over physical CPUs (i.e. each
+CPU should have the same amount of workloads running on it and it does not
+matter which CPU cores in the same socket we choose because the cores only share
+the last level cache and it is shared between all the cores). It is also
+noteworthy that we do not run multiple measurements of the same physical core
+(using hyperthreading) unless absolutely necessary. The script might require
+adjustments if we replicate this experiment on other CPUs as it does not attempt
+to cover all possible CPU configurations.
 
 ## Preliminary Checks
 
@@ -458,12 +458,12 @@ that our measurements will become too unstable.
 
 ![A scatter plot of time measurements with fixed CPU affinities grouped by isolation for chosen setups and workloads with points color-coded by parallel worker \label{isolation-comparison-taskset}](isolation-comparison-taskset.png)
 
-Process schedulers in modern operating systems for multi-CPU systems are complex 
-software that relies on sophisticated algorithms. Trying to bypass the scheduler 
-by pinning worker processes to CPUs with taskset would not be generally 
-recommended. However, schedulers are not concerned about measurement stability 
-when they assign processes to CPU cores, so it makes sense to examine the 
-effects of setting the CPU affinity explicitly.
+Process schedulers in modern operating systems for multi-CPU systems are complex
+software that relies on sophisticated algorithms. Trying to bypass the scheduler
+by pinning worker processes to CPUs with taskset would not be generally
+recommended. However, schedulers are typically not concerned with measurement
+stability when they assign processes to CPU cores, so it makes sense to examine
+the effects of setting the CPU affinity explicitly.
 
 <!-- TODO some citation would be lovely here -->
 
