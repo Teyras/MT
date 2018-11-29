@@ -11,6 +11,7 @@ theme_set(theme_grey(base_size=8))
 values <- load.stability.results(filename.from.args())
 workloads <- unique(values$workload)
 isolations <- unique(values$isolation)
+setup_types <- unique(values$setup_type)
 setups <- unique(values$setup)
 
 plot_hist <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
@@ -84,8 +85,17 @@ make_na_plot <- function(title, metric, limit) {
 }
 
 # Plots a subset of the data (see the arguments)
-make_plot_by_setup <- function (plot.function, metric, workload, isolation, limit, taskset=FALSE) {
-	subset <- values[values$metric == metric & values$workload == workload & values$isolation == isolation & values$taskset == taskset,]
+make_plot_by_setup <- function (plot.function, setup_type, metric, workload, isolation, limit, taskset=FALSE) {
+	subset <- values[
+			 values$metric == metric & 
+			 values$workload == workload & 
+			 values$isolation == isolation & 
+			 (
+			  (taskset == FALSE & values$setup_type == setup_type) | 
+			  (taskset == TRUE & values$setup_type == paste(setup_type, "taskset", sep="-")) | 
+			  values$setup_type == "single"
+			 )
+		 ,]
 
 	title <- isolation
 	if (taskset) {
@@ -126,24 +136,34 @@ make_plot_by_isolation <- function (plot.function, metric, workload, setup, titl
 
 # Plots a metric for a workload into a file
 plot_workload_by_setup <- function (dir, plot.function, metric, workload) {
-	subset <- values[values$workload == workload & values$metric == metric,]
-	limit <- max(subset$value)
-	plots <- list()
+	for (setup_type in setup_types) {
+		if (grepl("taskset", setup_type)) {
+			next
+		}
 
-	for (isolation in isolations) {
-		plots[[length(plots) + 1]] <- make_plot_by_setup(plot.function, metric, workload, isolation, limit)
-		plots[[length(plots) + 1]] <- make_plot_by_setup(plot.function, metric, workload, isolation, limit, TRUE)
+		subset <- values[
+			 values$workload == workload & 
+			 values$metric == metric & 
+			 (values$setup_type == setup_type | values$setup_type == paste(setup_type, "taskset", sep="-") | values$setup_type == "single")
+		 ,]
+		limit <- max(subset$value)
+		plots <- list()
+
+		for (isolation in isolations) {
+			plots[[length(plots) + 1]] <- make_plot_by_setup(plot.function, setup_type, metric, workload, isolation, limit)
+			plots[[length(plots) + 1]] <- make_plot_by_setup(plot.function, setup_type, metric, workload, isolation, limit, TRUE)
+		}
+
+		plot <- ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
+		annotate_figure(plot, top=paste(workload, metric, sep=", "))
+		plot
+
+		file.name <- paste(setup_type, "-", workload, "-", metric, ".png", sep="")
+		save.path <- paste(dir, gsub("/", "-", file.name), sep="/")
+
+		mkdir(dir)
+		ggsave(save.path, width=10, height=10, units="in")
 	}
-
-	plot <- ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
-	annotate_figure(plot, top=paste(workload, metric, sep=", "))
-	plot
-
-	file.name <- paste(workload, "-", metric, ".png", sep="")
-	save.path <- paste(dir, gsub("/", "-", file.name), sep="/")
-
-	mkdir(dir)
-	ggsave(save.path, width=10, height=10, units="in")
 }
 
 plot_all_workloads_by_isolation <- function(dir, plot.function, metric, setup) {
@@ -166,27 +186,30 @@ plot_all_workloads_by_isolation <- function(dir, plot.function, metric, setup) {
 	ggsave(save.path, width=10, height=10, units="in")
 }
 
-plot.functions <- c("plot_hist", "plot_boxplot", "plot_mad_over_setup", "plot_points")
-
 # Plot everything!
+plot.functions <- c("hist", "boxplot", "mad_over_setup", "points")
+
+# Plots for gauging the effect of setup size for a particular setup type, workload and isolation technique
 for (workload in workloads) {
 	for (func.name in plot.functions) {
-		func <- get(func.name)
-		plot_workload_by_setup(func.name, func, "cpu", workload)
+		func <- get(paste("plot_", func.name, sep=""))
+		plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "cpu", workload)
 		#plot_workload_by_setup(func.name, func, "iso-cpu", workload)
-		plot_workload_by_setup(func.name, func, "wall", workload)
+		plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "wall", workload)
 		#plot_workload_by_setup(func.name, func, "iso-wall", workload)
 	}
 }
 
+# Plots useful for gauging the effect of isolation techniques for a particular workload and setup
 for (setup in setups) {
 	for (func.name in plot.functions) {
-		func <- get(func.name)
-		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "cpu", setup)
-		plot_all_workloads_by_isolation(paste("alt_", func.name, sep=""), func, "wall", setup)
+		func <- get(paste("plot_", func.name, sep=""))
+		plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "cpu", setup)
+		plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "wall", setup)
 	}
 }
 
+# A selection of plots that show the effect of homogenous parallelization on chosen workloads for each isolation technique
 ggarrange(
 	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker"),
 	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker"),
@@ -204,6 +227,7 @@ ggarrange(
 
 ggsave("isolation-comparison.png", width=8, height=11, units="in")
 
+# The same as above, but with taskset
 ggarrange(
 	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker", rainbow=TRUE),
 	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker", rainbow=TRUE),

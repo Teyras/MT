@@ -32,10 +32,17 @@ efficiently.
 ## Experiment Methodology
 
 We shall measure multiple types of workloads under different isolation 
-configurations and system loads. To simulate various levels of system load, we 
-will run multiple instances of the measurements of the same workload in 
-parallel. This is actually a likely scenario -- it often happens that multiple 
-students start submitting solutions to an assignment at the same time.
+configurations and system loads. We will try multiple ways of simulating various 
+levels of system load. First, we will run multiple instances of the measurements 
+of the same workload in parallel. While it might seem artifical, it is actually 
+a likely scenario -- it often happens that multiple students start submitting 
+solutions to an assignment at the same time (for example for in-class 
+assignments). This setup is called `parallel-homogenous` in plots and 
+measurement scripts. Then, we will use the `stress-ng` utility to create 
+multiple configurations of synthetic system loads and run measurements of a 
+single workload. This method is less realistic, but the results might be easier 
+to interpret and reproduce. In plots and measurement scripts, the names of these 
+setups start with `parallel-synth`.
 
 In order to examine the behavior of the system under varying levels of load, we 
 will repeat the measurements with different amounts of workers running in 
@@ -44,10 +51,14 @@ CPU cores so that they exercise all variants of cache utilization. For example,
 on a system with two dual-core CPUs with hyperthreading, we will want to run 1) 
 a single process, 2) two processes (each uses one CPU cache), 3) four processes 
 (two pairs of processes will share the last level cache) and 4) eight processes 
-(one process per hyperthreading core). Launching more processes than there is 
-hyperthreading cores might be an interesting experiment, but there is little 
-value in it because all these processes could not run in parallel at the same 
-time.
+(one process per hyperthreading core). 
+
+Launching more processes than there is hyperthreading cores might be an
+interesting experiment, but there is little value in it because all these
+processes could not run in parallel at the same time. Such configurations would
+be viable if ReCodEx was used for IO-bound tasks more often -- we could have
+more parallel measurements than there are CPU threads running while other
+threads wait for IO.
 
 The parallel workers will be launched using GNU parallel, a relatively 
 lightweight utility that simplifies the task of launching the same process N 
@@ -153,7 +164,7 @@ Due to the CPU topology, we will measure the following parallel configurations:
 - 2 processes (each process can use one whole CPU cache)
 - 4 processes (2 processes share the last-level cache on each CPU)
 - 6 processes (3 processes share the last-level cache on each CPU)
-<!-- - 8 processes (4 processes share the last-level cache on each CPU) -->
+- 8 processes (4 processes share the last-level cache on each CPU)
 - 10 processes (5 processes share the last-level cache on each CPU)
 - 20 processes (one process per physical CPU core, 10 processes share the 
   last-level cache)
@@ -173,11 +184,11 @@ with `taskset` can be seen in the `distribute_workers.sh` script. The main idea
 is that the workloads should be distributed evenly over physical CPUs (i.e. each
 CPU should have the same amount of workloads running on it and it does not
 matter which CPU cores in the same socket we choose because the cores only share
-the last level cache and it is shared between all the cores). It is also
-noteworthy that we do not run multiple measurements of the same physical core
+the last level cache, which is shared by all the cores). It is also noteworthy 
+that we do not run multiple measurements of the same physical core
 (using hyperthreading) unless absolutely necessary. The script might require
-adjustments if we replicate this experiment on other CPUs as it does not attempt
-to cover all possible CPU configurations.
+adjustments if we replicate this experiment on other CPUs with different 
+topologies as it does not attempt to cover all possible CPU configurations.
 
 ## Preliminary Checks
 
@@ -371,6 +382,8 @@ time for selected workloads \label{mean-ci-comparison}
 |parallel-homogenous,20 |bsearch/bsearch 65536_1048576 |lesser         |higher       |higher         |
 |parallel-homogenous,20 |sort/qsort 1048576            |higher         |higher       |higher         |
 
+<!-- TODO update this, +synth setups -->
+
 As to the stability of measurements, it appears that when a single process is 
 running, the measured times do not vary a lot for any of the isolation 
 techniques. However, with as little as two workers running in parallel, we start 
@@ -421,8 +434,53 @@ deviation of CPU time measured with and without isolate for selected workloads
 |parallel-homogenous,10 |sort/insertion_sort 16384     |higher  |higher  |overlap |
 |parallel-homogenous,10 |sort/qsort 1048576            |higher  |overlap |overlap |
 
+<!-- TODO update this table, sort out synth workloads -->
+
 <!-- The last noteworthy observation is that the wall-clock time measurements in 
 VirtualBox seems to have the largest outliers. -->
+
+### Validation of Parallel Worker Results
+
+For the homogenus parallel setup, we needed to make sure that our measurements 
+did actually run in parallel. We calculated the total runtime for all the 
+measurements (the difference between the timestamps of the first and last 
+measured results, regardless of the worker) and the time when all the worker 
+processes ran in parallel (the difference between the timestamps of the last 
+received result of a first iteration and the first received result of a last 
+iteration). We then inspected the ratio of these two numbers.
+
+As we can see in Table \ref{parallel-run-ratios}, this ratio is never smaller 
+than 75% and higher than 90% most of the time. This should guarantee that the
+homogenous parallel measurements are not in fact a sequence of sequential 
+workloads and thus their correspond with reality.
+
+Table: Ratios between total runtime and time spent with all processes running in 
+parallel (truncated, there are over 200 groups) in ascending order
+\label{parallel-run-ratios}
+
+|   setup_size | workload_label                | isolation      | parallel_ratio   |
+|-------------:|:------------------------------|:---------------|:-----------------|
+|           20 | exp/exp_float 65536           | vbox-isolate   | 77.51%           |
+|           20 | sort/insertion_sort 16384     | docker-bare    | 79.94%           |
+|           40 | sort/insertion_sort 16384     | docker-bare    | 81.86%           |
+|           40 | exp/exp_double 65536          | docker-bare    | 82.74%           |
+|           20 | gray/gray2bin 1048576         | docker-bare    | 84.15%           |
+|           40 | exp/exp_float 65536           | docker-bare    | 84.55%           |
+|           40 | gray/gray2bin 1048576         | docker-bare    | 84.93%           |
+|           20 | exp/exp_double 65536          | docker-bare    | 85.42%           |
+|           20 | bsearch/bsearch 65536_1048576 | docker-bare    | 85.60%           |
+|            4 | sort/qsort 1048576            | vbox-bare      | 86.15%           |
+|           20 | sort/qsort 1048576            | docker-bare    | 86.48%           |
+|           20 | exp/exp_float 65536           | docker-bare    | 86.84%           |
+|           40 | sort/insertion_sort 16384     | isolate        | 87.13%           |
+|            4 | gray/gray2bin 1048576         | vbox-bare      | 87.42%           |
+|           40 | exp/exp_double 65536          | docker-isolate | 87.46%           |
+|           10 | exp/exp_float 65536           | vbox-bare      | 87.54%           |
+|            6 | sort/qsort 1048576            | vbox-bare      | 87.54%           |
+|           10 | exp/exp_double 65536          | vbox-bare      | 87.58%           |
+|           40 | sort/qsort 1048576            | docker-bare    | 87.85%           |
+|            8 | gray/gray2bin 1048576         | vbox-bare      | 87.97%           |
+|           20 | sort/qsort 1048576            | vbox-bare      | 88.52%           |
 
 ### Comparing Parallel Worker Results
 
@@ -454,6 +512,9 @@ that our measurements will become too unstable.
 
 <!-- TODO it looks like VirtualBox is doing a little better -->
 
+<!-- TODO find how much does the mean (median?) shift with increasing setup size 
+     -->
+
 ### The Effects of Explicit Affinity Settings
 
 ![A scatter plot of time measurements with fixed CPU affinities grouped by isolation for chosen setups and workloads with points color-coded by parallel worker \label{isolation-comparison-taskset}](isolation-comparison-taskset.png)
@@ -468,8 +529,8 @@ the effects of setting the CPU affinity explicitly.
 <!-- TODO some citation would be lovely here -->
 
 As seen in Figure \ref{isolation-comparison-taskset}, the results of 
-measurements with taskset are very similar to those without explicit affinity 
-settings. It seems that when a worker is pinned to a chosen core, its 
+measurements with taskset are very similar to those without explicit CPU 
+affinity settings. It seems that when a worker is pinned to a chosen core, its 
 measurements appear more stable -- see for example the plot for `exp_float` with 
 4 workers in `docker-bare` and compare it with its counterpart without taskset.
 
@@ -478,7 +539,20 @@ section. In real-world scenarios, we have to consider the measurements from all
 the workers, because a repeated measurement of a submission could be assigned to 
 any worker.
 
-<!-- TODO make a better comparison -->
+For a better insight into the effects of CPU affinity settings, we compared the 
+means and standard deviations of results grouped by workload, isolation and 
+parallel setup, with and without affinity settings. We performed the comparison 
+using confidence intervals obtained from a bootstrap procedure.
+
+In Figure \ref{taskset-comparison}, we can see that the comparison does not seem 
+to yield any definite results for the mean, but the standard deviation is higher 
+for the measurements with explicit affinity settings for about two thirds of the 
+groups. Unfortunetaly, this means that using taskset is detrimental to the 
+stability of the measurements.
+
+![A plot showing the results of a comparison between mean and standard deviation 
+values for measurement with and without taskset 
+\label{taskset-comparison}](taskset-comparison.png)
 
 ## Conclusion
 
@@ -499,4 +573,4 @@ researched further, possibly with newer versions of the kernel.
 
 Second, setting the CPU affinity explicitly does not generally yield any 
 improvements to the overall measurement stability, even though it seems to 
-improve the stability for the inidividual worker processes.
+improve the stability for the individual worker processes.
