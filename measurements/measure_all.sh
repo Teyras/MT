@@ -33,61 +33,56 @@ results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
 function measure_each_isolation() {
 	setup=$1
 	worker_count=$2
-	wrapper_cmd=$3
+	wrapper_cmd="$3"
 	taskset=$4
 
 	cat $workloads | while read workload size iters; do
 		echo ">>> $workload $size $iters ($worker_count workers, $setup)"
 
-		LABEL="bare,$setup" $wrapper_cmd $workers ./measure_workload.sh \
+		LABEL=bare,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL="isolate,$setup" $wrapper_cmd $workers ./measure_workload.sh \
+		LABEL=isolate,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
-		LABEL="docker-bare,$setup" $wrapper_cmd $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL=docker-bare,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL="docker-isolate,$setup" $wrapper_cmd $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL=docker-isolate,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
 
-		if [ "$workers" -le 20 ]; then
-			./start_vbox.sh $workers
-			LABEL="vbox-bare,$setup" $wrapper_cmd $workers $root/run_vbox.sh ./measure_workload.sh \
+		if [ "$worker_count" -le 20 ]; then
+			./start_vbox.sh $worker_count > /dev/null 2>&1
+			LABEL=vbox-bare,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
 				runners/run_baremetal.sh $workload $size $iters >> $results_file < /dev/null
-			LABEL="vbox-isolate,$setup" $wrapper_cmd $workers $root/run_vbox.sh ./measure_workload.sh \
+			LABEL=vbox-isolate,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
 				runners/run_isolate.sh $workload $size $iters >> $results_file < /dev/null
-			./stop_vbox.sh
+			./stop_vbox.sh > /dev/null 2>&1
 		fi
 
 		if [ -z "$taskset" ]; then
 			continue
 		fi
 
-		LABEL="bare,$setup-taskset" $wrapper_cmd --taskset $workers ./measure_workload.sh \
+		LABEL=bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL="isolate,$setup-taskset" $wrapper_cmd --taskset $workers ./measure_workload.sh \
+		LABEL=isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
-		LABEL="docker-bare,$setup-taskset" $wrapper_cmd --taskset $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL=docker-bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL="docker-isolate,$setup-taskset" $wrapper_cmd --taskset $workers ./run_docker.sh ./measure_workload.sh \
+		LABEL=docker-isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
 			runners/run_isolate.sh $workload $size $iters >> $results_file
 	done
 }
 
 # Measure on a single core
-measure_each_isolation "single" 1 "LABEL=$LABEL,1,cpu-0"
+measure_each_isolation "single" 1 $root/measure_single.sh
 
 # Measure a workload under multiple levels of CPU stress
 for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh '--cpu 1'" --taskset
-done
-
-# Measure a workload under multiple levels of memory contention stress
-for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-synth-memcontend" $workers "$root/measure_parallel_synth_stress.sh '--mcontend 1'" --taskset
+	measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset
 done
 
 # Measure a workload under multiple levels of memory copying stress
 for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh '--memcpy 1'" --taskset
+	measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --taskset
 done
 
 # Measure the same workload on multiple cores at once

@@ -26,7 +26,7 @@ fi
 echo "$stress_workers" | parallel -j$(($worker_count - 1)) $stress_cmd > /dev/null 2>&1 &
 sleep 1
 
-WORKER=$cmd_worker LABEL="$LABEL,$worker_count,cpu-$cmd_worker" $cmd
+WORKER=$cmd_worker LABEL=$LABEL,$worker_count,cpu-$cmd_worker $cmd
 
 killall stress-ng
 

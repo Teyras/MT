@@ -23,7 +23,7 @@ for i in $(seq $iterations); do
 		--stdout=/dev/null \
 		--stderr=/box/isolate.err \
 		--dir=/data=$(realpath $(dirname $cmd)) \
-		--run /data/$(basename $cmd) < $data > /dev/null # 2> /dev/null
+		--run /data/$(basename $cmd) < $data > /dev/null 2>&1
 
 	echo "${LABEL},${i},iso-wall,$(cat $META | grep "^time-wall:" | cut -d: -f2)"
 	echo "${LABEL},${i},iso-cpu,$(cat $META | grep "^time:" | cut -d: -f2)"

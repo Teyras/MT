@@ -14,7 +14,7 @@ if [ -n "$taskset" ]; then
 	cmd="taskset -c {} $cmd"
 fi
 
-cmd="WORKER={} LABEL=\"$LABEL,$workers,cpu-{}\" $cmd"
+cmd="WORKER={} LABEL=$LABEL,$workers,cpu-{} $cmd"
 
 
 $(dirname $0)/distribute_workers.sh $workers | parallel -j$workers "$cmd"
