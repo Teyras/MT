@@ -1,0 +1,3 @@
+[submodule "broker_lb/broker"]
+	path = broker_lb/broker
+	url = https://github.com/ReCodEx/broker.git
