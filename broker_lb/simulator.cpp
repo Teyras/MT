@@ -3,6 +3,7 @@
 #include <set>
 
 #include <boost/asio.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "broker/src/broker_connect.h"
 #include "broker/src/handlers/broker_handler.h"
@@ -47,31 +48,32 @@ struct job_compare {
 using job_queue = std::set<simulation_job, job_compare>;
 using job_data = std::map<std::string, simulation_job>;
 
-void load_jobs(job_data &jobs)
+/**
+ * Load jobs from a CSV file where a row contains the arrival time, processing time, and a varying number of columns for headers.
+ */
+void load_jobs(job_data &jobs, std::istream &input)
 {
-    jobs.emplace("job_1", simulation_job{
-        .job_id="job_1",
-        .data={"eval", "job_1", "env=c", ""},
-        .arrival_time=boost::posix_time::milliseconds(100),
-        .processing_time=boost::posix_time::milliseconds(1500),
-        .processing_started_time=boost::posix_time::milliseconds(0)
-    });
+    size_t i = 1;
 
-    jobs.emplace("job_2", simulation_job{
-        .job_id="job_2",
-        .data={"eval", "job_2", "env=c", ""},
-        .arrival_time=boost::posix_time::milliseconds(200),
-        .processing_time=boost::posix_time::milliseconds(1300),
-        .processing_started_time=boost::posix_time::milliseconds(0)
-    });
+    for (std::string line; std::getline(input, line); ) {
+        std::string job_id = "job_" + std::to_string(i);
+        i += 1;
 
-    jobs.emplace("job_3", simulation_job{
-        .job_id="job_3",
-        .data={"eval", "job_3", "env=c", ""},
-        .arrival_time=boost::posix_time::milliseconds(3000),
-        .processing_time=boost::posix_time::milliseconds(500),
-        .processing_started_time=boost::posix_time::milliseconds(0)
-    });
+        std::vector<std::string> entry;
+        boost::split(entry, line, boost::is_any_of(","));
+
+        std::vector<std::string> job_data = {"eval", job_id};
+        job_data.insert(std::end(job_data), std::begin(entry) + 2, std::end(entry));
+        job_data.push_back("");
+
+        jobs.emplace(job_id, simulation_job{
+            .job_id=job_id,
+            .data=job_data,
+            .arrival_time=boost::posix_time::milliseconds(std::stoll(entry[0])),
+            .processing_time=boost::posix_time::milliseconds(std::stoll(entry[1])),
+            .processing_started_time=boost::posix_time::milliseconds(0)
+        });
+    }
 }
 
 class responder {
@@ -258,6 +260,7 @@ int main(int argc, char **argv)
     // Create one of the predefined queue managers
     auto queue = create_queue_manager("multi");
 
+    // Prepare a worker registry
     auto registry = std::make_shared<worker_registry>();
 
     // Create a logger that outputs to stderr
@@ -271,8 +274,9 @@ int main(int argc, char **argv)
     load_workers(handler);
 
     // Load jobs to be simulated
+    std::ifstream jobs_file(argv[1]);
     job_data jobs;
-    load_jobs(jobs);
+    load_jobs(jobs, jobs_file);
 
     boost::asio::io_service io;
 
