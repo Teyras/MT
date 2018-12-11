@@ -1,0 +1,4 @@
+worker_1:
+  hwgroup: group_1
+  headers:
+    - env=c

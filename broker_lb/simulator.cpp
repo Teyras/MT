@@ -5,18 +5,33 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include "broker/src/broker_connect.h"
 #include "broker/src/handlers/broker_handler.h"
 #include "broker/src/queuing/multi_queue_manager.h"
 
 
-void load_workers(broker_handler &handler)
+void load_workers(broker_handler &handler, std::istream &input)
 {
-    handler.on_request(message_container(
-            broker_connect::KEY_WORKERS,
-            "worker_1",
-            {"init", "group_1", "env=c", ""}
-        ), [] (const message_container &) {});
+    auto config = YAML::Load(input);
+
+    for (auto it = std::begin(config); it != std::end(config); ++it) {
+        std::vector<std::string> init_data = {"init", it->second["hwgroup"].as<std::string>()};
+        for (auto it_headers = std::begin(it->second["headers"]); it_headers != std::end(it->second["headers"]); ++it_headers) {
+            init_data.push_back(it_headers->as<std::string>());
+        }
+        init_data.push_back("");
+
+        handler.on_request(
+            message_container(
+                broker_connect::KEY_WORKERS,
+                it->first.as<std::string>(),
+                init_data
+            ),
+            [] (const message_container &) {}
+        );
+    }
 }
 
 std::shared_ptr<queue_manager_interface> create_queue_manager(const std::string &type)
@@ -271,7 +286,8 @@ int main(int argc, char **argv)
     broker_handler handler(config, registry, queue, logger);
 
     // Fill the registry and queue according to specification from the command line
-    load_workers(handler);
+    std::ifstream workers_file(argv[2]);
+    load_workers(handler, workers_file);
 
     // Load jobs to be simulated
     std::ifstream jobs_file(argv[1]);
