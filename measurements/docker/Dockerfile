@@ -5,7 +5,7 @@ RUN echo "deltarpm=0" >> /etc/dnf/dnf.conf \
 	&& dnf -y copr enable semai/ReCodEx \
 	&& dnf -y install isolate \
 	&& dnf -y install stress-ng \
-	&& dnf -y install perf
+	&& dnf -y install sudo perf
 
 ADD . /recodex
 

@@ -27,9 +27,6 @@ popd
 # Prepare vbox VMs
 #./build_vbox.sh
 
-# Make a new file to contain the results
-results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
-
 function measure_each_isolation() {
 	setup=$1
 	worker_count=$2
@@ -72,20 +69,34 @@ function measure_each_isolation() {
 	done
 }
 
-# Measure on a single core
-measure_each_isolation "single" 1 $root/measure_single.sh
+function measure_everything() {
+	# Measure on a single core
+	measure_each_isolation "single" 1 $root/measure_single.sh
 
-# Measure a workload under multiple levels of CPU stress
-for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset
-done
+	# Measure a workload under multiple levels of CPU stress
+	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset
+	done
 
-# Measure a workload under multiple levels of memory copying stress
-for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --taskset
-done
+	# Measure a workload under multiple levels of memory copying stress
+	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --taskset
+	done
 
-# Measure the same workload on multiple cores at once
-for workers in 2 4 6 8 10 20 40; do
-	measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --taskset
-done
+	# Measure the same workload on multiple cores at once
+	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --taskset
+	done
+}
+
+# Make a new file to contain the results
+results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
+
+# Run with perf disabled
+measure_everything
+
+# Make another file to contain the results with perf enabled
+results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
+
+export PERF_OPTS="L1-dcache-loads,L1-dcache-misses,LLC-stores,LLC-store-misses,LLC-loads,LLC-load-misses,page-faults"
+measure_everything
