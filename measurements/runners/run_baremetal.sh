@@ -12,6 +12,7 @@ for i in $(seq $iterations); do
 	perf_wrapper $perf $cmd > /dev/null < $data 2> $err
 
 	cat $err | sed "s@^@$LABEL,${i},@"
+	perf_print $perf | sed "s@^@$LABEL,${i},@"
 done 2>&1
 
 rm $err

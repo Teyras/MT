@@ -3,7 +3,7 @@
 TEMPLATE_FILE=$(dirname $0)/vagrant/template.box
 
 if ! [ -f $TEMPLATE_FILE ]; then
-	VAGRANT_TEMPLATE="VAGRANT_CWD=$(dirname $0)/vagrant/vbox_template vagrant"
+	VAGRANT_TEMPLATE="env VAGRANT_CWD=$(dirname $0)/vagrant/vbox_template vagrant"
 
 	$VAGRANT_TEMPLATE up
 	$VAGRANT_TEMPLATE package

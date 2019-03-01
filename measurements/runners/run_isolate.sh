@@ -17,7 +17,7 @@ for i in $(seq $iterations); do
 	isolate -b $WORKER --cg --init > /dev/null
 	
 	# The --processes option is to prevent "resource temporarily unavailable" errors from execve
-	`#perf_wrapper $perf TODO uncomment when we know how to do perf in isolate` isolate -b $WORKER -M $META \
+	perf_wrapper $perf isolate -b $WORKER -M $META \
 		--cg --cg-timing \
 		--processes=999999 \
 		--stdout=/dev/null \
@@ -30,6 +30,8 @@ for i in $(seq $iterations); do
 	echo "${LABEL},${i},iso-mem,$(cat $META | grep "^cg-mem:" | cut -d: -f2)"
 
 	isolate -b $WORKER --processes=999999 --run /usr/bin/cat /box/isolate.err 2> /dev/null | sed "s@^@$LABEL,${i},@"
+
+	perf_print $perf | sed "s@^@$LABEL,${i},@"
 
 	attempt=0
 	until isolate -b $WORKER --cg --cleanup || test $attempt -ge 5; do
