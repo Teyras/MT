@@ -17,23 +17,24 @@ or code readability, without having to bother with repetitive tasks like
 compiling submitted source code and checking the basic functionality on example 
 inputs and outputs.
 
-This thesis aims to find out if it is viable to design a system for programming 
-assignment evaluation that is flexible enough to work efficiently both on 
-physical, multiprocessor servers and on virtual machines provided by a cloud 
-platform. If it was, it could lead to the creation of a community-driven 
-programmer training platform, thus making education in programming available to 
-the whole world. Also, universities could deploy instances of the system on 
-premise, using their own hardware and possibly customizing it.
+This thesis aims to design a system for programming assignment evaluation that 
+is flexible enough to work efficiently both on physical, multiprocessor servers 
+and on virtual machines provided by a cloud platform. Such system could be used 
+to create a community-driven programmer training platform, thus making education 
+in programming available to the whole world. Additionally, universities could 
+deploy instances of the system on premise, using their own hardware and possibly 
+customizing it.
 
 We assess the viability of such deployments in the context of ReCodEx -- a
 system for evaluation of programming assignments developed at the department of
 the supervisor. There are multiple properties inherent to the problem of
 automated assignment evaluation that complicate efficiently scaling the system. 
-For example, many assignments rely on time measurements being as stable as 
-possible -- without that, it is impossible to reliably test if an algorithm is 
-implemented efficiently. Also, it is necessary to isolate the submitted programs 
-to prevent malicious or ill-designed code from bringing the system down. Various 
-ways of doing this could also impact the results of our measurements.
+For example, many assignments rely on time measurements being stable to a 
+reasonable degree -- without that, it is impossible to reliably test if an 
+algorithm is implemented efficiently. Furthermore, it is necessary to isolate 
+the submitted programs to prevent malicious or ill-designed code from bringing 
+the system down. Various ways of doing this could also impact the results of our 
+measurements.
 
 We examine the possibilities of exploiting both multiprocessor systems and 
 virtual machines created on demand for evaluation of student submissions. The 
@@ -46,10 +47,10 @@ The influence of multiple technologies for isolation and secure execution of
 programs submitted by students on the stability of measurement results is also 
 examined. Among those, both containers and virtual machines are represented. 
 Such technologies are necessary for the robustness of the system, but some of 
-them might also help stabilize time measurements and thus allow for more 
-efficient usage of multiprocessor hardware.
+them might help stabilize time measurements as a side effect and thus allow for 
+more efficient usage of multiprocessor hardware.
 
-We also include a comparison of load balancing strategies in the context of 
+Next, We include a comparison of load balancing strategies in the context of 
 programming assignment solution evaluation, as the choice of a load balancing 
 algorithm greatly affects the overall throughput of the whole system. The 
 comparison also takes into account a possibly heterogenous computing environment 
