@@ -1,0 +1,224 @@
+parallel_1:
+  hwgroup: group_parallel
+  headers:
+    - env=c
+    - env=cpp
+    - threads=16
+parallel_2:
+  hwgroup: group_parallel
+  headers:
+    - env=c
+    - env=cpp
+    - threads=16
+parallel_3:
+  hwgroup: group_parallel
+  headers:
+    - env=c
+    - env=cpp
+    - threads=16
+parallel_4:
+  hwgroup: group_parallel
+  headers:
+    - env=c
+    - env=cpp
+    - threads=16
+common_1:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_2:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_3:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_4:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_5:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_6:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_7:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_8:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_9:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_10:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_11:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_12:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_13:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_14:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_15:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_16:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_17:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_18:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_19:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_20:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_21:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_22:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_23:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_24:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_25:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_26:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_27:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_28:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_29:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_30:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_31:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_32:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_33:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_34:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_35:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_36:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_37:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_38:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_39:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
+common_40:
+  hwgroup: group_common
+  headers:
+    - env=c
+    - threads=1
