@@ -23,7 +23,9 @@ parallel, process isolation could help stabilize the results.
 
 #### UNIX chroot
 
-TODO
+The `chroot` system call changes the root directory of the calling 
+process[@Chroot], thus isolating it from the rest of the system and preventing 
+it from accessing files not needed for assignment evaluation.
 
 #### FreeBSD Jails
 
@@ -86,7 +88,7 @@ system load could help identify which kind of system load influences the
 measurement stability the most.
 
 To create this kind of synthetic system loads, we will use the `stress-ng` 
-utility, and during that, we will run measurements of a single workload. In 
+utility, and along with that, we will run measurements of a single workload. In 
 plots and measurement scripts, the names of these setups start with 
 `parallel-synth`.
 
@@ -107,11 +109,11 @@ would be viable if we included IO-bound workloads in our measurements -- we
 could have more parallel measurements than there are CPU threads, some of which 
 could run while other threads wait for IO.
 
-The parallel workers will be launched using GNU parallel, a relatively 
-lightweight utility that simplifies the task of launching the same process N 
-times in parallel with a variable parameter. There are numerous alternatives to 
-parallel with negligible differences (considering our use-case). In future work, 
-we might evaluate the possible advantages of using these.
+The parallel workers will be launched using GNU parallel[@Parallel], a 
+relatively lightweight utility that simplifies the task of launching the same 
+process N times in parallel with a variable parameter. There are numerous 
+alternatives to parallel with negligible differences (considering our use-case). 
+In future work, we might evaluate the possible advantages of using these.
 
 ### Choice of Workloads
 

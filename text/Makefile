@@ -20,8 +20,8 @@ all: $(NAME).pdf
 # LaTeX must be run twice to get references right
 $(NAME).pdf: $(CONTENT_TEX) $(ATTACHMENTS_TEX) $(NAME).bbl $(NAME).xmpdata
 	pdflatex $(PDFL_FLAGS) $(NAME).tex
-	makeindex -s $(NAME).ist -t $(NAME).glg -o $(NAME).gls $(NAME).glo
-	pdflatex $(PDFL_FLAGS) $(NAME).tex
+	# makeindex -s $(NAME).ist -t $(NAME).glg -o $(NAME).gls $(NAME).glo
+	# pdflatex $(PDFL_FLAGS) $(NAME).tex
 	pdflatex $(PDFL_FLAGS) $(NAME).tex
 
 $(CONTENT_TEX): $(BUILD_DIR) $(CHAPTERS_TEX)

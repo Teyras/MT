@@ -45,7 +45,7 @@
 \usepackage{bm}             % boldface symbols (\bm)
 \usepackage{graphicx}       % embedding of pictures
 \usepackage{fancyvrb}       % improved verbatim environment
-\usepackage{natbib}         % citation style AUTHOR (YEAR), or AUTHOR [NUMBER]
+%\usepackage{natbib}         % citation style AUTHOR (YEAR), or AUTHOR [NUMBER]
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography and the lists
 			    % of figures/tables are included in the table
 			    % of contents
@@ -54,6 +54,10 @@
 \usepackage{paralist}       % improved enumerate and itemize
 \usepackage{xcolor}  % typesetting in color
 \usepackage{longtable}
+
+\usepackage[sorting=none]{biblatex}
+\usepackage{url}
+\bibliography{literature}
 
 %%% Basic information on the thesis
 
@@ -87,7 +91,7 @@
 % An optional dedication: you can thank whomever you wish (your supervisor,
 % consultant, a person who lent the software, etc.)
 \def\Dedication{%
-Dedication.
+	Supervisor, ReCodEx team, KSI for borrowing me the server
 }
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
@@ -121,7 +125,7 @@ Abstract.
 \include{build/thesis_content.combined}
 
 %%% Bibliography
-\include{bibliography}
+\printbibliography[heading=bibintoc]
 
 %%% Figures used in the thesis (consider if this is needed)
 \listoffigures
