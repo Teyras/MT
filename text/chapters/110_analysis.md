@@ -95,13 +95,13 @@ provided hardware virtualization support in later versions.
 
 Virtualization allows to run multiple guest operating systems on a single 
 physical host without modifying them. The guests then operate under an illusion 
-that they are running alone on a physical machine.
+that they are running alone on a physical machine[@IntelVirtualization].
 
 TODO something about trapping interrupts, emulating instructions, ...
 
 Paravirtualization requires the guest operating system to be modified to avoid 
 emulation of some instructions. For example, a block device driver can be 
-implemented by directly calling the virtual machine manager on the host which 
+implemented by directly calling the virtual machine monitor on the host which 
 can keep the data from an emulated drive in a file or in memory. Xen[@Xen] is 
 one of the most prominent pravirtualization technologies.
 
