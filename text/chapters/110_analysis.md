@@ -4,6 +4,10 @@ To explore the influence of aforementioned factors on measurement stability, we
 shall measure a reasonable set of workloads under different types of system load 
 and different isolation technologies.
 
+### Stability-influencing Factors on the Bare Metal
+
+TODO
+
 ### Isolation Technologies
 
 The primary purpose of running submitted code in an isolated environment is to 
@@ -23,52 +27,117 @@ parallel, process isolation could help stabilize the results.
 
 #### UNIX chroot
 
-The `chroot` system call changes the root directory of the calling 
-process[@Chroot], thus isolating it from the rest of the system and preventing 
-it from accessing files not needed for assignment evaluation.
+The `chroot` system call (present in the UNIX specification since version 7, 
+released in 1979) changes the root directory of the calling process[@Chroot], 
+thus isolating it from the rest of the system and preventing it from accessing 
+files not needed for assignment evaluation. Historically, this has been used as 
+an added layer of security for services that handle potentionally dangerous 
+input.
 
-#### FreeBSD Jails
-
-TODO
+Chroot itself however does neither limit resource usage nor provide accounting. 
+Inter-process communication and network access are also not limited.
 
 #### Ptrace-based Isolation
 
-TODO
+The MO system for evaluation of submissions in programming contests contains a 
+sandbox implementation with resource limiting capabilities based on ptrace -- 
+the Linux interface primarily used by userspace debuggers[@MaresPerspectives]. 
+This sandbox was also used in CodEx (a programming assignment evaluator released 
+cca. in 2006) and the CMS contest management system. Ptrace is used to intercept 
+system calls and achieve process isolation and most of the resource limiting 
+functionality uses `ulimit`. A notable problem of this approach is that it does 
+not work well with multithreaded programs.
+
+#### FreeBSD Jails
+
+Jails[@FreeBSDJail] (featured since 2000) expand on the concept of chroots. In 
+addition to confining a process to a part of the filesystem, they also provide 
+network and process isolation and time, memory and disk usage 
+limits[@FreeBSDRLimit].
+
+Many other UNIX systems also have their own implementations of jails, e.g. zones 
+in Solaris or sysjail in OpenBSD and NetBSD.
 
 #### Linux Containers
 
-TODO
+The Linux kernel supports creating containers -- lightweight execution units 
+that can be used for isolation and resource limiting.
+
+Process isolation can be achieved using namespaces, a feature present in the 
+kernel since 2006[@LinuxNamespacesCommit]. These allow locking the process in an 
+environment where communication methods such as networking or reading files 
+seemingly works without restrictions, but the sandboxed process can only 
+communicate with processes in the same namespaces (granular sharing is also 
+possible to allow e.g. connecting to services over the Internet).
+
+Resource limiting and usage accounting is implemented using control groups 
+(cgroups), merged into the kernel in 2007[{LinuxCgroupsLWN}].
+
+It can be reasoned that these measures should not have any noticeable overhead, 
+at least compared to processes running in the global process namespace and 
+cgroup. After all, the global namespace is still a namespace.
+
+TODO LXC
+
+TODO Docker
+
+TODO Isolate (used for measurements and isolation in ReCodEx)
+
+TODO Charliecloud and Singularity
+
+There were efforts to implement container support in Linux even before the 
+inception of namespaces and cgroups. Possibly the most widely adopted one was 
+OpenVZ[@OpenVZ] (released in 2005, based on commercial Virtuozzo from 2000). It 
+shipped a modified Linux kernel that enabled container isolation and also 
+provided hardware virtualization support in later versions.
 
 #### Virtualization and Paravirtualization
 
-TODO
+Virtualization allows to run multiple guest operating systems on a single 
+physical host without modifying them. The guests then operate under an illusion 
+that they are running alone on a physical machine.
+
+TODO something about trapping interrupts, emulating instructions, ...
+
+Paravirtualization requires the guest operating system to be modified to avoid 
+emulation of some instructions. For example, a block device driver can be 
+implemented by directly calling the virtual machine manager on the host which 
+can keep the data from an emulated drive in a file or in memory. Xen[@Xen] is 
+one of the most prominent pravirtualization technologies.
 
 TODO how these might affect measurements
 
-We will be measuring the effects on the stability of time measurements of the 
-following isolation technologies:
+#### The Selection for our Measurements
+
+From the survey of possible approaches to process isolation, we have selected 
+the following technologies for our measurements:
 
 - Bare metal -- no isolation at all (used as a reference value).
-- Isolate -- a thin wrapper around CGroups and kernel namespaces that is used by 
-  ReCodEx both for isolated execution of untrusted code and for measuring its 
-  performance.
+- Isolate -- a sandbox solution used in ReCodEx and other systems (such as CMS 
+  or Kattis)
 - Docker -- the most popular container platform as of today.
 - Isolate in Docker -- a combination that might be used to support user-supplied 
   runtime environments in ReCodEx. Isolate might still be necessary to protect 
   the insides of the container from the code supplied by students (an attacker 
   that gains control of the container could e.g. report any grades they like to 
-  the rest of the system).
+  the rest of the system) and to measure resource usage.
 - VirtualBox -- a readily available "user-grade" virtualization solution. We 
   will manage our VMs using Vagrant so that we can easily take measurements of 
   other virtualization platforms if necessary.
 - Isolate in VirtualBox -- the reasoning for adding isolate is the same as with 
   Docker.
 
+An important deciding factor in the selection of isolation technologies was the 
+fact that the computer performing the measurements runs on GNU/Linux, which 
+disqualifies technologies like FreeBSD jails.
+
 The measured data will be compared to values measured on the bare metal. 
 Measurements will also be performed with manually configured CPU affinities to 
 see if such configuration has any effect on the stability of time measurements. 
 Setting the affinity for VirtualBox VMs is very difficult when parallel 
 processes are involved, so this setup will not be included in the experiment.
+
+TODO numa nodes?
 
 ### Types and Levels of System Load
 
