@@ -17,12 +17,13 @@ for i in $(seq $iterations); do
 	isolate -b $WORKER --cg --init > /dev/null
 	
 	# The --processes option is to prevent "resource temporarily unavailable" errors from execve
-	perf_wrapper $perf isolate -b $WORKER -M $META \
+	perf_wrapper $perf isolate -b $WORKER -E HOME=/box -M $META \
 		--cg --cg-timing \
 		--processes=999999 \
 		--stdout=/dev/null \
 		--stderr=/box/isolate.err \
 		--dir=/data=$(realpath $(dirname $cmd)) \
+		--dir=/etc/alternatives=/etc/alternatives \
 		--run /data/$(basename $cmd) < $data > /dev/null 2>&1
 
 	echo "${LABEL},${i},iso-wall,$(cat $META | grep "^time-wall:" | cut -d: -f2)"
