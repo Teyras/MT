@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     raise Vagrant::Errors::VagrantError.new, "MEASUREMENTS_ROOT env var not set"
   end
 
-  (0..39).each do |i|
+  (0..19).each do |i|
     config.vm.define "vbox_#{i}" do |vbox|
       vbox.vm.box = "recodex-measurements-template"
       vbox.vm.box_url = "file://#{ENV["MEASUREMENTS_ROOT"]}/vagrant/template.box"
