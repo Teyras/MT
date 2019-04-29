@@ -96,7 +96,7 @@ results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
 measure_everything
 
 # Make another file to contain the results with perf enabled
-results_file=$root/results.$(date '+%Y-%m-%d_%H:%M:%S').csv
+results_file=$root/results-perf.$(date '+%Y-%m-%d_%H:%M:%S').csv
 
 export PERF_OPTS="L1-dcache-loads,L1-dcache-misses,LLC-stores,LLC-store-misses,LLC-loads,LLC-load-misses,page-faults"
 measure_everything
