@@ -21,7 +21,7 @@ filename.from.args <- function () {
 }
 
 load.stability.results <- function(file) {
-	values <- read.csv(file, header=FALSE)
+	values <- read.csv(file, header=FALSE, stringsAsFactors=FALSE)
 	names(values) = c("isolation", "setup_type", "setup_size", "worker", "workload", "input_size", "iteration", "metric", "value")
 	values$value <- as.numeric(values$value)
 	values$setup <- paste(values$setup_type, values$setup_size, sep=",")

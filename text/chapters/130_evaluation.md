@@ -100,7 +100,7 @@ VirtualBox. The difference between the `isolate` and `docker-bare` setups is
 rather strange because both of these technologies use the same kernel facilities 
 to achieve isolation.
 
-To verify this in a more formal way, we compared boostrapped 0.95 confidence 
+To verify this in a more formal way, we compared bootstrapped 0.95 confidence 
 intervals of the mean for the `bare`, `docker-bare` and `vbox-bare` isolation 
 setups. As shown by Table \ref{mean-ci-comparison}, the comparison confirmed our 
 observation, although the difference between the means of bare-metal 

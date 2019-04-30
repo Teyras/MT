@@ -26,6 +26,12 @@
 - This could help eliminate outliers and give more reliable results
 - The cost here is that the evaluation would take much more time, which leads to 
   higher utilization of the infrastructure and longer response time
+- If the solution yields incorrect results, we can say it after the first 
+  iteration
+- We can display a probably OK/probably not OK until all iterations are finished 
+  so that the user gets at least some feedback quickly
+- There multiple ways to implement this - in job config creation, in job 
+  submission, ...
 
 ## Measured Data
 

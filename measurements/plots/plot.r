@@ -35,6 +35,27 @@ plot_boxplot <- function(subset, subset_single, title, metric, limit, limit_min=
 	return(plot)
 }
 
+plot_violin_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+	plot <- ggplot(subset, aes(x="", y=value)) +
+		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
+		theme(text=element_text(size=6)) +
+		geom_violin(draw_quantiles=c(0.5)) +
+		ylim(limit_min, limit) +
+		facet_grid(cols=vars(subset$category), rows=vars(subset$setup_size))
+
+	return(plot)
+}
+
+plot_hist_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+	plot <- ggplot(subset, aes(subset$value)) +
+		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
+		theme(text=element_text(size=6)) +
+		geom_histogram(breaks=seq(0, limit, by=limit/30)) +
+		facet_grid(cols=vars(subset$category), rows=vars(subset$setup_size))
+
+	return(plot)
+}
+
 plot_points <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
 	iters <- max(subset$iteration)
 
@@ -70,6 +91,22 @@ plot_mad_over_setup <- function(subset, subset_single, title, metric, limit, lim
 		geom_point(data=data_single) +
 		geom_text_repel(data=data_single, aes(label=sprintf("%0.3f", value)), size=2) +
 		geom_hline(yintercept=0.05, color="red", linetype="dashed")
+
+	return(plot)
+}
+
+plot_median_over_setup <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+	data <- aggregate(value ~ category, subset, median)
+	data_single <- aggregate(value ~ category, subset_single, median)
+	plot <- ggplot(data, aes(x=category, y=value, group=1)) +
+		labs(title=title, y=paste("mad(", metric, ") [s]", sep=""), x="") +
+		theme(text=element_text(size=6)) +
+		geom_path() + 
+		geom_point() +
+		geom_text_repel(aes(label=sprintf("%0.3f", value)), size=2) +
+		geom_path(data=data_single, color="blue") + 
+		geom_point(data=data_single) +
+		geom_text_repel(data=data_single, aes(label=sprintf("%0.3f", value)), size=2)
 
 	return(plot)
 }
@@ -114,8 +151,10 @@ make_plot_by_setup <- function (plot.function, setup_type, metric, workload, iso
 	return(plot.function(subset, subset_single, title, metric, limit))
 }
 
-make_plot_by_isolation <- function (plot.function, metric, workload, setup, title=NULL, rainbow=FALSE) {
-	subset <- values[values$metric == metric & values$workload == workload & values$setup == setup, ]
+make_plot_by_isolation <- function (plot.function, metric, workload, setup, title=NULL, rainbow=FALSE, subset=NULL) {
+	if (is.null(subset)) {
+		subset <- values[values$metric == metric & values$workload == workload & values$setup == setup, ]
+	}
 
 	if (is.null(title)) {
 		title <- workload
@@ -186,61 +225,114 @@ plot_all_workloads_by_isolation <- function(dir, plot.function, metric, setup) {
 	ggsave(save.path, width=10, height=10, units="in")
 }
 
-# Plot everything!
-plot.functions <- c("hist", "boxplot", "mad_over_setup", "points")
+# Plotting functions
+plot_various_stats <- function() {
+	plot.functions <- c("hist", "boxplot", "mad_over_setup", "points")
+	plot.functions <- c("median_over_setup")
 
 # Plots for gauging the effect of setup size for a particular setup type, workload and isolation technique
-for (workload in workloads) {
-	for (func.name in plot.functions) {
-		func <- get(paste("plot_", func.name, sep=""))
-		plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "cpu", workload)
-		#plot_workload_by_setup(func.name, func, "iso-cpu", workload)
-		plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "wall", workload)
-		#plot_workload_by_setup(func.name, func, "iso-wall", workload)
+# TODO the other way of plotting is probably more useful
+	for (workload in workloads) {
+		for (func.name in plot.functions) {
+			func <- get(paste("plot_", func.name, sep=""))
+			plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "cpu", workload)
+			#plot_workload_by_setup(func.name, func, "iso-cpu", workload)
+			plot_workload_by_setup(paste("iso_by_setup_", func.name, sep=""), func, "wall", workload)
+			#plot_workload_by_setup(func.name, func, "iso-wall", workload)
+		}
 	}
-}
 
 # Plots useful for gauging the effect of isolation techniques for a particular workload and setup
-for (setup in setups) {
-	for (func.name in plot.functions) {
-		func <- get(paste("plot_", func.name, sep=""))
-		plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "cpu", setup)
-		plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "wall", setup)
+	for (setup in setups) {
+		for (func.name in plot.functions) {
+			func <- get(paste("plot_", func.name, sep=""))
+			plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "cpu", setup)
+			plot_all_workloads_by_isolation(paste("wl_by_iso_", func.name, sep=""), func, "wall", setup)
+		}
 	}
 }
 
+plot_by_setup_type_and_size <- function(metric, dir, plot.function) {
+	for (setup_type in setup_types) {
+		subset <- values[values$setup_type == setup_type & values$metric == metric,]
+		limit <- max(subset$value)
+		plots <- list()
+
+		for (workload in workloads) {
+			subset_by_workload <- subset[subset$workload == workload, ]
+			plots[[length(plots) + 1]] <- make_plot_by_isolation(plot.function, metric, workload, setup_type, subset=subset_by_workload)
+		}
+
+		plot <- ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
+		annotate_figure(plot, top=paste(setup_type, metric, sep=", "))
+		plot
+
+		file.name <- paste(setup_type, "-", metric, ".png", sep="")
+		save.path <- paste(dir, gsub("/", "-", file.name), sep="/")
+
+		mkdir(dir)
+		ggsave(save.path, width=10, height=10, units="in")
+	}
+}
+
+plot_perf_metrics <- function() {
+# Plots that show a comparison of various perf metrics for each isolation and setup
+	perf.metrics <- c("L1-dcache-loads", "L1-dcache-misses", "LLC-stores", "LLC-store-misses", "LLC-loads", "LLC-load-misses", "page-faults")
+
+	for (metric in perf.metrics) {
+		plot_by_setup_type_and_size(metric, "plot_perf", plot_violin_by_setup_size)
+	}
+}
+
+plot_times_by_setup_size <- function() {
+# Plots for gauging the effect of setup size for a particular setup type, workload and isolation technique
+	for (metric in c("cpu", "wall", "iso-cpu", "iso-wall")) {
+		plot_by_setup_type_and_size(metric, "plot_times_by_setup", plot_hist_by_setup_size)
+	}
+}
+
+plot_paralelization <- function() {
 # A selection of plots that show the effect of homogenous parallelization on chosen workloads for each isolation technique
-ggarrange(
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker"),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker"),
+	ggarrange(
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker"),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker"),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,2", "exp_float, 2 workers"),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,2", "bsearch, 2 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,2", "exp_float, 2 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,2", "bsearch, 2 workers"),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,4", "exp_float, 4 workers"),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,4", "bsearch, 4 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,4", "exp_float, 4 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,4", "bsearch, 4 workers"),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,10", "exp_float, 10 workers"),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,10", "bsearch, 10 workers"),
-	  nrow=4, ncol=2
-)
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,10", "exp_float, 10 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,10", "bsearch, 10 workers"),
+		  nrow=4, ncol=2
+	)
 
-ggsave("isolation-comparison.png", width=8, height=11, units="in")
+	ggsave("isolation-comparison.png", width=8, height=11, units="in")
 
 # The same as above, but with taskset
-ggarrange(
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker", rainbow=TRUE),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker", rainbow=TRUE),
+	ggarrange(
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker", rainbow=TRUE),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,2", "exp_float, 2 workers", rainbow=TRUE),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,2", "bsearch, 2 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,2", "exp_float, 2 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,2", "bsearch, 2 workers", rainbow=TRUE),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,4", "exp_float, 4 workers", rainbow=TRUE),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,4", "bsearch, 4 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,4", "exp_float, 4 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,4", "bsearch, 4 workers", rainbow=TRUE),
 
-	  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,10", "exp_float, 10 workers", rainbow=TRUE),
-	  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,10", "bsearch, 10 workers", rainbow=TRUE),
-	  nrow=4, ncol=2
-)
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,10", "exp_float, 10 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,10", "bsearch, 10 workers", rainbow=TRUE),
+		  nrow=4, ncol=2
+	)
 
-ggsave("isolation-comparison-taskset.png", width=8, height=11, units="in")
+	ggsave("isolation-comparison-taskset.png", width=8, height=11, units="in")
+}
+
+if (sys.nframe() == 0) {
+	# Plot everything!
+	#plot_various_stats()
+	#plot_perf_metrics()
+	plot_times_by_setup_size()
+	#plot_paralelization()
+}

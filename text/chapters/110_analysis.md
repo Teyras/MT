@@ -71,11 +71,12 @@ communicate with processes in the same namespaces (granular sharing is also
 possible to allow e.g. connecting to services over the Internet).
 
 Resource limiting and usage accounting is implemented using control groups 
-(cgroups), merged into the kernel in 2007[{LinuxCgroupsLWN}].
+(cgroups), merged into the kernel in 2007[@LinuxCgroupsLWN].
 
 It can be reasoned that these measures should not have any noticeable overhead, 
 at least compared to processes running in the global process namespace and 
-cgroup. After all, the global namespace is still a namespace.
+cgroup. After all, the global namespace is still a namespace. TODO better words, 
+maybe cite something.
 
 TODO LXC
 
@@ -137,7 +138,13 @@ see if such configuration has any effect on the stability of time measurements.
 Setting the affinity for VirtualBox VMs is very difficult when parallel 
 processes are involved, so this setup will not be included in the experiment.
 
-TODO numa nodes?
+The Linux kernel also allows setting per-process NUMA affinity, which determines 
+which memory nodes should be used by the process. Restricting a process to the 
+memory node that belongs to the CPU where it is running is certainly reasonable. 
+Since this is the default policy in Linux[@NumaMemPolicy], we will not measure 
+the setup where the CPU affinity is already set explicitly. However, we will 
+experiment with setting the NUMA affinity without an explicit CPU affinity (i.e. 
+restricting a process to a memory node and not to a CPU).
 
 ### Types and Levels of System Load
 
@@ -233,9 +240,16 @@ TODO forward declaration of ReCodEx?
 
 Most workloads will be implemented in C, which promises a relatively small 
 overhead induced by the runtime environment (at least compared to managed 
-languages).
+languages). We will also include a quicksort implementation in Java and Python 
+in our measurements to see how the stability of measurements is affected by the 
+implementation language.
 
-TODO also Java and Python
+It is necessary to measure with multiple languages because computer science 
+programs at universities typically do not teach just a single language. 
+Admittedly, most courses concerned with the precision of measurements will use 
+low-level languages where we expect that the measurement stability will be 
+similar to C. However, finding that interpreted languages perform worse in terms 
+of measurement stability would raise a major concern.
 
 ### Measured Data
 
@@ -253,7 +267,14 @@ at all), yet we want to use these setups in our comparison. Measuring all this
 data also lets us examine the overhead caused by isolate and any potential 
 discrepancies between the values.
 
-TODO perf statistics
+Along with the measurements themselves, we will collect performance data using 
+the `perf` tool that provides access to performance counters in the Linux 
+kernel. We will focus on events that are known to cause unstable runtimes, such 
+as cache misses and page faults (although our workloads are not very likely to 
+generate a notable amount of page faults). The measurements with `perf` enabled 
+will be run separately to make sure that the profiling does not influence our 
+results. With this data, we will have a better insight into the causes of 
+potential unstable measurements.
 
 ## Hardware and OS Configuration
 
