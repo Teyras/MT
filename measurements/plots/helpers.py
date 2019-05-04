@@ -8,7 +8,8 @@ def read_isolation_results(filename: str):
     df = df.assign(
         setup=df["setup_type"] + "," + df["setup_size"],
         value=df["value"].apply(pd.to_numeric),
-        taskset=df["setup_type"].str.contains("taskset")
+        taskset=df["setup_type"].str.contains("taskset"),
+        numa=df["setup_type"].str.contains("numa")
     )
 
     return df

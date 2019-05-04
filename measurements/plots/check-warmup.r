@@ -64,7 +64,7 @@ for (row_workloads in 1:nrow(workloads)) {
 }
 
 ggarrange(plotlist=plots, ncol=2, nrow=length(plots) / 2)
-ggsave(gsub("/", "-", paste("warmup", ".png", sep="")), width=10, height=10, units="in")
+ggsave(gsub("/", "-", paste("warmup", ".png", sep="")), width=5.5, height=9, units="in")
 
 plot.rolling.sd(values[
 	values$metric == "cpu" & 
@@ -72,4 +72,4 @@ plot.rolling.sd(values[
 	values$input_size == "65536_1048576"
 , ], title="")
 
-ggsave(gsub("/", "-", paste("warmup-bsearch", ".png", sep="")), width=7, height=4, units="in")
+ggsave(gsub("/", "-", paste("warmup-bsearch", ".png", sep="")), width=5.5, height=4, units="in")

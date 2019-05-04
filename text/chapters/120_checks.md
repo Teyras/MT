@@ -18,24 +18,20 @@ that the measurement take the same amount of time on every repetition.
 To see if the input sizes we chose are sufficient, we measured the execution 
 time of each workload (100 iterations) on 300 randomly generated input files and 
 calculated the mean and standard deviation of the measurements for each of the 
-inputs. As we see in Figure \ref{dep-input-mean}, the mean execution time does 
-not vary a lot -- the range between the minimum and maximum time stays close to 
-2ms. However, as shown by Figure \ref{dep-input-sd}, the range of standard 
-deviations is rather large, reaching up to 11ms. After inspecting the histogram 
-(Figure \ref{dep-input-hist}) of the deviations, we found that this is due to a 
-small number of outliers. We conclude that the input data has a neglible effect 
-on the execution time, even though there is a handful of inputs for the `qsort`, 
-`bsearch` and `gray2bin` workloads on which the time measurements are unusually 
-unstable.
+inputs. As we see in Figure \ref{dep-input-mean}, the mean execution time almost 
+does not vary -- even outliers are within milliseconds from the median of the 
+means. However, as shown by Figure \ref{dep-input-sd}, the range of standard 
+deviations is rather large, reaching up to 11ms. Upon closer inspection, we 
+found that this is due to a small number of outliers. We conclude that the input 
+data has a neglible effect on the execution time, even though there is a handful 
+of inputs for the `qsort`, `bsearch` and `gray2bin` workloads on which the time 
+measurements exhibit a notably higher standard deviation.
 
-![The min-max range of mean times for each workload 
+![A box plot of the iteration means of CPU time for each workload 
 \label{dep-input-mean}](img/stability/dependence-on-input-means.png)
 
-![The min-max range of standard deviations of times for each workload 
+![A box plot of the iteration standard deviations of CPU time for each workload 
 \label{dep-input-sd}](img/stability/dependence-on-input-sds.png)
-
-![A histogram of standard deviations of execution times for each input 
-\label{dep-input-hist}](img/stability/dependence-on-input-sds-histogram.png)
 
 ### Detecting "Warming up"
 
@@ -45,14 +41,22 @@ measurements are not influenced by e.g. initialization of the runtime
 environment or population of caches.
 
 We expect that warming up will not occur in our experiment because each 
-iteration runs in a separate process, but it is still necessary to verify this 
-assumption. To do so, we compute the standard deviation of a sliding window of 
-10 observations and compare it to the standard deviation of the whole sample. 
-This is done for the single process measurement of each workload on the bare 
-metal.
+iteration runs in a separate process and actual submissions are different 
+binaries. However, factors exist that could also cause this phenomenon. For 
+example, if the submission read a very large input file, it would have to wait 
+for it to be read from the disk, but subsequent submissions could probably get 
+it from the disk cache. Also, many successive submissions of a short program 
+could vary in their runtime thanks to CPU frequency scaling. Therefore, it is 
+still necessary to verify whether or not warming up occurs.
 
-![Running SD (black) vs. total SD (blue) for the binary search 
-workload](img/stability/warmup-bsearch.png)
+To do so, we compute the standard deviation of a sliding window of 10 
+observations and compare it to the standard deviation of the whole sample. This 
+is done for the single process measurement of each workload on the bare metal.
+
+TODO skip the running SD, explain how we test the stuff we're concerned about
+
+![Running SD (black) vs. total SD (blue) for the binary search workload TODO 
+replace with multiple scatter plots](img/stability/warmup-bsearch.png)
 
 The plot for the binary search workload shows us that the rolling standard 
 deviation is not clearly higher at the beginning of the measurement sequence 

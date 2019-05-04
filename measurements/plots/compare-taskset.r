@@ -9,6 +9,7 @@ library("tidyr")
 source("helpers.r")
 
 values <- load.stability.results(filename.from.args())
+values <- values[values$numa == F,]
 values$setup_type_raw <- gsub("-taskset$", "", values$setup_type)
 values$setup_label <- paste(values$setup_type_raw, values$setup_size, sep=",")
 
@@ -129,5 +130,5 @@ ggplot(plot.data, aes(x="", fill=value)) +
 	geom_bar(width=1, stat="count") +
 	facet_grid(cols=vars(plot.data$key))
 
-ggsave("taskset/taskset-comparison.png")
+ggsave("taskset/taskset-comparison.png", width=5.5, height=4, units="in")
 

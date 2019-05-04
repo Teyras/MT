@@ -167,7 +167,7 @@ make_plot_by_isolation <- function (plot.function, metric, workload, setup, titl
 		return(make_na_plot(title, metric, limit_max))
 	}
 
-	subset$category <- factor(subset$isolation, levels=unique(subset$isolation))
+	subset$category <- factor(subset$isolation.short, levels=unique(subset$isolation.short))
 	subset_single <- subset[subset$worker == subset$worker[1],]
 
 	return(plot.function(subset, subset_single, title, metric, limit_max, limit_min, rainbow))
@@ -228,7 +228,7 @@ plot_all_workloads_by_isolation <- function(dir, plot.function, metric, setup) {
 # Plotting functions
 plot_various_stats <- function() {
 	plot.functions <- c("hist", "boxplot", "mad_over_setup", "points")
-	plot.functions <- c("median_over_setup")
+	#plot.functions <- c("median_over_setup")
 
 # Plots for gauging the effect of setup size for a particular setup type, workload and isolation technique
 # TODO the other way of plotting is probably more useful
@@ -308,7 +308,7 @@ plot_paralelization <- function() {
 		  nrow=4, ncol=2
 	)
 
-	ggsave("isolation-comparison.png", width=8, height=11, units="in")
+	ggsave("isolation-comparison.png", width=5.5, height=9, units="in")
 
 # The same as above, but with taskset
 	ggarrange(
@@ -326,13 +326,12 @@ plot_paralelization <- function() {
 		  nrow=4, ncol=2
 	)
 
-	ggsave("isolation-comparison-taskset.png", width=8, height=11, units="in")
+	ggsave("isolation-comparison-taskset.png", width=5.5, height=9, units="in")
 }
 
 if (sys.nframe() == 0) {
 	# Plot everything!
-	#plot_various_stats()
-	#plot_perf_metrics()
+	plot_various_stats()
 	plot_times_by_setup_size()
-	#plot_paralelization()
+	plot_paralelization()
 }

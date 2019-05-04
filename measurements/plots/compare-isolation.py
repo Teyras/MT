@@ -41,7 +41,7 @@ def process(result_file, aggregation_func, values):
     for workload, frame in values.groupby(["workload", "input_size"]):
         for taskset in (False, True):
             worker = frame.iloc[0]["worker"]
-            value_group = frame[(frame["taskset"] == taskset) & (frame["worker"] == worker)]
+            value_group = frame[(frame["taskset"] == taskset) & (frame["worker"] == worker) & (frame["numa"] == False)]
 
             colnames = list(value_group.groupby(["setup", "setup_size"]).groups.keys())
             colnames.sort(key=lambda row: int(row[1]))

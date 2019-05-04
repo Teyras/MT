@@ -13,7 +13,7 @@ APPENDICES_TEX = $(or $(APPENDICES:%=$(BUILD_DIR)/%.tex),/dev/null)
 CONTENT_TEX = $(BUILD_DIR)/$(NAME)_content.combined.tex
 ATTACHMENTS_TEX= $(BUILD_DIR)/$(NAME)_attachments.combined.tex
 PDFL_FLAGS = -jobname $(NAME)
-PANDOC_MD_FLAGS = -f markdown -t latex --top-level-division=chapter --biblatex --biblio $(BIB)
+PANDOC_MD_FLAGS = -f markdown -t latex --top-level-division=chapter --biblatex --biblio $(BIB) --filter pandoc-include
 
 all: $(NAME).pdf
 
