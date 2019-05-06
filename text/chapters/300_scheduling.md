@@ -1,3 +1,4 @@
 # Selection of a Scheduling Algorithm
 
-asdf
+In this chapter, we evaluate various scheduling (load balancing) algorithms in 
+the context of automated programming assignment evaluation.
