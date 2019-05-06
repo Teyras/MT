@@ -15,13 +15,14 @@
 void load_workers(broker_handler &handler, std::istream &input)
 {
     auto config = YAML::Load(input);
+    auto workers = config["workers"];
 
-    for (auto it = std::begin(config); it != std::end(config); ++it) {
+    for (auto it = std::begin(workers); it != std::end(workers); ++it) {
         std::vector<std::string> init_data = {"init", it->second["hwgroup"].as<std::string>()};
         for (auto it_headers = std::begin(it->second["headers"]); it_headers != std::end(it->second["headers"]); ++it_headers) {
             init_data.push_back(it_headers->as<std::string>());
         }
-        init_data.push_back("");
+        init_data.emplace_back("");
 
         handler.on_request(
             message_container(
@@ -60,7 +61,7 @@ struct job_compare {
     }
 };
 
-using job_queue = std::set<simulation_job, job_compare>;
+using job_queue = std::multiset<simulation_job, job_compare>;
 using job_data = std::map<std::string, simulation_job>;
 
 /**
@@ -69,17 +70,22 @@ using job_data = std::map<std::string, simulation_job>;
 void load_jobs(job_data &jobs, std::istream &input)
 {
     size_t i = 1;
+    const auto ws = "\t\n\v\f\r ";
 
     for (std::string line; std::getline(input, line); ) {
         std::string job_id = "job_" + std::to_string(i);
         i += 1;
+
+        // Trim whitespace
+        line.erase(0, line.find_first_not_of(ws));
+        line.erase(line.find_last_not_of(ws) + 1);
 
         std::vector<std::string> entry;
         boost::split(entry, line, boost::is_any_of(","));
 
         std::vector<std::string> job_data = {"eval", job_id};
         job_data.insert(std::end(job_data), std::begin(entry) + 2, std::end(entry));
-        job_data.push_back("");
+        job_data.emplace_back("");
 
         jobs.emplace(job_id, simulation_job{
             .job_id=job_id,
@@ -188,27 +194,33 @@ public:
 
     void send_jobs()
     {
-        if (incoming_jobs_.size() == 0) {
+        if (incoming_jobs_.empty()) {
             is_terminating_ = true;
             return;
         }
 
-        auto job = std::begin(incoming_jobs_);
-        handler_.on_request(message_container(broker_connect::KEY_CLIENTS, "", job->data), [this] (const auto &message) {
-            respond(message);
-        });
+        auto next_job = std::begin(incoming_jobs_);
 
-        job = std::begin(incoming_jobs_);
+        while (next_job != std::end(incoming_jobs_) && next_job->arrival_time <= time_since_start()) {
+            handler_.on_request(message_container(broker_connect::KEY_CLIENTS, "", next_job->data),
+                                [this](const auto &message) {
+                                    respond(message);
+                                });
+            next_job = std::next(next_job);
+        }
 
         boost::posix_time::milliseconds delay(0);
 
-        if (incoming_jobs_.size() == 1) {
-            delay = job->processing_time; // We are processing the last job -> stop the periodic events after it is finished
+        if (next_job == std::end(incoming_jobs_)) {
+            // We have processed the queue -> terminate
+            is_terminating_ = true;
+            return;
         } else {
-            delay = boost::posix_time::milliseconds((std::next(job)->arrival_time - time_since_start()).total_milliseconds());
+            // Wait until it is time for another job to arrive
+            delay = boost::posix_time::milliseconds((next_job->arrival_time - time_since_start()).total_milliseconds());
         }
 
-        incoming_jobs_.erase(job);
+        incoming_jobs_.erase(std::begin(incoming_jobs_), next_job); // Erase all jobs that precede the one we are waiting for
 
         job_timer_.expires_at(job_timer_.expires_at() + delay);
         job_timer_.async_wait([this] (const boost::system::error_code&) {
@@ -273,7 +285,7 @@ int main(int argc, char **argv)
     auto config = std::make_shared<const broker_config>();
 
     // Create one of the predefined queue managers
-    auto queue = create_queue_manager("multi");
+    auto queue = create_queue_manager(argv[1]);
 
     // Prepare a worker registry
     auto registry = std::make_shared<worker_registry>();
@@ -290,8 +302,9 @@ int main(int argc, char **argv)
     load_workers(handler, workers_file);
 
     // Load jobs to be simulated
-    std::ifstream jobs_file(argv[1]);
     job_data jobs;
+
+    std::ifstream jobs_file(argv[3]);
     load_jobs(jobs, jobs_file);
 
     boost::asio::io_service io;
@@ -305,9 +318,9 @@ int main(int argc, char **argv)
 
     for (auto &it: jobs) {
         std::cout
-            << it.second.job_id << " "
-            << it.second.arrival_time.total_milliseconds() << " "
-            << it.second.processing_time.total_milliseconds() << " "
+            << it.second.job_id << ","
+            << it.second.arrival_time.total_milliseconds() << ","
+            << it.second.processing_time.total_milliseconds() << ","
             << it.second.processing_started_time.total_milliseconds() << std::endl;
     }
 

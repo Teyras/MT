@@ -1,0 +1,196 @@
+workers:
+  common_1:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_2:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_3:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_5:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_6:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_7:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_8:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_9:
+    hwgroup: group_1
+    headers:
+      - env=c
+  common_10:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+      - env=java
+  common_11:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_12:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_13:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_14:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_15:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_16:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_17:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_18:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_19:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_20:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_21:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_22:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_23:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_24:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_25:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_26:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_27:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_28:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_29:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_30:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_31:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_32:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_33:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_34:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_35:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_36:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_37:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_38:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_39:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java
+  common_40:
+    hwgroup: group_1
+    headers:
+      - env=c
+      - env=java

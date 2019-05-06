@@ -41,6 +41,13 @@ load.stability.results <- function(file) {
 	return(values)
 }
 
+load.lb.results <- function(file) {
+	values <- read.csv(file, header=FALSE, stringsAsFactors=FALSE)
+	names(values) = c("queue.manager", "setup", "workload", "job.id", "arrival", "processing.time", "processing.start")
+
+	return (values)
+}
+
 mkdir <- function(dir) {
 	dir.create(file.path(".", dir), showWarnings=FALSE)
 }
