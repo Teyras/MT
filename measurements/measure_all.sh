@@ -31,41 +31,48 @@ function measure_each_isolation() {
 	setup=$1
 	worker_count=$2
 	wrapper_cmd="$3"
-	taskset=$4
+	mode="$4"
 
 	cat $workloads | while read workload size iters; do
-		echo ">>> $workload $size $iters ($worker_count workers, $setup)"
+		echo ">>> $workload $size $iters ($worker_count workers, $setup $mode)"
 
-		LABEL=bare,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
-			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL=isolate,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
-			runners/run_isolate.sh $workload $size $iters >> $results_file
-		LABEL=docker-bare,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
-			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL=docker-isolate,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
-			runners/run_isolate.sh $workload $size $iters >> $results_file
+		if [ "$mode" = "--taskset" ]; then
+			LABEL=bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+			LABEL=docker-bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=docker-isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+		elif [ "$mode" = "--numa" ]; then
+			LABEL=bare,$setup-numa eval $wrapper_cmd --numa $worker_count ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=isolate,$setup-numa eval $wrapper_cmd --numa $worker_count ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+			LABEL=docker-bare,$setup-numa eval $wrapper_cmd --numa $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=docker-isolate,$setup-numa eval $wrapper_cmd --numa $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+		else
+			LABEL=bare,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=isolate,$setup eval $wrapper_cmd $worker_count ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+			LABEL=docker-bare,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=docker-isolate,$setup eval $wrapper_cmd $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
 
-		if [ "$worker_count" -le 20 ]; then
-			./start_vbox.sh $worker_count > /dev/null 2>&1
-			LABEL=vbox-bare,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
-				runners/run_baremetal.sh $workload $size $iters >> $results_file < /dev/null
-			LABEL=vbox-isolate,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
-				runners/run_isolate.sh $workload $size $iters >> $results_file < /dev/null
-			./stop_vbox.sh > /dev/null 2>&1
+			if [ "$worker_count" -le 20 ]; then
+				./start_vbox.sh $worker_count > /dev/null 2>&1
+				LABEL=vbox-bare,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
+					runners/run_baremetal.sh $workload $size $iters >> $results_file < /dev/null
+				LABEL=vbox-isolate,$setup eval $wrapper_cmd $worker_count $root/run_vbox.sh ./measure_workload.sh \
+					runners/run_isolate.sh $workload $size $iters >> $results_file < /dev/null
+				./stop_vbox.sh > /dev/null 2>&1
+			fi
 		fi
-
-		if [ -z "$taskset" ]; then
-			continue
-		fi
-
-		LABEL=bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
-			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL=isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./measure_workload.sh \
-			runners/run_isolate.sh $workload $size $iters >> $results_file
-		LABEL=docker-bare,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
-			runners/run_baremetal.sh $workload $size $iters >> $results_file
-		LABEL=docker-isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
-			runners/run_isolate.sh $workload $size $iters >> $results_file
 	done
 }
 
@@ -75,17 +82,23 @@ function measure_everything() {
 
 	# Measure a workload under multiple levels of CPU stress
 	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\""
 		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset
+		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --numa
 	done
 
 	# Measure a workload under multiple levels of memory copying stress
 	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\""
 		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --taskset
+		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --numa
 	done
 
 	# Measure the same workload on multiple cores at once
 	for workers in 2 4 6 8 10 20 40; do
+		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh
 		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --taskset
+		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --numa
 	done
 }
 

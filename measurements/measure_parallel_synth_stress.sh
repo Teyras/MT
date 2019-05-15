@@ -3,8 +3,13 @@
 stress_opts=$1
 shift
 
-if [ "$1" == "--taskset" ]; then
+if [ "$1" = "--taskset" ]; then
 	taskset=1
+	shift
+fi
+
+if [ "$1" = "--numa" ]; then
+	numa=1
 	shift
 fi
 
@@ -23,7 +28,13 @@ if [ -n "$taskset" ]; then
 	stress_cmd="taskset -c {} $stress_cmd"
 fi
 
-echo "$stress_workers" | parallel -j$(($worker_count - 1)) $stress_cmd > /dev/null 2>&1 &
+if [ -n "$numa" ]; then
+	nodecount=$(lscpu -p=socket | grep -v '^#' | sort | uniq | wc -l)
+	cmd="numactl -m $(($cmd_worker % $nodecount)) $cmd"
+	stress_cmd="numactl -m \$(({} % $nodecount)) $stress_cmd"
+fi
+
+echo "$stress_workers" | parallel -j$(($worker_count - 1)) "$stress_cmd" > /dev/null 2>&1 &
 sleep 1
 
 WORKER=$cmd_worker LABEL=$LABEL,$worker_count,cpu-$cmd_worker $cmd
