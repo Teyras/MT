@@ -61,7 +61,7 @@ objective - weighted tardiness (w_i = 1/E[T_i])
 	- most research is centered
 	around makespan minimization (idiots everywhere...)
 	- flow time - from release to completion - better than makespan
-	- delay factor - introduced in 2018
+	- delay factor - introduced in 2008
 
 job load vector - specifies how much the job increases the load of the machine it's
 	assigned to

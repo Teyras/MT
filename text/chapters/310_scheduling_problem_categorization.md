@@ -1,13 +1,16 @@
-## Related Work
-
-### Problem Categorization
+## Problem Categorization
 
 Scheduling is the problem of assigning work units (jobs) to execution units 
 (worker machines in our case). Every job has a processing set -- a set of 
 machines that are capable of processing it. There are various subproblems with 
-different objectives, processing set restrictions and other characteristics.
+different requirements on the worker machines, processing set restrictions and 
+other characteristics.
 
-#### Online/Offline Scheduling
+In this section, we list the subcategories of the scheduling problem and attempt 
+to categorize our use case. We shall use this knowledge to select the algorithms 
+to be evaluated later.
+
+### Online/Offline Scheduling
 
 In online scheduling, the algorithm does not have access to the whole input 
 instance as it makes decisions[@SgallOnlineScheduling]. This model is 
@@ -20,7 +23,7 @@ unknown until the current one is scheduled. In the latter, jobs arrive on their
 release date and can be scheduled at any time after their arrival. Our problem 
 corresponds to the time-based variant.
 
-#### Preemption
+### Preemption
 
 The ability to interrupt long-running jobs is very useful in scheduling 
 algorithms. When it is not available, situations where a machine needed by a 
@@ -51,7 +54,7 @@ To sum up, we will mainly be concerned with the non-preemptive variant, but if
 it shows that preemption brings some interesting benefits, we will consider it 
 too.
 
-#### Clairvoyance
+### Clairvoyance
 
 In the clairvoyant variant of the scheduling problem, the algorithm knows the 
 exact processing time of each job on arrival. Naturally, this makes it possible 
@@ -70,7 +73,7 @@ Despite this fact, we might be able to estimate the processing time well enough
 e.g. by analysing runtimes of previous similar jobs. Therefore, we should 
 definitely evaluate algorithms for the semi-clairvoyant variant.
 
-#### Processing Set Characteristics
+### Processing Set Characteristics
 
 Specialized algorithms exist that solve the online scheduling problem for jobs 
 whose processing sets satisfy additional criteria.
@@ -101,8 +104,24 @@ It is possible this could be achieved with care from the administrator.
 
 TODO examine this better
 
-#### Objective
+For our problem, we will mainly be looking for algorithms that allow arbitrary 
+processing sets. We shall also consider interesting results for the nested and 
+interval variants.
 
-### Past Research
+### Machine Characteristics
 
-### Existing Algorithms
+In a setup with **related** machines, each job takes the same time on all of the 
+machines. In the **unrelated** case, the times can vary. For our problem, we 
+should mainly be concerned with algorithms for the unrelated case, because our 
+worker pool can contain machines of different processing power. However, 
+restricting the processing sets of jobs to machines with the same speed is also 
+a viable option.
+
+### Job Deadlines
+
+Although there are no inherent deadlines in the context of a programming 
+assignment evaluation system, we could determine them e.g. using an estimated 
+processing time of the jobs. This could help the subjective responsiveness of 
+the system -- the scheduler could prioritize short jobs while allowing a longer 
+waiting time for long jobs.
+
