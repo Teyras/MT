@@ -5,6 +5,12 @@ if [ "$1" = "--taskset" ]; then
 	shift
 fi
 
+if [ "$1" = "--taskset-multi" ]; then
+	taskset=1
+	multi=1
+	shift
+fi
+
 if [ "$1" = "--numa" ]; then
 	numa=1
 	shift
@@ -24,6 +30,10 @@ if [ -n "$numa" ]; then
 	cmd="numactl -m \$(({} % $nodecount)) $cmd"
 fi
 
-cmd="WORKER={} LABEL=$LABEL,$workers,cpu-{} $cmd"
+cmd="WORKER={} LABEL=$LABEL,$workers,cpu-\$(echo {} | tr ',' '+') $cmd"
 
-$(dirname $0)/distribute_workers.sh $workers | parallel -j$workers "$cmd"
+if [ -n "$multi" ]; then
+	$(dirname $0)/distribute_workers.sh --multi $workers | parallel -j$workers "$cmd"
+else
+	$(dirname $0)/distribute_workers.sh $workers | parallel -j$workers "$cmd"
+fi

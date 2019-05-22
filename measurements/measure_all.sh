@@ -45,6 +45,15 @@ function measure_each_isolation() {
 				runners/run_baremetal.sh $workload $size $iters >> $results_file
 			LABEL=docker-isolate,$setup-taskset eval $wrapper_cmd --taskset $worker_count ./run_docker.sh ./measure_workload.sh \
 				runners/run_isolate.sh $workload $size $iters >> $results_file
+		elif [ "$mode" = "--taskset-multi" ]; then
+			LABEL=bare,$setup-taskset-multi eval $wrapper_cmd --taskset-multi $worker_count ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=isolate,$setup-taskset-multi eval $wrapper_cmd --taskset-multi $worker_count ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
+			LABEL=docker-bare,$setup-taskset-multi eval $wrapper_cmd --taskset-multi $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_baremetal.sh $workload $size $iters >> $results_file
+			LABEL=docker-isolate,$setup-taskset-multi eval $wrapper_cmd --taskset-multi $worker_count ./run_docker.sh ./measure_workload.sh \
+				runners/run_isolate.sh $workload $size $iters >> $results_file
 		elif [ "$mode" = "--numa" ]; then
 			LABEL=bare,$setup-numa eval $wrapper_cmd --numa $worker_count ./measure_workload.sh \
 				runners/run_baremetal.sh $workload $size $iters >> $results_file
@@ -80,11 +89,15 @@ function measure_everything() {
 	# Measure on a single core
 	measure_each_isolation "single" 1 $root/measure_single.sh
 
-	# Measure a workload under multiple levels of CPU stress
+	 Measure a workload under multiple levels of CPU stress
 	for workers in 2 4 6 8 10 20 40; do
 		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\""
 		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset
 		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --numa
+	done
+
+	for workers in 2 4 8 10 20; do
+		measure_each_isolation "parallel-synth-cpu" $workers "$root/measure_parallel_synth_stress.sh \"--cpu 1\"" --taskset-multi
 	done
 
 	# Measure a workload under multiple levels of memory copying stress
@@ -94,11 +107,19 @@ function measure_everything() {
 		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --numa
 	done
 
+	for workers in 2 4 8 10 20; do
+		measure_each_isolation "parallel-synth-memcpy" $workers "$root/measure_parallel_synth_stress.sh \"--memcpy 1\"" --taskset-multi
+	done
+
 	# Measure the same workload on multiple cores at once
 	for workers in 2 4 6 8 10 20 40; do
 		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh
 		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --taskset
 		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --numa
+	done
+
+	for workers in 2 4 8 10 20; do
+		measure_each_isolation "parallel-homogenous" $workers $root/measure_parallel_homogenous.sh --taskset-multi
 	done
 }
 
