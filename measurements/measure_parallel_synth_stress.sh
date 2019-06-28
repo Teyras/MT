@@ -19,6 +19,11 @@ if [ "$1" = "--numa" ]; then
 	shift
 fi
 
+if [ "$1" = "--noht" ]; then
+	ht="--noht"
+	shift
+fi
+
 worker_count=$1
 shift
 
@@ -26,9 +31,9 @@ cmd="$@"
 stress_cmd="stress-ng $stress_opts"
 
 if [ -n "$multi" ]; then
-	worker_cpus=$($(dirname $0)/distribute_workers.sh --multi $worker_count)
+	worker_cpus=$($(dirname $0)/distribute_workers.sh --multi $ht $worker_count)
 else
-	worker_cpus=$($(dirname $0)/distribute_workers.sh $worker_count)
+	worker_cpus=$($(dirname $0)/distribute_workers.sh $ht $worker_count)
 fi
 
 cmd_worker=$(echo "$worker_cpus" | head -n 1)

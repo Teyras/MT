@@ -16,6 +16,11 @@ if [ "$1" = "--numa" ]; then
 	shift
 fi
 
+if [ "$1" = "--noht" ]; then
+	ht="--noht"
+	shift
+fi
+
 workers=$1
 shift
 
@@ -33,7 +38,7 @@ fi
 cmd="WORKER={} LABEL=$LABEL,$workers,cpu-\$(echo {} | tr ',' '+') $cmd"
 
 if [ -n "$multi" ]; then
-	$(dirname $0)/distribute_workers.sh --multi $workers | parallel -j$workers "$cmd"
+	$(dirname $0)/distribute_workers.sh --multi $ht $workers | parallel -j$workers "$cmd"
 else
-	$(dirname $0)/distribute_workers.sh $workers | parallel -j$workers "$cmd"
+	$(dirname $0)/distribute_workers.sh $ht $workers | parallel -j$workers "$cmd"
 fi

@@ -5,18 +5,26 @@ if [ "$1" = "--multi" ]; then
 	shift
 fi
 
+if [ "$1" = "--noht" ]; then
+	is_ht=0
+	shift
+fi
+
 workers=$1
 cpu_count=$2
 core_per_cpu=$3
-is_ht=$4
-
-if [ -z "$is_ht" ]; then
-	is_ht=$(cat /proc/cpuinfo | grep '^flags\s*:.*ht' | wc -l)
-fi
 
 if [ -z "$cpu_count" -o -z "$core_per_cpu" ]; then
 	cpu_count=$(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)
 	core_per_cpu=$(cat /proc/cpuinfo | grep 'core id' | sort | uniq | wc -l)
+fi
+
+if [ -z "$is_ht" ]; then
+	if [ $(cat /proc/cpuinfo | grep 'core id' | sort | uniq -c | tr -s " " | cut -d " " -f 2 | head -n 1) -eq $cpu_count ]; then
+		is_ht=0
+	else
+		is_ht=1
+	fi
 fi
 
 total=$(($cpu_count * $core_per_cpu))
@@ -54,7 +62,10 @@ if [ -n "$multi" ]; then
 					echo -n ,
 				fi
 				echo -n "$(echo "scale=0; ($assigned + $cpu_index + 2 * $k) / 1" | bc)"
-				echo -n ",$(echo "scale=0; ($assigned + $cpu_index + 2 * $k + $cpu_count * $core_per_cpu) / 1" | bc)"
+
+				if [ $is_ht -gt 0 ]; then
+					echo -n ",$(echo "scale=0; ($assigned + $cpu_index + 2 * $k + $cpu_count * $core_per_cpu) / 1" | bc)"
+				fi
 			done
 			echo
 
