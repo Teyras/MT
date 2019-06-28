@@ -15,7 +15,7 @@ for i in $(seq $iter_count); do
 
 	cat $workloads | while read workload size iters; do
 		echo ">>> $workload $size $iters"
-		LABEL="" $root/measure_workload.sh \
+		LABEL="$i" $root/measure_workload.sh \
 			runners/run_baremetal.sh $workload $size $iters >> $results_file
 	done
 done
