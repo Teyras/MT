@@ -2,9 +2,16 @@
 
 args=""
 
-affinity=$(taskset -c -p $$ | cut -d : -f 2 | tr -d " ")
-if echo $affinity | grep -v '-' > /dev/null 2> /dev/null; then
-	args="$args --cpuset-cpus $affinity"
+cpus=$(numactl --show | grep physcpubind: | cut -f 2 -d :)
+cpucount=$(lscpu -p=cpu | grep -v '^#' | sort | uniq | wc -l)
+if [ $(echo $cpus | wc -w) -lt $cpucount ]; then
+	args="$args --cpuset-cpus $(echo $cpus | xargs -n 1 | paste -sd ",")"
+fi
+
+mems=$(numactl --show | grep membind: | cut -f 2 -d :)
+memcount=$(lscpu -p=socket | grep -v '^#' | sort | uniq | wc -l)
+if [ $(echo $mems | wc -w) -lt $(echo $memcount | wc -w) ]; then
+	args="$args --cpuset-mems $(echo $mems | xargs -n 1 | paste -sd ",")"
 fi
 
 if [ -n "$PERF_OPTS" ]; then
