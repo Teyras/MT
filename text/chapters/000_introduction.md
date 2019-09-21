@@ -22,8 +22,8 @@ is flexible enough to work efficiently both on physical, multiprocessor servers
 and on virtual machines provided by a cloud platform. Such system could be used 
 to create a community-driven programmer training platform, thus making education 
 in programming available to the whole world. Additionally, universities could 
-deploy instances of the system on premise, using their own hardware and possibly 
-customizing it.
+deploy instances of the system using their own hardware and possibly customizing 
+it.
 
 We assess the viability of such deployments in the context of ReCodEx -- a
 system for evaluation of programming assignments developed at the department of
