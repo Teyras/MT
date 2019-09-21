@@ -12,8 +12,8 @@ CHAPTERS_TEX = $(or $(CHAPTERS:%=$(BUILD_DIR)/%.tex),/dev/null)
 APPENDICES_TEX = $(or $(APPENDICES:%=$(BUILD_DIR)/%.tex),/dev/null)
 CONTENT_TEX = $(BUILD_DIR)/$(NAME)_content.combined.tex
 ATTACHMENTS_TEX= $(BUILD_DIR)/$(NAME)_attachments.combined.tex
-PDFL_FLAGS = -jobname $(NAME)
-PANDOC_MD_FLAGS = -f markdown -t latex --top-level-division=chapter --biblatex --biblio $(BIB) --filter pandoc-include
+PDFL_FLAGS = -shell-escape -jobname $(NAME)
+PANDOC_MD_FLAGS = -f markdown -t latex --top-level-division=chapter --biblatex --biblio $(BIB) --filter ./filters.py
 
 all: $(NAME).pdf
 

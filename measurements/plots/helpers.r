@@ -1,5 +1,6 @@
 library("knitr")
 library("magrittr")
+library("boot")
 
 cv <- function(data) {
 	return((sd(data) * 100) / mean(data))
@@ -29,7 +30,9 @@ load.stability.results <- function(file) {
 	values$value <- as.numeric(values$value)
 	values$setup <- paste(values$setup_type, values$setup_size, sep=",")
 	values$taskset <- grepl("taskset", values$setup)
+	values$multi <- grepl("taskset-multi", values$setup)
 	values$numa <- grepl("numa", values$setup)
+	values$noht <- grepl("-noht", values$setup)
 	values$wl.short <- gsub("^[^/]*/", "", values$workload)
 	values$isolation.short <- values$isolation %>%
 		gsub("^bare$", "B", .) %>%
@@ -74,6 +77,17 @@ ci.compare <- function (boot1, boot2) {
 	}
 
 	return ("overlap")
+}
+
+compare.fnc.boot <- function (fnc, data1, data2) {
+	if (length(data1) == 0 | length(data2) == 0) {
+		return(NA)
+	}
+
+	boot1 <- boot(data1, fnc, R=1000)
+	boot2 <- boot(data2, fnc, R=1000)
+
+	return(ci.compare(boot1, boot2))
 }
 
 my.kable <- function(df, col.names=NA) {

@@ -1,39 +1,68 @@
 
-Table: Mean and standard deviation of the error of isolate CPU time measurements, sorted by relative error (truncated) \label{iso-cpu-err}
+Table: Characteristics of the error of isolate CPU time measurements, sorted by the relative error (truncated) \label{iso-cpu-err}
 
-|Setup                    |Isolation |Workload       | Mean [s]|    SD| CV [%]|
-|:------------------------|:---------|:--------------|--------:|-----:|------:|
-|parallel-synth-cpu,4     |D+I       |insertion_sort |    0.003| 0.000|  0.182|
-|parallel-homogenous,4    |D+I       |exp_float      |    0.003| 0.001|  0.182|
-|parallel-homogenous,8    |D+I       |exp_float      |    0.003| 0.001|  0.182|
-|parallel-synth-cpu,4     |I         |insertion_sort |    0.003| 0.000|  0.182|
-|parallel-homogenous,4    |D+I       |exp_double     |    0.003| 0.001|  0.180|
-|parallel-homogenous,2    |I         |insertion_sort |    0.003| 0.000|  0.180|
-|parallel-homogenous,10   |I         |exp_double     |    0.003| 0.001|  0.179|
-|single,1                 |D+I       |insertion_sort |    0.003| 0.000|  0.179|
-|parallel-synth-memcpy,20 |V+I       |exp_float      |    0.004| 0.001|  0.178|
-|parallel-homogenous,10   |D+I       |exp_double     |    0.003| 0.001|  0.178|
-|parallel-homogenous,10   |I         |exp_float      |    0.003| 0.001|  0.176|
-|parallel-homogenous,20   |V+I       |qsort.py       |    0.179| 0.017|  0.176|
-|parallel-synth-memcpy,2  |I         |insertion_sort |    0.003| 0.000|  0.174|
-|parallel-homogenous,8    |I         |exp_double     |    0.003| 0.001|  0.174|
-|parallel-synth-cpu,8     |D+I       |insertion_sort |    0.003| 0.000|  0.170|
-|parallel-homogenous,8    |D+I       |exp_double     |    0.003| 0.001|  0.167|
-|parallel-synth-memcpy,20 |I         |insertion_sort |    0.003| 0.000|  0.167|
-|parallel-synth-memcpy,6  |D+I       |gray2bin       |    0.003| 0.000|  0.166|
-|parallel-homogenous,2    |V+I       |gray2bin       |    0.001| 0.000|  0.166|
-|parallel-homogenous,2    |V+I       |insertion_sort |    0.001| 0.000|  0.166|
-|parallel-synth-memcpy,10 |D+I       |gray2bin       |    0.004| 0.000|  0.165|
-|parallel-homogenous,20   |I         |bsearch        |    0.003| 0.001|  0.165|
-|parallel-homogenous,4    |I         |exp_double     |    0.003| 0.001|  0.165|
-|parallel-synth-memcpy,20 |V+I       |exp_double     |    0.004| 0.001|  0.164|
-|parallel-synth-cpu,20    |V+I       |exp_float      |    0.001| 0.001|  0.164|
-|parallel-homogenous,20   |D+I       |bsearch        |    0.003| 0.001|  0.164|
-|parallel-homogenous,2    |I         |exp_float      |    0.003| 0.000|  0.163|
-|parallel-homogenous,2    |D+I       |exp_double     |    0.003| 0.000|  0.163|
-|parallel-synth-memcpy,20 |D+I       |exp_double     |    0.004| 0.001|  0.162|
-|parallel-synth-memcpy,40 |D+I       |exp_float      |    0.007| 0.001|  0.162|
-|parallel-synth-memcpy,10 |D+I       |exp_float      |    0.003| 0.001|  0.161|
-|parallel-homogenous,2    |V+I       |qsort.py       |    0.135| 0.011|  0.161|
-|parallel-synth-memcpy,4  |I         |insertion_sort |    0.003| 0.000|  0.161|
-|single,1                 |D+I       |exp_double     |    0.003| 0.000|  0.154|
+|Setup                    |Isolation |Workload       | Mean error[s]| Rel. error[%]|
+|:------------------------|:---------|:--------------|-------------:|-------------:|
+|parallel-homogenous,10   |D+I       |insertion_sort |         0.003|         0.235|
+|parallel-homogenous,4    |D+I       |insertion_sort |         0.003|         0.233|
+|parallel-synth-cpu,8     |D+I       |exp_float      |         0.003|         0.232|
+|parallel-homogenous,8    |D+I       |insertion_sort |         0.003|         0.231|
+|parallel-homogenous,20   |D+I       |exp_float      |         0.003|         0.226|
+|parallel-synth-memcpy,2  |V+I       |exp_float      |         0.001|         0.226|
+|parallel-homogenous,6    |D+I       |insertion_sort |         0.003|         0.225|
+|parallel-homogenous,2    |D+I       |gray2bin       |         0.003|         0.224|
+|parallel-synth-cpu,4     |D+I       |insertion_sort |         0.003|         0.223|
+|parallel-synth-memcpy,20 |D+I       |insertion_sort |         0.004|         0.221|
+|parallel-homogenous,10   |I         |insertion_sort |         0.003|         0.221|
+|parallel-homogenous,6    |I         |insertion_sort |         0.003|         0.219|
+|parallel-homogenous,8    |I         |insertion_sort |         0.003|         0.219|
+|parallel-homogenous,4    |I         |insertion_sort |         0.003|         0.214|
+|parallel-homogenous,40   |D+I       |bsearch        |         0.003|         0.211|
+|parallel-synth-memcpy,2  |V+I       |insertion_sort |         0.001|         0.208|
+|parallel-synth-memcpy,4  |D+I       |gray2bin       |         0.003|         0.204|
+|parallel-homogenous,4    |D+I       |gray2bin       |         0.004|         0.202|
+|parallel-homogenous,10   |D+I       |gray2bin       |         0.004|         0.201|
+|parallel-synth-cpu,6     |D+I       |insertion_sort |         0.003|         0.197|
+|parallel-homogenous,8    |D+I       |gray2bin       |         0.004|         0.196|
+|single,1                 |I         |insertion_sort |         0.003|         0.196|
+|parallel-synth-cpu,10    |I         |insertion_sort |         0.003|         0.195|
+|parallel-homogenous,6    |D+I       |gray2bin       |         0.004|         0.193|
+|parallel-homogenous,8    |I         |gray2bin       |         0.004|         0.192|
+|parallel-homogenous,8    |D+I       |exp_float      |         0.003|         0.192|
+|parallel-synth-memcpy,2  |D+I       |qsort.py       |         0.039|         0.191|
+|parallel-homogenous,2    |I         |insertion_sort |         0.003|         0.191|
+|parallel-synth-memcpy,2  |V+I       |gray2bin       |         0.001|         0.191|
+|parallel-synth-cpu,20    |V+I       |qsort.py       |         0.027|         0.190|
+|parallel-homogenous,10   |I         |gray2bin       |         0.004|         0.190|
+|parallel-synth-cpu,40    |D+I       |qsort.py       |         0.037|         0.189|
+|parallel-homogenous,2    |D+I       |insertion_sort |         0.003|         0.188|
+|parallel-homogenous,4    |D+I       |exp_float      |         0.003|         0.188|
+|parallel-homogenous,10   |D+I       |exp_float      |         0.003|         0.187|
+|parallel-homogenous,4    |I         |exp_float      |         0.003|         0.186|
+|parallel-homogenous,6    |I         |gray2bin       |         0.004|         0.186|
+|parallel-homogenous,6    |V+I       |qsort.py       |         0.023|         0.185|
+|parallel-homogenous,4    |I         |gray2bin       |         0.004|         0.185|
+|parallel-homogenous,10   |I         |exp_float      |         0.003|         0.184|
+|parallel-synth-memcpy,2  |V+I       |qsort.py       |         0.019|         0.183|
+|parallel-synth-memcpy,6  |D+I       |insertion_sort |         0.003|         0.183|
+|parallel-homogenous,10   |D+I       |exp_double     |         0.003|         0.182|
+|parallel-synth-memcpy,20 |V+I       |exp_double     |         0.004|         0.182|
+|parallel-homogenous,20   |D+I       |qsort          |         0.004|         0.181|
+|parallel-homogenous,6    |D+I       |exp_float      |         0.003|         0.181|
+|parallel-synth-cpu,2     |V+I       |qsort.py       |         0.020|         0.181|
+|parallel-homogenous,2    |V+I       |insertion_sort |         0.001|         0.181|
+|parallel-homogenous,6    |D+I       |exp_double     |         0.003|         0.180|
+|parallel-homogenous,8    |D+I       |exp_double     |         0.003|         0.179|
+|parallel-synth-cpu,20    |I         |insertion_sort |         0.002|         0.178|
+|parallel-synth-cpu,6     |I         |insertion_sort |         0.003|         0.178|
+|parallel-synth-memcpy,10 |I         |insertion_sort |         0.004|         0.178|
+|parallel-homogenous,8    |I         |exp_float      |         0.003|         0.177|
+|parallel-homogenous,6    |I         |exp_float      |         0.003|         0.177|
+|single,1                 |V+I       |qsort.py       |         0.019|         0.174|
+|single,1                 |V+I       |insertion_sort |         0.001|         0.174|
+|parallel-synth-cpu,4     |D+I       |qsort.py       |         0.040|         0.173|
+|parallel-homogenous,10   |I         |exp_double     |         0.003|         0.173|
+|parallel-synth-memcpy,4  |D+I       |insertion_sort |         0.003|         0.173|
+|parallel-homogenous,4    |D+I       |exp_double     |         0.003|         0.173|
+|parallel-homogenous,6    |I         |exp_double     |         0.003|         0.172|
+|parallel-synth-memcpy,40 |D+I       |insertion_sort |         0.006|         0.170|

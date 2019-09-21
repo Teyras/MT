@@ -70,7 +70,7 @@ evaluated very quickly, and there are those that run until they deplete the time
 limit.
 
 Despite this fact, we might be able to estimate the processing time well enough 
-e.g. by analysing runtimes of previous similar jobs. Therefore, we should 
+e.g., by analysing runtimes of previous similar jobs. Therefore, we should 
 definitely evaluate algorithms for the semi-clairvoyant variant.
 
 ### Processing Set Characteristics
@@ -79,7 +79,7 @@ Specialized algorithms exist that solve the online scheduling problem for jobs
 whose processing sets satisfy additional criteria.
 
 The **Inclusive** variant requires the processing sets of every two jobs to be 
-comparable (i.e. one must be a subset of the other). This is a criterion we 
+comparable (i.e., one must be a subset of the other). This is a criterion we 
 cannot satisfy in case there are multiple specialized workers, such as one meant 
 for GPU computations and another with a NUMA setup for parallel CPU 
 computations.
@@ -87,7 +87,7 @@ computations.
 In the **Nested** variant, the processing sets of every pair of jobs must be 
 either disjoint (no common elements) or comparable. Such conditions could be 
 achieved with special care by the administrator of the system. Without that, it 
-could easily happen that there is e.g. a set of machines capable of evaluating 
+could easily happen that there is e.g., a set of machines capable of evaluating 
 highly parallelized submissions, another set of machines that can evaluate 
 submissions in Java, and these sets have a non-trivial intersection. In this 
 case, a pair of jobs where one requires a worker that can run parallel programs 
@@ -120,7 +120,7 @@ a viable option.
 ### Job Deadlines
 
 Although there are no inherent deadlines in the context of a programming 
-assignment evaluation system, we could determine them e.g. using an estimated 
+assignment evaluation system, we could determine them e.g., using an estimated 
 processing time of the jobs. This could help the subjective responsiveness of 
 the system -- the scheduler could prioritize short jobs while allowing a longer 
 waiting time for long jobs.

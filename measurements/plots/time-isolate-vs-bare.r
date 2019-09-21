@@ -1,6 +1,9 @@
 #!/usr/bin/Rscript
 library("tidyr")
 library("knitr")
+library("tikzDevice")
+library("ggplot2")
+library("ggpubr")
 
 source("helpers.r")
 
@@ -8,11 +11,43 @@ options(width = 200)
 
 values <- load.stability.results(filename.from.args())
 isolations <- unique(values[values$metric == "iso-cpu", ]$isolation) # Pick isolation techniques that use isolate
-values <- values[values$isolation %in% isolations & values$taskset == F & values$numa == F, ] # Pick measurements in isolate
+values <- values[values$isolation %in% isolations & values$taskset == F & values$numa == F & values$noht == F, ] # Pick measurements in isolate
 
 data <- spread(values, key=metric, value=value)
 names(data)[names(data) == 'iso-cpu'] <- 'iso_cpu'
 names(data)[names(data) == 'iso-wall'] <- 'iso_wall'
+
+make.correlation.plot <- function (metric) {
+	tikz(file=paste("iso-", metric, "-err.tex", sep=""), width=5.5, height=8)
+	setups <- c("single", "parallel-homogenous")
+
+	plot <- function(wl, title) {
+		#subset <- data[data$workload == wl & data$setup_type %in% setups & data$worker == "cpu-0",]
+		subset <- data[data$workload == wl & data$setup_type %in% setups,]
+		return (ggplot(subset[sample(nrow(subset), 1000, prob=1 / subset$setup_size), ], 
+		       aes_string(x=metric, y=paste("iso_", metric, sep=""))) 
+			+ geom_point(shape=19) 
+			+ geom_abline(colour='red', slope=1, intercept=0)
+			+ labs(x="time[s]", y="isolate time[s]") 
+			+ ylim(c(0, NA))
+			+ ggtitle(title))
+	}
+
+	ggarrange(
+		plot('exp/exp_float', "exp\\_float"),
+		plot('bsearch/bsearch', "bsearch"),
+		plot('gray/gray2bin', "gray2bin"),
+		plot('sort/qsort', "qsort"),
+		plot('sort/qsort_java.sh', "qsort.java"),
+		plot('sort/qsort.py', "qsort.py"),
+		ncol=2,
+		nrow=3
+	)
+}
+
+set.seed(999)
+make.correlation.plot("cpu")
+make.correlation.plot("wall")
 
 data$cpu_err <- abs(data$iso_cpu - data$cpu)
 data$wall_err <- abs(data$iso_wall - data$wall)
@@ -42,14 +77,14 @@ wall_threshold$over_5 <- aggregate(wall_err_cv ~ setup + isolation.short, err_me
 	return (length(data[data > 5]));
 })$wall_err_cv
 
-col.names <- c("Setup", "Isolation", "Workload", "Mean [s]", "SD", "CV [%]")
+col.names <- c("Setup", "Isolation", "Workload", "Mean error[s]", "Rel. error[%]")
 
 cat("
-Table: Mean and standard deviation of the error of isolate wall-clock time measurements (truncated) \\label{iso-wall-err}
+Table: Characteristics of the error of isolate wall-clock time measurements, ordered by the relative error (truncated) \\label{iso-wall-err}
 ", file="iso-wall-err.md", sep="\n")
-cat(my.kable(err_means[order(-err_means$wall_err_cv), c("setup", "isolation.short", "wl.short", "wall_err_mean", "wall_err_sd", "wall_err_cv")][err_means$wall_err_cv > 15, ], col.names=col.names), file="iso-wall-err.md", sep="\n", append=TRUE)
+cat(my.kable(err_means[order(-err_means$wall_err_cv), c("setup", "isolation.short", "wl.short", "wall_err_mean", "wall_err_cv")][err_means$wall_err_cv > 15, ], col.names=col.names), file="iso-wall-err.md", sep="\n", append=TRUE)
 
 cat("
-Table: Mean and standard deviation of the error of isolate CPU time measurements, sorted by relative error (truncated) \\label{iso-cpu-err}
+Table: Characteristics of the error of isolate CPU time measurements, sorted by the relative error (truncated) \\label{iso-cpu-err}
 ", file="iso-cpu-err.md", sep="\n")
-cat(my.kable(err_means[order(-err_means$cpu_err_cv), c("setup", "isolation.short", "wl.short", "cpu_err_mean", "cpu_err_sd", "cpu_err_cv")][err_means$cpu_err_cv > 5, ], col.names=col.names), file="iso-cpu-err.md", sep="\n", append=TRUE)
+cat(my.kable(err_means[order(-err_means$cpu_err_cv), c("setup", "isolation.short", "wl.short", "cpu_err_mean", "cpu_err_cv")][err_means$cpu_err_cv > 5, ], col.names=col.names), file="iso-cpu-err.md", sep="\n", append=TRUE)

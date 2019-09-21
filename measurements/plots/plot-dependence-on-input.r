@@ -10,7 +10,7 @@ file <- filename.from.args()
 
 # Read the data
 values <-  read.csv(file)
-names(values) = c("blank", "workload", "input_size", "iteration", "metric", "value")
+names(values) = c("iteration", "workload", "input_size", "ignored", "metric", "value")
 values$value <- as.numeric(values$value)
 values$wl.short <- gsub("^[^/]*/", "", values$workload)
 workloads <- unique(values[, "wl.short"])

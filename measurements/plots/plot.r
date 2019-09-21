@@ -315,14 +315,14 @@ plot_paralelization <- function() {
 		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker", rainbow=TRUE),
 		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker", rainbow=TRUE),
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,2", "exp_float, 2 workers", rainbow=TRUE),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,2", "bsearch, 2 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset-multi,2", "exp_float, 2 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset-multi,2", "bsearch, 2 workers", rainbow=TRUE),
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,4", "exp_float, 4 workers", rainbow=TRUE),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,4", "bsearch, 4 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset-multi,4", "exp_float, 4 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset-multi,4", "bsearch, 4 workers", rainbow=TRUE),
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset,10", "exp_float, 10 workers", rainbow=TRUE),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset,10", "bsearch, 10 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous-taskset-multi,10", "exp_float, 10 workers", rainbow=TRUE),
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous-taskset-multi,10", "bsearch, 10 workers", rainbow=TRUE),
 		  nrow=4, ncol=2
 	)
 

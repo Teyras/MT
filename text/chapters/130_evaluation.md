@@ -6,34 +6,44 @@ As mentioned before, our measurements that run in isolate yield four values: the
 cpu and wall clock times as measured by isolate and by the program itself. It is 
 safe to assume that there will be some discrepancies between the results from 
 isolate and from the program -- isolate also takes into account the time it 
-takes to load the binary and start the process while the instrumented 
+takes to load the binary and start the process, as opposed to the instrumented 
 measurements start when everything is ready. However, this does not concern us 
 too much as long as the error is stable -- in ReCodEx, we only observe the 
 values reported by isolate.
 
-To examine the stability of the deviations, we calculated the standard deviation 
-of the difference between the results from isolate and those from the program in 
-every iteration of the measurement for every workload and setup. We then 
-normalized this number by dividing it with the mean of the runtime to obtain a 
-relative error measure.
+To examine this, we took the results from the `parallel-homogenous` setup and 
+made a correlation plot of times reported by the program itself and by isolate 
+for each workload and both CPU and wall-clock time measurements. Because the 
+number of observations is rather large, we selected a random sample using the 
+inverse of the number of parallel workers as a weight for each observation. This 
+way, we compensate the fact that setups with multiple parallel workers yield 
+more observations in total.
 
-The error is rather small and stable for the CPU times (generally in the order 
-of milliseconds, the relative error does not exceed 0.2%) -- see Table 
-\ref{iso-cpu-err}. This result is not surprising -- starting a process is 
-generally not a particularly CPU-intensive task. Measurements of the quicksort 
-workload in Python are an exception -- sometimes, the difference in CPU time 
-measurements is as high as 200 milliseconds. We can attribute this difference to 
-the work required before even starting a Python script. Thankfully, even this 
-difference seems to remain fairly stable in the setups where it manifests.
-All in all, we can see that the CPU time measured by isolate is fairly reliable.
+As seen in Figure \ref{iso-cpu-err-correlation}, the error is rather small and 
+stable for the CPU times. This result is not surprising -- starting a process is 
+generally not a CPU-intensive task. Measurements of the quicksort workload in 
+Java are an exception -- the times measured by isolate were twice as long in 
+almost every iteration. Also, the results seem less stable when the execution 
+time is longer. We can attribute this difference to the work required to launch 
+the JVM. Still, the measurements for all the other workloads seem fairly 
+reliable.
 
 On the other hand, we found that the wall-clock time error tends to vary a lot 
-(see Table \ref{iso-wall-err}). This is most prominent when a high number of 
-parallel workers is involved (20-40) -- the relative error goes as high as 150%. 
-Smaller values of the relative error (over 5%) start to manifest with as little 
-as six parallel workers. This means that there is a large offset between the 
-wall-clock time measured by isolate and the value measured by the programs 
-themselves. Also, this offset tends to vary a lot in many cases.
+(Figure \ref{iso-wall-err-correlation}). To find out if there is a correlation 
+between the workload, isolation technology or setup size and the error rate, we 
+calculated the meand and standard deviation of the difference between the times 
+measured by the program and by isolate for each iteration and grouped them by 
+workload, isolation and setup type and size. We also normalized the standard 
+deviation by dividing it with the mean of the runtime to obtain a relative error 
+measure. The results can be seen in Attachment \ref{attachment-errors}.
+
+We found that the instability in wall-clock time measurements is most prominent 
+when a high number of parallel workers is involved (20-40) -- the relative error 
+goes as high as 196%. Smaller values of the relative error (over 5%) start to 
+manifest with as little as six parallel workers. This means that there is a 
+large offset between the wall-clock time measured by isolate and the value 
+measured by the programs themselves. Also, this offset tends to vary a lot in 
+many cases.
 
 We found no obvious link between the value of the relative wall-clock time error 
 and the isolation technology in use -- both docker+isolate and isolate on its 
@@ -45,11 +55,41 @@ The instability of the error is possibly caused by the overhead of starting new
 processes. This overhead grows larger when we need to start many processes at 
 once and both the file system and memory get stressed.
 
-!include tables/stability/iso-cpu-err.md
+![A correlation plot of CPU time reported by the measured program and by 
+isolate, with $y=x$ as a reference line
+\label{iso-cpu-err-correlation}](img/stability/iso-cpu-err.tex)
 
-!include tables/stability/iso-wall-err.md
+![A correlation plot of wall-clock time reported by the measured program and by 
+isolate, with $y=x$ as a reference line
+\label{iso-wall-err-correlation}](img/stability/iso-wall-err.tex)
 
-### Comparison of Measurement Stability
+### Method of Comparison
+
+In the following sections, we will need to compare groups of measurements made 
+under different conditions (e.g. with CPU affinity settings or under varying 
+degrees of system load). We cannot make assumptions about the distribution of 
+the data, which disqualifies well-known tests such as the pairwise t-test, which 
+requires normally distributed data. 
+
+Our approach is to compare confidence intervals of characteristics (such as the 
+mean or standard deviation) of the different groups. When the confidence 
+intervals of a characteristic do not overlap for a pair of groups, we can 
+conclude that the characteristic differs for the groups. When one of the 
+intervals engulfs the other, the characteristic is probably the same. When the 
+intervals overlap, we cannot conclude anything.
+
+We obtain the confidence interval using the Bootstrap method, which is a 
+resampling method that does not rely on any particular distribution of the data. 
+The core idea is that we take random samples of our measurements repeatedly 
+(1000 times in our case), calculating the statistic whose confidence interval we 
+are trying to estimate in each iteration. This way, we get a set of observations 
+of our statistic. Then, we select the 0.95-th percentile to receive a confidence 
+interval. The implementation we use is provided by the `boot` package for the R 
+language.
+
+TODO cite Bootstrap, elaborate on percentile selection
+
+### Isolation and Measurement Stability
 
 To visualize the effects of isolation technologies, we made scatter plots of CPU 
 time (we chose not to examine the wall-clock time because it seems that isolate 
@@ -61,63 +101,54 @@ we could get an idea about how the measurements differ between the parallel
 workers. The plots revealed a handful of possible trends in the measured data. A 
 selection from these plots can be seen in Figure \ref{isolation-comparison}.
 
-<!-- TODO compare SD of bare, docker and vbox -->
-
 ![A scatter plot of time measurements grouped by isolation for chosen setups and 
 workloads with results from a single worker highlighted in red 
 \label{isolation-comparison}](img/stability/isolation-comparison.png)
 
 The most prominent trend is that the measured values are centered around 
-different points under different isolation technologies for some workloads.
+different means under different isolation technologies for some workloads.
 
 For example, an iteration of the `bsearch` and `exp_float` workloads tends to 
 take about 25-50ms more on the bare metal or in Docker than in VirtualBox. This 
 trend is most apparent with four or more workers running in parallel.
 
-Also, there is a cca. 50ms difference between the `isolate` and `docker-bare` 
-setups, which is rather strange because both of these technologies use the same 
-kernel facilities to achieve isolation.
+Also, there is a cca. 50ms difference between the `I` and `D` (and also between 
+`I` and `B`) setups on a single worker, which is rather strange because both of 
+these technologies use the same kernel facilities to achieve isolation.
 
-To examine the first observation in a more formal way, we compared bootstrapped 
-0.95 confidence intervals of the mean for the `bare`, `docker-bare` and 
-`vbox-bare` isolation setups. As shown by Table \ref{mean-ci-comparison}, the 
-comparison confirmed our observation for lower degrees of parallelism. However, 
-we could not reproduce the result under either of the synthetic system load 
-setups.
+To examine the first observation in a more formal way, we compared 0.95 
+confidence intervals of the mean and standard deviation for the `bare`, 
+`docker-bare` and `vbox-bare` isolation setups. The comparison was performed 
+separately for each setup type and system load level and workload type. As shown 
+by Figure \ref{virt-ci-comparison}, the comparison of the means confirmed our 
+observation -- measurements in VirtualBox often yield lower times than in Docker 
+and on the bare metal. Measurements in Docker also yield lower times than on the 
+bare metal most of the time. The comparison of the standard deviations suggests 
+that measurements in VirtualBox are more stable than those on the bare metal and 
+in Docker and that there are no notable differences in stability between Docker 
+and the bare metal.
 
-!include tables/stability/mean-ci-comparison.md
+We assessed the effect of adding Isolate to a setup in a similar way -- we 
+grouped the measurements by execution setup type and size, isolation technology 
+and workload type and compared confidence intervals of the mean and standard 
+deviation among groups of measurements with and without Isolate. The results of 
+this comparison (Figure \ref{isolate-ci-comparison}) show that measurements with 
+Isolate are generally slower (exhibit a higher mean) on the bare metal and with 
+Docker. In VirtualBox, adding Isolate does not seem to influence the mean in any 
+obvious way.
 
-TODO second observation
+However, we found that the addition of Isolate reduces the standard deviation of 
+measurement in many cases. This trend is most prevalent on the bare metal, but 
+it does also manifest in Docker. In VirtualBox, it is safer to conclude that the 
+standard deviation remains the same.
 
-TODO try to extend this to other workloads
+![Results of comparisons of confidence intervals of means and standard 
+deviations among various measurement groups, divided by isolation technology
+\label{virt-ci-comparison}](img/stability/virt-ci-comparison.tex)
 
-As to the stability of measurements, it appears that when a single process is 
-running, the measured times do not vary a lot for any of the isolation 
-techniques. However, with as little as two workers running in parallel, we start 
-noticing a decline in stability for the `isolate` and `docker-isolate` isolation 
-setups (compared to their counterparts without isolate) in the `exp`, `bsearch` 
-and `insertion_sort` workloads.
-
-This decline in stability in setups with isolate only becomes more apparent 
-under higher levels of system load. With 10 workers, measurements in isolate 
-seem less stable for all of the workloads. An interesting observation is that 
-the `vbox` and `vbox-isolate` setups seem to remain stable under high loads 
-(compared to other setups).
-
-A comparison of bootstrapped 0.95 confidence intervals of the standard deviation 
-(see Table \ref{sd-ci-comparison}) confirmed most of our observations. We did 
-not manage to prove that the measurements in isolate are less stable when a 
-single process is running. With two processes running in parallel, the 
-measurements done in isolate seem to have a higher standard deviation on the 
-bare metal and in Docker for the `exp` and `insertion_sort` workloads (we are 
-not certain about `bsearch`). When ten processes are running at once, the 
-standard deviation is higher in isolate for all workloads except `bsearch`. The 
-observation about `vbox-isolate` seeming to remain as stable as `vbox` under 
-high loads is reflected by the fact that there are few cases when the standard 
-deviation is clearly higher and the comparison is inconclusive most of the time.
-Interestingly, we got similar results for both of our synthetic load setups.
-
-!include tables/stability/sd-ci-comparison.md
+![Results of comparisons of confidence intervals of means and standard 
+deviations among various measurement groups, with and without isolate
+\label{isolate-ci-comparison}](img/stability/isolate-ci-comparison.tex)
 
 TODO the wall-clock time measurements in VirtualBox seems to have the largest 
 outliers.
@@ -143,44 +174,44 @@ workloads and their results are similar to actual parallel measurements.
 
 ### Comparing Parallel Worker Results
 
+![Box plots of CPU time measurements for the bsearch workload with an increasing 
+number of parallel workers (divided by isolation technology) 
+\label{bsearch-over-isolations}](img/stability/bsearch-over-isolations.tex)
+
 When examining how raising the system load affects the stability of 
 measurements, we discovered several interesting trends.
 
-First, the execution times seem to be higher under higher system loads for some 
-workloads. For example, in Figure \ref{isolation-comparison}, we can see that a 
-`bsearch` iteration normally takes about 0.35 seconds on the bare metal with a 
-single process and 0.4-0.45s when 10 processes are running in parallel. On the 
-other hand, the difference is much smaller for `exp_float`. This could be due to 
-the parallel workers competing for the last-level cache -- this would affect 
-memory-bound tasks more than it would affect CPU-bound tasks.
+First, the execution times seem to be higher under higher system loads for all 
+workloads. For example, in Figure \ref{bsearch-over-isolations}, we can see that 
+a `bsearch` iteration normally takes about 0.35 seconds on the bare metal with a 
+single process and 0.4-0.45s when 10 processes are running in parallel. It is 
+worth mentioning that the difference seems much smaller for `exp_float`. This 
+could be due to the parallel workers competing for the last-level cache -- this 
+would affect memory-bound tasks more than it would affect CPU-bound tasks.
+
+Second, the measurements seem to be notably stable with a single worker on the 
+bare metal and in Docker. This stability, however, decays quickly with as little 
+as two workers measuring in parallel. In `isolate` on the bare metal, in Docker 
+with `isolate` and in VirtualBox, the stability of measurements seems similar in 
+the cases with one and two parallel workers. A noticeable decay appears with 
+four workers.
+
+Third, the previous two trends are more prominent in measurements of 
+memory-bound workloads than in those of CPU-bound workloads. This could however 
+be a coincidence since the CPU-bound workloads take less time per iteration than 
+the memory-bound ones.
+
+TODO use a graph to show this
 
 TODO use data from perf here
-
-Second, the measurements from different worker processes seem to be centered 
-around different values. For an example of this, see the `exp_float` workload on 
-4 workers in Figure \ref{isolation-comparison} (`bare` and `docker-bare`). This 
-is also more notable under higher system loads.
-
-TODO outdated: Third, for some measurements, the results are stable most of the 
-time and start decreasing quickly in the last few iterations (e.g. `bsearch` on 
-bare metal with 10 workers in Figure \ref{isolation-comparison}). This is due to 
-the fact that the parallel workers do not always all finish at the same time and 
-the last iterations are performed under a smaller system load.
 
 A conclusion follows from our observations: we cannot allow a number of parallel 
 workers that is so high that any of these effects manifests. Otherwise, we risk 
 that our measurements will become too unstable. 
 
-TODO it looks like VirtualBox is doing a little better
-
-TODO find how much does the mean (median?) shift with increasing setup size
+TODO wrap up
 
 ### The Effects of Explicit Affinity Settings
-
-![A scatter plot of time measurements with fixed CPU affinities grouped by 
-isolation for chosen setups and workloads with points color-coded by parallel 
-worker 
-\label{isolation-comparison-taskset}](img/stability/isolation-comparison-taskset.png)
 
 Process schedulers in modern operating systems for multi-CPU systems are complex
 software that relies on sophisticated algorithms. Trying to bypass the scheduler
@@ -191,31 +222,61 @@ the effects of setting the CPU affinity explicitly.
 
 TODO some citation would be lovely here
 
-As seen in Figure \ref{isolation-comparison-taskset}, the results of 
-measurements with taskset are very similar to those without explicit CPU 
-affinity settings. It seems that when a worker is pinned to a chosen core, its 
-measurements appear more stable -- see for example the plot for `exp_float` with 
-4 workers in `docker-bare` and compare it with its counterpart without taskset.
+We ran our experiment using three different ways of setting the affinity -- 
+using `numactl`, using `taskset` with a single core and using `taskset` with a 
+fixed subset of the available cores (this is elaborated on in Section 
+\ref{hw-and-os}).
 
-However, this alone does not help remedy the issues outlined in the previous 
-section. In real-world scenarios, we have to consider the measurements from all 
-the workers, because a repeated measurement of a submission could be assigned to 
-any worker.
-
-For a better insight into the effects of CPU affinity settings, we compared the 
+To get an insight into the effects of CPU affinity settings, we compared the 
 means and standard deviations of results grouped by workload, isolation and 
 parallel setup, with and without affinity settings. We performed the comparison 
-using confidence intervals obtained from a bootstrap procedure.
+using confidence intervals obtained from a bootstrap procedure (the same way as 
+we used in previous sections).
 
-In Figure \ref{taskset-comparison}, we can see that the comparison does not seem 
-to yield any definite results for the mean, but the standard deviation is higher 
-for the measurements with explicit affinity settings for about two thirds of the 
-groups. Unfortunately, this means that using taskset is detrimental to the 
-stability of the measurements.
+In Figure \ref{taskset-comparison}, we can see that the measurements performed 
+with `numactl` have the same mean and standard deviation as their counterpart 
+without affinity settings in most cases. This seems to confirm the assumption 
+that running processes on the memory node that belongs to the executing CPU is 
+the default behavior. Therefore, using `numactl` would be redundant.
+
+Fixating a worker process to a single core with `taskset` seems to make the 
+measurements less stable in terms of standard deviation in two thirds of the 
+compared groups. It is clear that the mean was influenced by this setting in 
+some way, but it is difficult to summarize the difference -- the number of 
+groups where it got smaller is very similar to the number of groups where it got 
+higher. Since the comparison did not yield any positive results, we will not 
+consider the single-core `taskset` setup any further.
+
+Finally, the multicore way of using `taskset` seems to improve both the mean and 
+the standard deviation in more than three quarters of the compared groups. This 
+seems like a notable breakthrough. Upon closer inspection, we found that the 
+results seem much more stable without any isolation technology (as shown by 
+Figure \ref{taskset-points-bare}). However, it is worth noting that the mean 
+execution time still rises with the increasing setup size. For example, 
+`bsearch` takes roughly 0.35ms on two workers and about 0.425ms on eight workers 
+(20% more).
+
+Furthermore, it can be seen in Figure \ref{taskset-points-isolate} that using
+multicore `taskset` does not cause any improvement when we use `isolate` for 
+process isolation. The results of measurements in Docker without `isolate` look 
+similar to those of measurements with no isolation at all. Docker with `isolate` 
+performs similarly to `isolate`.
+
+From these observations, we can conclude that using multicore taskset could help 
+stabilize measurements on the bare metal or in Docker in case they were run in 
+batches with a fixed number of workers. However, setting the CPU (or NUMA) 
+affinity does not bring any improvement in the case of ReCodEx, where the number 
+of active workers varies in time and where isolation is critical.
 
 ![A plot showing the results of a comparison between mean and standard deviation 
-values for measurement with and without taskset 
-\label{taskset-comparison}](img/stability/taskset-comparison.png)
+values for measurements with and without explicit affinity settings, for 
+different ways of setting the affinity
+\label{taskset-comparison}](img/stability/taskset-comparison.tex)
 
-TODO examine numa affinity settings
+![A scatter plot of measured CPU times by iteration for increasing setup sizes 
+(no isolation technology) 
+\label{taskset-points-bare}](img/stability/taskset-default-vs-taskset-multi-bare.tex)
 
+![A scatter plot of measured CPU times by iteration for increasing setup sizes 
+(using isolate for process isolation) 
+\label{taskset-points-isolate}](img/stability/taskset-default-vs-taskset-multi-isolate.tex)
