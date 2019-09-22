@@ -17,6 +17,11 @@
 % \openright makes the following text appear on a right-hand page
 \let\openright=\clearpage
 
+% Make "h" the default figure placement
+\makeatletter
+\def\fps@figure{h}
+\makeatother
+
 %% Settings for two-sided (duplex) printing
 % \documentclass[12pt,a4paper,twoside,openright]{report}
 % \setlength\textwidth{145mm}
