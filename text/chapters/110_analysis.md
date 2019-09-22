@@ -18,11 +18,14 @@ happens on many levels during the execution of a program. In the case of
 evaluation of programming assignments, CPU cache and disk cache are the most 
 important.
 
-CPU cache exists to speed up accesses to frequently used areas of memory and 
-sequential reads of data. Unfortunately, we have no control over its content 
-when the program is launching. In addition, the cache is shared with other 
-programs running on the machine, whose memory accesses cannot be controlled. 
-Both of these facts make the time required for memory accesses less predictable.
+CPU cache exists to speed up accesses to frequently used areas of memory and it 
+also helps during sequential reads of data (although most modern processors 
+feature memory prefetchers whose influence is much larger in this case). 
+Unfortunately, we have no control the content of the cache when the program is 
+launching. In addition, the cache is shared with other programs running on the 
+machine, whose memory accesses cannot be controlled. Both of these facts make 
+the time required for memory accesses less predictable, making the CPU cache a 
+source of time measurement instability.
 
 Disk cache (or page cache) is a mechanism for improving the speed of accesses to 
 external memory (e.g., a HDD or SSD). Especially for HDDs, random accesses can 
@@ -66,15 +69,15 @@ ensure that it will not damage the host system by excessively using its
 resources (e.g., memory or disk space), and that it will not bypass the 
 restrictions on resource usage by communicating with the outside world (e.g., by 
 reading results from other submissions or delegating work to network services). 
-Also, some isolation technologies also provide accounting of resource usage, 
-which are necessary for grading of submissions. 
+Additionally, some isolation technologies also provide accounting of resource 
+usage, which is necessary for grading of submissions. 
 
-In this section, we survey existing isolation technologies, and select a handful 
+In this section, we survey existing isolation technologies and select a handful 
 whose effects on the stability of measurements will be examined. By intuition, 
-any additional isolation layer adds overhead and therefore might introduce 
-unpredictable components to the time measurements. However, the opposite might 
-also be true -- especially when there are multiple measurements running in 
-parallel, process isolation could help stabilize the results.
+any additional isolation layer adds overhead and therefore might make the time 
+measurements less predictable. On the other hand, the opposite might also be 
+true -- especially when there are multiple measurements running in parallel, 
+process isolation could help stabilize the results.
 
 #### UNIX chroot
 
@@ -203,10 +206,10 @@ processes are involved, so this setup will not be included in the experiment.
 The Linux kernel also allows setting per-process NUMA affinity, which determines 
 which memory nodes should be used by the process. Restricting a process to the 
 memory node that belongs to the CPU where it is running is certainly reasonable. 
-Since this is the default policy in Linux[@NumaMemPolicy], we will not measure 
-the setup where the CPU affinity is already set explicitly. However, we will 
-experiment with setting the NUMA affinity without an explicit CPU affinity 
-(i.e., restricting a process to a memory node and not to a CPU).
+Since this restriction is the default policy in Linux[@NumaMemPolicy], we will 
+not measure the setup where the CPU affinity is already set explicitly. However, 
+we will experiment with setting the NUMA affinity without an explicit CPU 
+affinity (i.e., restricting a process to a memory node and not to a CPU).
 
 ### Types and Levels of System Load
 
@@ -238,17 +241,18 @@ on a system with two dual-core CPUs with hyperthreading, we will want to run:
 
 1) a single process, 
 2) two processes (each uses one CPU cache), 
-3) four processes (one per core, two pairs of processes will share the last 
-   level cache) and 
-4) eight processes (one process per hyperthreading core). 
+3) four processes (one per physical core, two pairs of processes will share the 
+   last level cache) and 
+4) eight processes (one process per logical core, i.e., exploiting 
+   hyperthreading). 
 
-Launching more processes than there are hyperthreading cores might be an 
-interesting experiment. Sadly, there is little value in it in for our research, 
-because all these processes could not run in parallel at the same time and 
-therefore, the total throughput would not increase. Such configurations would be 
-viable if we included IO-bound workloads in our measurements -- we could have 
-more parallel measurements than there are CPU threads, some of which could run 
-while other threads wait for IO.
+Launching more processes than there are logical cores might be an interesting 
+experiment. Sadly, there is little value in it in for our research, because all 
+these processes could not run in parallel at the same time and therefore, the 
+total throughput would not increase. Such configurations would be viable if we 
+included IO-bound workloads in our measurements -- we could have more parallel 
+measurements than there are CPU threads, some of which could run while other 
+threads wait for IO.
 
 The parallel workers will be launched using GNU parallel[@Parallel], a 
 relatively lightweight utility that simplifies the task of launching the same 
@@ -279,14 +283,17 @@ IO-bound programs (e.g., external sorting) are limited by the speed of accesses
 to external memory, such as HDDs or network resources. Due to the inherent 
 instability of access time of external memory, such tasks are hard to measure 
 reliably. Since we need to account for time taken by waiting for IO, CPU time 
-cannot be used for grading this class.
+cannot be used for grading this class -- an efficient solution will need to work 
+with the external memory in a way that minimizes the IO wait time, which is not 
+included in CPU time.
 
 Exercises in parallel computing (both CPU and GPU based) mostly fall into the 
 CPU and memory-bound categories, but, like in the IO-bound case, we cannot use 
 CPU time to grade them -- the CPU time of a multithreaded program is the sum of 
 the CPU times of its threads. Therefore, we cannot use it to measure the speedup 
-gained from parallelization. Moreover, we can expect a larger instability due to 
-the inherent non-determinism of scheduling of multiple threads.
+gained from parallelization and we are left with wall-clock time. Moreover, we 
+can expect a larger time measurement instability due to the inherent 
+non-determinism of scheduling of multiple threads.
 
 Many assignments are not at all concerned with the performance of the submission 
 and only check its correctness. For those, the evaluation process is similar to 
@@ -294,7 +301,8 @@ unit testing. A de-facto subclass of these assignments are those where the
 solution is not a computer program in the classical sense -- for example, some 
 courses require the students to train and submit a neural network that reaches 
 some level of accuraccy on a chosen dataset. Usually, the processing time is not 
-interesting in such assignments.
+interesting in such assignments, even though it is still necessary to limit it 
+to avoid leaving the evaluation system stuck in an infinite loop.
 
 We will concentrate on two basic groups of workloads -- CPU-bound and 
 memory-bound. We expect that the runtimes of memory-bound tasks will be less 
@@ -302,30 +310,32 @@ stable due to factors such as cache and page misses (these effects are further
 amplified by virtualization technologies). Apart from that, there are factors 
 that are detrimental even to the measurement stability of purely CPU-bound tasks 
 -- for example, frequency scaling, context switching or sharing of CPU core 
-components when hyperthreading is taking effect.
+units when logical cores are being used.
 
-There are some classes that we excluded from our analysis. IO-bound tasks are 
-difficult to run in parallel because of shared access to external memory. Also, 
-there are many factors to take into account when running them in a virtualized 
-environment. Parallel tasks typically require a dedicated machine with a 
-multicore CPU that should not be used by other measurements. Finally, we do not 
-have to be concerned with the stability of measurements for assignments that are 
-not graded with respect to measured time.
+We excluded exercises that are IO-bound or use parallel computing from our 
+analysis. IO-bound tasks are difficult to run in parallel because of shared 
+access to external memory. Also, there are many factors to take into account 
+when running them in a virtualized environment, making their evaluation too 
+complicated for this experiment. Parallel tasks typically require a dedicated 
+machine with a multicore CPU that should not be used by other measurements. 
+Finally, we do not have to be concerned with the stability of measurements for 
+assignments that are not graded with respect to measured time.
 
 It is also worth noting that being CPU or memory bound is a characteristic of 
 the submitted program and not the assignment. In many tasks, the students can 
 choose the degree of the memory-speed tradeoff they want to make (for example, 
 calculacting the `scrypt` function and tuning the block size). Also, students 
-might choose to solve problems intended e.g. as CPU-bound with memory-bound 
+might choose to solve problems intended e.g., as CPU-bound with memory-bound 
 programs.
 
 The workloads we selected for the experiment are:
 
 - `exp`: Approximation of $e^x$ using the $(1 + \frac{x}{n})^n$ formula with $x$ 
-  and $n$ as parameters that are read from the memory. The calculation only uses 
-  two integer variables and one float variable. We can expect they will probably 
-  stay in CPU registers for most of the execution time. This workload tests 
-  floating point operations with inputs being read sequentially from the memory.
+  and $n$ as integer parameters that are read from the memory. The calculation 
+  only uses two integer variables and one float variable. We can expect they 
+  will probably stay in CPU registers for most of the execution time. This 
+  workload tests floating point operations with inputs being read sequentially 
+  from the memory.
 - `gray2bin`: Conversion of numbers in memory from Gray code to binary. This 
   workload measures the performance of integer operations while inputs are being 
   read sequentially from the memory.
@@ -333,9 +343,9 @@ The workloads we selected for the experiment are:
   This workload tests random access memory reads, which is a very common memory 
   access scheme in both real-world and synthetic workloads.
 - `sort`: Sorting a large integer array in the memory using both the insertion 
-  sort and quicksort algorithms. This workload tests random access memory reads 
-  and writes. This memory access scheme is also common in many real-world and 
-  synthetic workloads.
+  sort and quicksort algorithms. This workload tests a combination of random
+  access and sequential memory reads and writes. This memory access scheme is 
+  also common in many real-world and synthetic workloads.
 
 The inputs are generated randomly using the `shuf` command from GNU coreutils. 
 Typically, we generate sets of numbers from a given range, chosen with 
@@ -354,7 +364,8 @@ ReCodEx tests run in tens or hundreds of milliseconds.
 
 The input sizes are as follows:
 
-- `exp`: 65536 random exponents between 0 and 32 with `n=1000`
+- `exp`: 65536 random exponents between 0 and 32 with `n=1000` (performed with 
+  both `float` and `double` data types)
 - `gray2bin`: 1048576 random 32-bit integers
 - `bsearch`: 1048576 lookups in a 65536-item array of 32-bit integers
 - `sort/insertion_sort`: 16384 32-bit integers
@@ -387,9 +398,11 @@ adoption is still rather small. C++ has a multitude of features compared to C,
 such as type-safe collections and support for namespaces, object oriented 
 programming and template metaprogramming. Its standard library is also much 
 larger. However, the argument that applies to Rust holds here too -- our 
-workloads are too trivial to benefit from these features significantly. Also, 
+workloads are too trivial to benefit from these features significantly (although 
+templates could make for marginally cleaner code in the `exp` workload). Also, 
 using collections from the standard library could make the measured code harder 
-to reason about in terms of how it will be executed.
+to reason about in terms of how it will be executed. The final argument for C is 
+that it is still used in many introductory programming courses.
 
 Although a comprehensive study of measurement stability among a large set of 
 programming languages is out of scope of this thesis, it is important to measure 
@@ -409,19 +422,23 @@ Python on the other hand is a scripting language with many use cases ranging
 from web development to machine learning. It is also used by introductory 
 programming courses at many universities.
 
-For the workloads in Java and Python, we chose to reduce the input size to 
-131072 items ($\frac{1}{8}$ of the original size) in order to make their runtime 
-closer to that of the C implementation.
+The workloads in Java and Python took much longer per iteration, making the 
+total runtime of the experiment impractical. Therefore, we chose to reduce the 
+input size to 131072 items ($\frac{1}{8}$ of the original size) in order to make 
+their runtime closer to that of the C implementation. This is not a concern 
+since we are not aiming to compare the performance of the implementations 
+anyway.
 
-### Measured Data
+### Measured Data \label{measured-data}
 
 ReCodEx uses CPU and wall clock time measurements reported by isolate. 
 Therefore, the stability of these values is the most important result of our 
 experiment.
 
-Our workloads are also instrumented manually to "measure themselves" using the 
-`clock_gettime` call. `CLOCK_PROCESS_CPUTIME_ID` is used to measure CPU time and 
-`CLOCK_REALTIME` is used for wall clock time.
+Our workloads are also instrumented manually to measure and report the runtime 
+of the solution (minus the initialization and finalization time of the program) 
+using the `clock_gettime` call. `CLOCK_PROCESS_CPUTIME_ID` is used to measure 
+CPU time and `CLOCK_REALTIME` is used for wall clock time.
 
 This instrumentation is necessary because some isolation setups cannot provide 
 us with measurements from isolate (in fact, a half of them does not use isolate 
@@ -468,7 +485,7 @@ The server runs CentOS 7 with Linux 3.10.0 kernel. The OS is configured
 according to the recommendations by the authors of isolate in its documentation:
 
 - swap is disabled
-- CPU frequency scaling governor is set to "performance"
+- CPU frequency scaling governor is set to `performance`
 - kernel address space randomization is disabled
 - transparent hugepage support is disabled
 

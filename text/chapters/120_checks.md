@@ -4,8 +4,8 @@ Considering the objective of our experiment, we had to ensure that the results
 of our measurements are stable in ideal conditions (only one process at a time 
 being measured on the bare metal without isolation) in the first place. 
 Otherwise, the comparison with results in less than ideal conditions would be 
-much more difficult. In other words, we are going to check that conditions exist 
-under which the workloads we chose yield stable results.
+much more difficult. In other words, we are going to make sure that conditions 
+exist under which the workloads we chose yield stable results.
 
 ### Dependence of Result Variance on Input
 
@@ -38,8 +38,8 @@ measurements exhibit a notably higher standard deviation.
 
 In computer performance evaluation, it is common to let the benchmark warm up by 
 performing a handful of iterations without measuring them. This way, the 
-measurements are not influenced by e.g., initialization of the runtime 
-environment or population of caches.
+measurements are not influenced by initialization of the runtime environment or 
+population of caches, for example.
 
 We expect that warming up will not occur in our experiment because each 
 iteration runs in a separate process and actual submissions are different 

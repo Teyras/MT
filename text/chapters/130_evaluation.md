@@ -2,14 +2,17 @@
 
 ### Evaluation of Isolate Measurements
 
-As mentioned before, our measurements that run in isolate yield four values: the 
-cpu and wall clock times as measured by isolate and by the program itself. It is 
-safe to assume that there will be some discrepancies between the results from 
-isolate and from the program -- isolate also takes into account the time it 
-takes to load the binary and start the process, as opposed to the instrumented 
-measurements start when everything is ready. However, this does not concern us 
-too much as long as the error is stable -- in ReCodEx, we only observe the 
-values reported by isolate.
+As mentioned in Section \ref{measured-data}, our measurements that run in 
+isolate yield four values: the cpu and wall clock times as measured by isolate 
+and by the program itself. It is safe to assume that there will be some 
+discrepancies between the results from isolate and from the program -- isolate 
+also takes into account the time it takes to load the binary and start the 
+process, as opposed to the instrumented measurements start when everything is 
+ready. However, since we only observe the values reported by isolate in ReCodEx, 
+this does not concern us as long as the error is deterministic (i.e., it stays 
+the same in repeated measurements). Additionally, if the error was 
+deterministic, but larger than the runtime of the program itself, it would be 
+more difficult to recognize inefficient solutions.
 
 To examine this, we took the results from the `parallel-homogenous` setup and 
 made a correlation plot of times reported by the program itself and by isolate 
@@ -19,19 +22,19 @@ inverse of the number of parallel workers as a weight for each observation. This
 way, we compensate the fact that setups with multiple parallel workers yield 
 more observations in total.
 
-As seen in Figure \ref{iso-cpu-err-correlation}, the error is rather small and 
-stable for the CPU times. This result is not surprising -- starting a process is 
-generally not a CPU-intensive task. Measurements of the quicksort workload in 
-Java are an exception -- the times measured by isolate were twice as long in 
-almost every iteration. Also, the results seem less stable when the execution 
-time is longer. We can attribute this difference to the work required to launch 
-the JVM. Still, the measurements for all the other workloads seem fairly 
-reliable.
+As depicted in Figure \ref{iso-cpu-err-correlation}, the error is rather small 
+and stable for the CPU times. This result is not surprising -- starting a 
+process is generally not a CPU-intensive task. Measurements of the quicksort 
+workload in Java are an exception -- the times measured by isolate were twice as 
+long in almost every iteration. Also, the results seem less stable when the 
+execution time is longer. We can attribute this difference to the work required 
+to launch the JVM. Still, the measurements for all the other workloads seem 
+fairly reliable.
 
 On the other hand, we found that the wall-clock time error tends to vary a lot 
 (Figure \ref{iso-wall-err-correlation}). To find out if there is a correlation 
 between the workload, isolation technology or setup size and the error rate, we 
-calculated the meand and standard deviation of the difference between the times 
+calculated the mean and standard deviation of the difference between the times 
 measured by the program and by isolate for each iteration and grouped them by 
 workload, isolation and setup type and size. We also normalized the standard 
 deviation by dividing it with the mean of the runtime to obtain a relative error 
@@ -186,15 +189,16 @@ workloads. For example, in Figure \ref{bsearch-over-isolations}, we can see that
 a `bsearch` iteration normally takes about 0.35 seconds on the bare metal with a 
 single process and 0.4-0.45s when 10 processes are running in parallel. It is 
 worth mentioning that the difference seems much smaller for `exp_float`. This 
-could be due to the parallel workers competing for the last-level cache -- this 
-would affect memory-bound tasks more than it would affect CPU-bound tasks.
+could be due to the parallel workers competing for the last-level cache and 
+memory controller, which would affect memory-bound tasks more than it would 
+affect CPU-bound tasks.
 
 Second, the measurements seem to be notably stable with a single worker on the 
-bare metal and in Docker. This stability, however, decays quickly with as little 
-as two workers measuring in parallel. In `isolate` on the bare metal, in Docker 
-with `isolate` and in VirtualBox, the stability of measurements seems similar in 
-the cases with one and two parallel workers. A noticeable decay appears with 
-four workers.
+bare metal (`B`) and in Docker (`D`). This stability, however, decays quickly 
+with as little as two workers measuring in parallel. In `isolate` (`I`) on the 
+bare metal, in Docker with `isolate` (`D+I`) and in VirtualBox (`V` and `V+I`), 
+the stability of measurements seems similar in the cases with one and two 
+parallel workers. A noticeable decay appears with four workers.
 
 Third, the previous two trends are more prominent in measurements of 
 memory-bound workloads than in those of CPU-bound workloads. This could however 
