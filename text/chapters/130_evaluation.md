@@ -160,7 +160,7 @@ TODO try to use data from perf to explain stuff
 
 ### Validation of Parallel Worker Results
 
-For the homogenus parallel setup, we needed to make sure that our measurements 
+For the homogeneous parallel setup, we needed to make sure that our measurements 
 did actually run in parallel. We calculated the total runtime for all the 
 measurements (the difference between the timestamps of the first and last 
 measured results, regardless of the worker) and the time when all the worker 
@@ -168,12 +168,13 @@ processes ran in parallel (the difference between the timestamps of the last
 received result of a first iteration and the first received result of a last 
 iteration). We then inspected the ratio of these two numbers.
 
-As we can see in Table \ref{parallel-run-ratios}, this ratio is 68% in one case 
+As depicted in Figure \ref{parallel-run-ratios}, this ratio is 68% in one case 
 and higher than 90% most of the time. This should guarantee that the
-homogenous parallel measurements are not in fact a sequence of sequential 
+homogeneous parallel measurements are not in fact a sequence of sequential 
 workloads and their results are similar to actual parallel measurements.
 
-!include tables/stability/parallel-run-ratios.md
+![A histogram of parallel run ratios
+\label{parallel-run-ratios}](img/stability/parallel-run-ratios.tex)
 
 ### Comparing Parallel Worker Results
 

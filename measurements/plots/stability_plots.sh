@@ -40,7 +40,9 @@ Rscript plot-means-by-setup-size.r $results > /dev/null
 cp means_by_setup_size/bsearch-over-isolations.tex $target_dir/img/stability/
 
 echo === Parallel runs
-python check-parallel-runs.py $results > $target_dir/tables/stability/parallel-run-ratios.md
+python calculate-parallel-ratios.py $results > parallel-ratios.csv 
+Rscript plot-parallel-ratios.r parallel-ratios.csv 
+mv parallel-run-ratios.tex $target_dir/img/stability/
 
 echo === Taskset comparison
 Rscript compare-taskset.r $results > /dev/null
