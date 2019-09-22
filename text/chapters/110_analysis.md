@@ -114,7 +114,7 @@ call is actually executed, but after the sandbox is done inspecting it.
 
 Jails[@FreeBSDJail] (featured since 2000) expand on the concept of chroots. In 
 addition to confining a process to a part of the filesystem, they also provide 
-network and process isolation and time, memory and disk usage 
+network and process isolation and time, memory, and disk usage 
 limits[@FreeBSDRLimit].
 
 Many other UNIX systems also have their own implementations of jails, e.g., 
