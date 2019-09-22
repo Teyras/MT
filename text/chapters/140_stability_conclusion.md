@@ -20,3 +20,12 @@ Second, setting the CPU affinity explicitly does not generally yield any
 improvements to the overall measurement stability, even though the multicore 
 affinity setting policy seems to improve the stability for batch measurements on 
 the bare metal.
+
+### Discussion
+
+TODO multiple measurements - longer feedback loop (but we can 1. provide 
+preliminary results 2. abort on wrong answers 3. abort when a limit is broken by 
+a large margin)
+
+TODO instruction counting - pretty stable, but especially memory loads are hard 
+to evaluate. Also, the output might be garbage for scripted/managed languages.
