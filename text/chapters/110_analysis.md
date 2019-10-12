@@ -455,6 +455,18 @@ will be run separately to make sure that the profiling does not influence our
 results. With this data, we will have a better insight into the causes of 
 potential unstable measurements.
 
+The exact measured events are:
+
+- `L1-dcache-loads`
+- `L1-dcache-misses`
+- `LLC-stores`
+- `LLC-store-misses`
+- `LLC-loads`
+- `LLC-load-misses`
+- `page-faults`
+
+TODO describe the events
+
 TODO disk latency would be interesting to observe, but perf events are either 
 uninteresting or undocumented. There are things like iotop.
 

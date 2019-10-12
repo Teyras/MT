@@ -41,7 +41,7 @@ plot_violin_by_setup_size <- function(subset, subset_single, title, metric, limi
 		theme(text=element_text(size=6)) +
 		geom_violin(draw_quantiles=c(0.5)) +
 		ylim(limit_min, limit) +
-		facet_grid(cols=vars(subset$category), rows=vars(subset$setup_size))
+		facet_grid(rows=vars(subset$category), cols=vars(subset$setup_size))
 
 	return(plot)
 }

@@ -93,3 +93,18 @@ compare.fnc.boot <- function (fnc, data1, data2) {
 my.kable <- function(df, col.names=NA) {
 	return (kable(df, col.names=col.names, row.names=F, digits=3))
 }
+
+wl.labels <- function(labels) {
+	return(lapply(labels, function(wl) {
+		if (wl == "exp_float") {
+			return("exp\\_float")
+		}
+
+		if (wl == "qsort_java.sh") {
+			return("qsort.java")
+		}
+
+		return(wl)
+	}))
+}
+

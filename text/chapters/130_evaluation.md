@@ -208,13 +208,44 @@ the memory-bound ones.
 
 TODO use a graph to show this
 
-TODO use data from perf here
-
 A conclusion follows from our observations: we cannot allow a number of parallel 
 workers that is so high that any of these effects manifests. Otherwise, we risk 
 that our measurements will become too unstable. 
 
 TODO wrap up
+
+### Evaluation of Performance Metrics
+
+In this section, we try to explain the changes in results of our time 
+measurements caused by using `isolate` and increasing the system load using the 
+data gathered by `perf` (the exact list of counted events is in Section 
+\ref{measured-data}). With the exception of `page-faults`, the events form pairs 
+of the number of hits and the total number of accesses for a type of cache. 
+Therefore, it is natural to also examine the miss ratio for these counters.
+
+The miss ratio for L1 data cache loads seems close to zero for every workload 
+except `bsearch`. However, the absolute number of misses is substantial (in the 
+order of millions of events per iteration). The miss ratio is also higher when 
+using `isolate`, although it is still in the order of tenths of a percent. Also, 
+no change in the number of misses was observed with increasing system load.
+This shows that the values in L1 cache are used very frequently and it performs 
+well in all cases.
+
+For stores in the last level cache, the miss ratio seems larger with `isolate` 
+than on the bare metal. However, it does not increase with the system load as 
+much. The ratio is mostly less than 0.05% on the bare metal and close to 0.1% 
+with `isolate`. This might be a part of the explanation for `isolate` 
+measurements being slightly more stable than those on the bare metal.
+
+We observed an unexpectedly small last level cache load miss ratio in `bsearch` 
+(around 0.5%), when compared to the other workload types (up to 60%). This could 
+indicate that our binary search workload utilizes the last-level cache more than 
+the other workloads, which is plausible -- the other workloads seem to work with 
+the L1 data cache more efficiently and might not need to use the last level 
+cache as much. We could not find any interesting trend in the data related to 
+neither using `isolate` nor increasing the system load.
+
+TODO correlation
 
 ### The Effects of Explicit Affinity Settings
 

@@ -22,20 +22,6 @@ values <- values[
 		 values$metric %in% metrics,
 	 ]
 
-wl.labels <- function(labels) {
-	return(lapply(labels, function(wl) {
-		if (wl == "exp_float") {
-			return("exp\\_float")
-		}
-
-		if (wl == "qsort_java.sh") {
-			return("qsort.java")
-		}
-
-		return(wl)
-	}))
-}
-
 plot.means <- function() {
 	means <- do.call(data.frame, aggregate(value ~ wl.short + isolation + setup_size, values, function(x) {
 		return(c(mean=mean(x), sd=sd(x)))
