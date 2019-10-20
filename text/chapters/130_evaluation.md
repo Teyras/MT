@@ -156,8 +156,6 @@ deviations among various measurement groups, with and without isolate
 TODO the wall-clock time measurements in VirtualBox seems to have the largest 
 outliers.
 
-TODO try to use data from perf to explain stuff
-
 ### Validation of Parallel Worker Results
 
 For the homogeneous parallel setup, we needed to make sure that our measurements 
