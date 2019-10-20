@@ -216,20 +216,26 @@ TODO wrap up
 
 ### Evaluation of Performance Metrics
 
+TODO illustrate the observations with graphs... somehow (without using up four 
+pages)
+
+TODO show that page faults don't really happen
+
 In this section, we try to explain the changes in results of our time 
 measurements caused by using `isolate` and increasing the system load using the 
-data gathered by `perf` (the exact list of counted events is in Section 
-\ref{measured-data}). With the exception of `page-faults`, the events form pairs 
-of the number of hits and the total number of accesses for a type of cache. 
-Therefore, it is natural to also examine the miss ratio for these counters.
+data gathered by `perf` (the exact list of counted events can be found in 
+Section \ref{measured-data}). With the exception of `page-faults`, the events 
+form pairs of the number of hits and the total number of accesses for a type of 
+cache. Therefore, it is natural to also examine the miss ratio for these 
+counters.
 
 The miss ratio for L1 data cache loads seems close to zero for every workload 
 except `bsearch`. However, the absolute number of misses is substantial (in the 
 order of millions of events per iteration). The miss ratio is also higher when 
-using `isolate`, although it is still in the order of tenths of a percent. Also, 
-no change in the number of misses was observed with increasing system load.
-This shows that the values in L1 cache are used very frequently and it performs 
-well in all cases.
+using `isolate`, although it is still in the order of tenths of a percent. No 
+change in the number of misses was observed with increasing system load. This 
+shows that the values in L1 cache are used very frequently and it performs well 
+in all cases.
 
 For stores in the last level cache, the miss ratio seems larger with `isolate` 
 than on the bare metal. However, it does not increase with the system load as 
@@ -245,7 +251,25 @@ the L1 data cache more efficiently and might not need to use the last level
 cache as much. We could not find any interesting trend in the data related to 
 neither using `isolate` nor increasing the system load.
 
-TODO correlation
+To see if there is a relationship between the results of measurements of 
+performance metrics and the measurements of CPU time, we calculated the standard 
+(Pearson) correlation coefficient and also the Spearman coefficient of each of 
+the performance metrics and the CPU time for every tested workload. The Spearman 
+coefficient should help in pointing out nonlinear relationships between the 
+variables.
+
+The correlation coefficients are listed in Table \ref{perf-correlations}. It 
+seems that no value from our selection influences the CPU time. The only result 
+that does not clearly suggest that the values are unrelated is that the standard 
+(Pearson) correlation of the number of L1 cache misses and the CPU time is 
+`0.417`. However, this is not nearly enough evidence for any conclusion.
+
+!include tables/stability/perf-correlations.md
+
+The result of our analysis is that we could not find any explanation of the 
+phenomena observed in the previous section based on the data obtained from 
+`perf`. If the experiment was to be repeated, a more careful selection of 
+observed events would be required. 
 
 ### The Effects of Explicit Affinity Settings
 
