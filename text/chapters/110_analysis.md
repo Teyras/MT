@@ -270,15 +270,18 @@ parallel workers).
 ### Choice of Measured Assignment Types
 
 There are numerous types of programming assignments suitable for automated 
-evaluation that differ in their characteristics and requirements.
+evaluation that differ in their characteristics and requirements. We mostly 
+differentiate them by the bounding factor in their performance -- the speed of 
+the CPU, memory accesses or IO operations.
 
 The performance of CPU-bound programs is primarily limited by the speed at which 
 the procesor can execute instructions. An example of this class are exercises 
-that require students to perform a computation with small input data.
+that require students to perform a computation with small input data, such as 
+iterative approximation of values of mathematical functions.
 
 In memory-bound programs, the performance is limited by the speed of memory 
-accesses. This can manifest in common tasks such as matrix multiplication or 
-sorting.
+accesses. This can manifest in common tasks such as binary search or reduce-type 
+operations such as summing.
 
 Both CPU-bound and memory-bound tasks can be easily graded with respect to 
 either processor time or wall-clock time. However, there are classes of tasks 
@@ -290,7 +293,7 @@ instability of access time of external memory, such tasks are hard to measure
 reliably. Since we need to account for time taken by waiting for IO, CPU time 
 cannot be used for grading this class -- an efficient solution will need to work 
 with the external memory in a way that minimizes the IO wait time, which is not 
-included in CPU time.
+included in CPU time (but it is included in wall-clock time).
 
 Exercises in parallel computing (both CPU and GPU based) mostly fall into the 
 CPU and memory-bound categories, but, like in the IO-bound case, we cannot use 
@@ -329,21 +332,22 @@ assignments that are not graded with respect to measured time.
 It is also worth noting that being CPU or memory bound is a characteristic of 
 the submitted program and not the assignment. In many tasks, the students can 
 choose the degree of the memory-speed tradeoff they want to make (for example, 
-calculacting the `scrypt` function and tuning the block size). Also, students 
-might choose to solve problems intended e.g., as CPU-bound with memory-bound 
-programs.
+the number of intermediate results stored in a lookup table to avoid 
+recalculation). Also, students might choose to solve problems intended e.g., as 
+CPU-bound with memory-bound programs.
 
 The exercise types we selected for the experiment are:
 
 - `exp`: Approximation of $e^x$ using the $(1 + \frac{x}{n})^n$ formula with $x$ 
   and $n$ as integer parameters that are read from the memory. The calculation 
-  only uses two integer variables and one float variable. We can expect they 
-  will probably stay in CPU registers for most of the execution time. This 
-  workload tests floating point operations with inputs being read sequentially 
-  from the memory.
-- `gray2bin`: Conversion of numbers in memory from Gray code to binary. This 
-  workload measures the performance of integer operations while inputs are being 
-  read sequentially from the memory.
+  itself only uses two integer variables (the parameters) and one float variable 
+  (the result). We can expect they will probably stay in CPU registers for most 
+  of the execution time. 16384 iterations with pre-generated inputs (`x` and 
+  `n`) loaded into memory are performed. This way, the workload tests floating 
+  point operations with inputs being read sequentially from the memory.
+- `gray2bin`: Conversion of numbers in an in-memory array from Gray code to 
+  binary. This workload measures the performance of integer operations while 
+  inputs are being read sequentially from the memory.
 - `bsearch`: A series of binary searches in a large integer array in the memory. 
   This workload tests random access memory reads, which is a very common memory 
   access scheme in both real-world and synthetic workloads.
