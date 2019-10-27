@@ -1,8 +1,8 @@
 ## Analysis
 
 To explore the influence of aforementioned factors on measurement stability, we 
-shall measure a reasonable set of workloads under different types of system load 
-and different isolation technologies.
+shall measure a reasonable set of workloads under different execution setups 
+with varying levels of system load and different isolation technologies.
 
 ### Inherent Stability-influencing Factors
 
@@ -211,40 +211,41 @@ not measure the setup where the CPU affinity is already set explicitly. However,
 we will experiment with setting the NUMA affinity without an explicit CPU 
 affinity (i.e., restricting a process to a memory node and not to a CPU).
 
-### Types and Levels of System Load
+### Execution Setups
 
 There are multiple ways of simulating measurements on a machine where other 
-processes are running. First, we can run multiple instances of the 
-measurements of the same workload in parallel. While it might seem like an 
-artificial situation, it is actually a likely scenario -- it often happens that 
-multiple students start submitting solutions to the same assignment at the same 
-time (for example when the deadline is close). This setup is called 
-`parallel-homogenous` in plots and measurement scripts.
+processes are running. First, we can run multiple instances of the measurements 
+of the same exercise type in parallel. While it might seem like an artificial 
+situation, it is actually a likely scenario -- it often happens that multiple 
+students start submitting solutions to the same assignment at the same time (for 
+example when the deadline is close). This execution setup type is called 
+`parallel-homogeneous` in plots and measurement scripts.
 
 Second, we can use a tool that generates system load with configurable 
 characteristics. Such experiment does not imitate real traffic as well as the 
-`parallel-homogenous` variant, but the results might prove easier to interpret 
+`parallel-homogeneous` variant, but the results might prove easier to interpret 
 and reproduce. Moreover, the ability to configure the characteristics of the 
 system load could help identify which kind of system load influences the 
 measurement stability the most.
 
-To create this kind of synthetic system loads, we will use the 
+To implement this type of execution setups, we will use the 
 `stress-ng`[@StressNG] utility, and along with that, we will run measurements of 
-a single workload. In plots and measurement scripts, the names of these setups 
-start with `parallel-synth`.
+a single exercise type. In plots and measurement scripts, the names of these 
+setups start with `parallel-synth`.
 
-In order to examine the behavior of the system under varying levels of load, we 
-will repeat the measurements with different amounts of workers running in 
-parallel. The amounts of workers shall be chosen with regard to the topology of 
-CPU cores so that they exercise all variants of cache utilization. For example, 
-on a system with two dual-core CPUs with hyperthreading, we will want to run:
+In order to examine the behavior of the system under varying levels of system 
+load, we will repeat the measurements with different amounts of workers running 
+in parallel. The amounts of workers shall be chosen with regard to the topology 
+of CPU cores so that they exercise all variants of cache utilization. For 
+example, on a system with two dual-core CPUs where each physical core has two 
+logical cores, we will want to run:
 
 1) a single process, 
 2) two processes (each uses one CPU cache), 
 3) four processes (one per physical core, two pairs of processes will share the 
    last level cache) and 
-4) eight processes (one process per logical core, i.e., exploiting 
-   hyperthreading). 
+4) eight processes (one process per logical core, i.e., exploiting the logical 
+   cores). 
 
 Launching more processes than there are logical cores might be an interesting 
 experiment. Sadly, there is little value in it in for our research, because all 
@@ -260,9 +261,13 @@ process N times in parallel with a variable parameter. There are numerous
 alternatives to parallel with negligible differences, at least considering our 
 use-case where we simply need to launch a fixed number of commands 
 simultaneously on the same machine. Nonetheless, we shall make sure that the 
-measurements did in fact run in parallel in the analysis of results.
+measurements did in fact run in parallel in the evaluation of results.
 
-### Choice of Workloads
+Throughout the text, we understand "execution setup" as a union of execution 
+setup type (e.g., `parallel-homogeneous`) and system load level (the number of 
+parallel workers).
+
+### Choice of Measured Assignment Types
 
 There are numerous types of programming assignments suitable for automated 
 evaluation that differ in their characteristics and requirements.
@@ -328,7 +333,7 @@ calculacting the `scrypt` function and tuning the block size). Also, students
 might choose to solve problems intended e.g., as CPU-bound with memory-bound 
 programs.
 
-The workloads we selected for the experiment are:
+The exercise types we selected for the experiment are:
 
 - `exp`: Approximation of $e^x$ using the $(1 + \frac{x}{n})^n$ formula with $x$ 
   and $n$ as integer parameters that are read from the memory. The calculation 
@@ -358,9 +363,9 @@ the time values reported by `isolate` are truncated to three decimal numbers and
 measurements of short workloads would often falsely seem equal to each other due 
 to rounding/truncation of decimals. The iterations should not be too long 
 either, because we measure multiple iterations using multiple isolation 
-technologies, each under multiple setups, which totals to a substantial 
-multiplicative factor on the total runtime. It is also noteworthy that most 
-ReCodEx tests run in tens or hundreds of milliseconds.
+technologies, each under multiple execution setups, which totals to a 
+substantial multiplicative factor on the total runtime. It is also noteworthy 
+that most ReCodEx tests run in tens or hundreds of milliseconds.
 
 The input sizes are as follows:
 
@@ -373,9 +378,9 @@ The input sizes are as follows:
 
 TODO forward declaration of ReCodEx?
 
-### Workload Languages
+### Exercise Workload Languages
 
-The core workloads for our experiments shall be implemented in a compiled, 
+The core exercises for our experiments shall be implemented in a compiled, 
 low-level language. Such languages should have a relatively small overhead 
 induced by the runtime environment (at least compared to managed languages with 
 features such as garbage collection and JIT compilation).
@@ -388,21 +393,23 @@ prove difficult to understand how exactly is the code going to be compiled and
 executed by the CPU. Go is excluded because it features a non-trivial runtime 
 with garbage collection. 
 
-For the core workloads, we selected C as the implementation language. Pascal and 
-Fortran, respectively, are sometimes used in programmer education and scientific 
-computations, but they are not known to the general public as much as C or C++. 
-Rust is a relatively new language that is still evolving rather rapidly. 
-Although it promises memory and concurrency safety thanks to its type system, 
-there are not many ways we could exploit this in our workloads. Also, the 
-adoption is still rather small. C++ has a multitude of features compared to C, 
-such as type-safe collections and support for namespaces, object oriented 
-programming and template metaprogramming. Its standard library is also much 
-larger. However, the argument that applies to Rust holds here too -- our 
-workloads are too trivial to benefit from these features significantly (although 
-templates could make for marginally cleaner code in the `exp` workload). Also, 
-using collections from the standard library could make the measured code harder 
-to reason about in terms of how it will be executed. The final argument for C is 
-that it is still used in many introductory programming courses.
+For the core exercise types, we selected C as the implementation language. 
+Pascal and Fortran, respectively, are sometimes used in programmer education and 
+scientific computations, but they are not known to the general public as much as 
+C or C++. Rust is a relatively new language that is still evolving rather 
+rapidly. Although it promises memory and concurrency safety thanks to its type 
+system, there are not many ways we could exploit this in our workloads. Also, 
+the adoption is still rather small.
+
+C++ has a multitude of features compared to C, such as type-safe collections and 
+support for namespaces, object oriented programming and template 
+metaprogramming. Its standard library is also much larger. However, the argument 
+that applies to Rust holds here too -- our exercises are too trivial to benefit 
+from these features significantly (although templates could make for marginally 
+cleaner code in the `exp` exercise workload). Also, using collections from the 
+standard library could make the measured code harder to reason about in terms of 
+how it will be executed. The final argument for C is that it is still used in 
+many introductory programming courses.
 
 Although a comprehensive study of measurement stability among a large set of 
 programming languages is out of scope of this thesis, it is important to measure 
@@ -422,12 +429,12 @@ Python on the other hand is a scripting language with many use cases ranging
 from web development to machine learning. It is also used by introductory 
 programming courses at many universities.
 
-The workloads in Java and Python took much longer per iteration, making the 
-total runtime of the experiment impractical. Therefore, we chose to reduce the 
-input size to 131072 items ($\frac{1}{8}$ of the original size) in order to make 
-their runtime closer to that of the C implementation. This is not a concern 
-since we are not aiming to compare the performance of the implementations 
-anyway.
+The exercises implemented in Java and Python took much longer per iteration, 
+making the total runtime of the experiment impractical. Therefore, we chose to 
+reduce the input size to 131072 items ($\frac{1}{8}$ of the original size) in 
+order to make their runtime closer to that of the C implementation. This is not 
+a concern since we are not aiming to compare the performance of the 
+implementations anyway.
 
 ### Measured Data \label{measured-data}
 
@@ -440,11 +447,11 @@ of the solution (minus the initialization and finalization time of the program)
 using the `clock_gettime` call. `CLOCK_PROCESS_CPUTIME_ID` is used to measure 
 CPU time and `CLOCK_REALTIME` is used for wall clock time.
 
-This instrumentation is necessary because some isolation setups cannot provide 
-us with measurements from isolate (in fact, a half of them does not use isolate 
-at all), yet we want to use these setups in our comparison. Measuring all this 
-data also lets us examine the overhead caused by isolate and any potential 
-discrepancies between the values.
+This instrumentation is necessary because some isolation technologies cannot 
+provide us with measurements from isolate (in fact, a half of them does not use 
+isolate at all), yet we want to use these technologies in our comparison. 
+Measuring all this data also lets us examine the overhead caused by isolate and 
+any potential discrepancies between the values.
 
 Along with the measurements themselves, we will collect performance data using 
 the `perf` tool that provides access to performance counters in the Linux 
@@ -501,11 +508,11 @@ according to the recommendations by the authors of isolate in its documentation:
 - kernel address space randomization is disabled
 - transparent hugepage support is disabled
 
-There are two ways of distributing the workloads over CPU cores when measugint 
-with `taskset`. Both are implemented by the `distribute_workers.sh` scripts. The 
-main idea (shared by both of these ways) is that the number of workloads should 
-be balanced on the physical CPUs. The same applies to logical cores in a 
-physical CPU.
+There are two ways of distributing the measured exercises over CPU cores when 
+measuring with `taskset`. Both are implemented by the `distribute_workers.sh` 
+script. The main idea (shared by both of these approaches) is that the numbers 
+of parallel workers running on each physical CPU should be balanced. The same 
+should apply to logical cores in a physical CPU.
 
 The first approach to workload distribution is illustrated in Figure
 \ref{taskset-naive}. Each workload is assigned to a single core and using two 
@@ -514,12 +521,12 @@ exact cores are chosen is not important, because the only layer of cache shared
 by the cores is the last level cache, which is shared by all the cores.
 
 The other approach is illustrated in Figure \ref{taskset-multi}. It tries to 
-divide the CPU cores into equally-sized sets where hyperthreading cores always 
-belong to the same set.
+divide the CPU cores into equally-sized sets where logical cores that belong to 
+the same physical core always belong to the same set.
 
 The `distribute_workers.sh` script might require adjustments if we try to 
-replicate this experiment on other CPUs with different topologies as it does not 
-attempt to cover all possible CPU configurations.
+replicate this experiment on other CPUs with different topologies - in other 
+words, it does not attempt to cover all possible CPU configurations.
 
 ![Placement of 10 measurements on our CPU cores using the fixed affinity setting 
 policy \label{taskset-naive}](img/stability/cpu-layout-taskset-naive.tex)

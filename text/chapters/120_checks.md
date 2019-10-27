@@ -5,16 +5,16 @@ of our measurements are stable in ideal conditions (only one process at a time
 being measured on the bare metal without isolation) in the first place. 
 Otherwise, the comparison with results in less than ideal conditions would be 
 much more difficult. In other words, we are going to make sure that conditions 
-exist under which the workloads we chose yield stable results.
+exist under which the exercises we chose yield stable results.
 
 ### Dependence of Result Variance on Input
 
-Being able to use randomly generated inputs in our workloads is very useful -- 
-we can demonstrate that the outcome of our measurements was not influenced by 
-carefully choosing inputs that yield the desired results. This can be done by 
-simply regenerating the input data and seeing if we get the same outcome. 
-However, this only holds when the generated inputs are large enough so that the 
-measurements take the same amount of time on every repetition.
+Being able to use randomly generated inputs in the measurements of workloads is 
+very useful -- we can demonstrate that the outcome of our measurements was not 
+influenced by carefully choosing inputs that yield the desired results. This can 
+be done by simply regenerating the input data and seeing if we get the same 
+outcome. However, this only holds when the generated inputs are large enough so 
+that the measurements take the same amount of time on every repetition.
 
 To see if the input sizes we chose are sufficient, we measured the execution 
 time of each workload (100 iterations) on 300 randomly generated input files and 
@@ -25,8 +25,8 @@ the means. However, as shown by Figure \ref{dep-input-sd}, the range of standard
 deviations is rather large, reaching up to 11ms. Upon closer inspection, we 
 found that this is due to a small number of outliers. We conclude that the input 
 data has a neglible effect on the execution time, even though there is a handful 
-of inputs for the `qsort`, `bsearch` and `gray2bin` workloads on which the time 
-measurements exhibit a notably higher standard deviation.
+of inputs for the `qsort`, `bsearch` and `gray2bin` exercise types on which the 
+time measurements exhibit a notably higher standard deviation.
 
 ![A box plot of the iteration means of CPU time for each workload 
 \label{dep-input-mean}](img/stability/dependence-on-input-means.png)
@@ -50,8 +50,8 @@ probably get it from the disk cache. Also, many successive submissions of a
 short program could vary in their runtime thanks to CPU frequency scaling. 
 Therefore, it is still necessary to verify whether or not warming up occurs.
 
-![A scatter plot of CPU times for selected workloads with no isolation and a 
-single measurement worker running
+![A scatter plot of CPU times for selected exercise types with no isolation and 
+a single measurement worker running
 \label{warmup}](img/stability/warmup.tex)
 
 As seen in Figure \ref{warmup}, the results are not clearly higher during the 

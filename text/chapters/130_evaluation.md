@@ -14,13 +14,18 @@ the same in repeated measurements). Additionally, if the error was
 deterministic, but larger than the runtime of the program itself, it would be 
 more difficult to recognize inefficient solutions.
 
-To examine this, we took the results from the `parallel-homogenous` setup and 
-made a correlation plot of times reported by the program itself and by isolate 
-for each workload and both CPU and wall-clock time measurements. Because the 
-number of observations is rather large, we selected a random sample using the 
-inverse of the number of parallel workers as a weight for each observation. This 
-way, we compensate the fact that setups with multiple parallel workers yield 
-more observations in total.
+To examine this, we took the results of measurements with the 
+`parallel-homogeneous` execution setup type and made a correlation plot of times 
+reported by the program itself and by isolate for each exercise type and both 
+CPU and wall-clock time measurements. There is a problem with the interpretation 
+of these plots -- execution setups with many parallel workers yield more 
+observations in total. Therefore, the results from highly parallelized execution 
+setups are more prominent in the correlation plots. To alleviate this, we 
+plotted a random sample from the observations using the inverse of the number of 
+parallel workers as a weight for each observation (e.g., an observation from a 
+setup with 40 workers has a weight of $\frac{1}{40}$ and is therefore less 
+likely to be selected than an observation from a setup with 10 workers which has 
+a weight of $\frac{1}{10}$).
 
 As depicted in Figure \ref{iso-cpu-err-correlation}, the error is rather small 
 and stable for the CPU times. This result is not surprising -- starting a 
@@ -28,17 +33,18 @@ process is generally not a CPU-intensive task. Measurements of the quicksort
 workload in Java are an exception -- the times measured by isolate were twice as 
 long in almost every iteration. Also, the results seem less stable when the 
 execution time is longer. We can attribute this difference to the work required 
-to launch the JVM. Still, the measurements for all the other workloads seem 
+to launch the JVM. Still, the measurements for all the other exercise types seem 
 fairly reliable.
 
 On the other hand, we found that the wall-clock time error tends to vary a lot 
 (Figure \ref{iso-wall-err-correlation}). To find out if there is a correlation 
-between the workload, isolation technology or setup size and the error rate, we 
-calculated the mean and standard deviation of the difference between the times 
-measured by the program and by isolate for each iteration and grouped them by 
-workload, isolation and setup type and size. We also normalized the standard 
-deviation by dividing it with the mean of the runtime to obtain a relative error 
-measure. The results can be seen in Attachment \ref{attachment-errors}.
+between the exercise type, isolation technology or system load level and the 
+error rate, we calculated the mean and standard deviation of the difference 
+between the times measured by the program and by isolate for each iteration and 
+grouped them by exercise type, isolation, execution setup type and load level. 
+We also normalized the standard deviation by dividing it by the mean of the 
+runtime to obtain a relative error measure. The results can be seen in 
+Attachment \ref{attachment-errors}.
 
 We found that the instability in wall-clock time measurements is most prominent 
 when a high number of parallel workers is involved (20-40) -- the relative error 
@@ -96,20 +102,21 @@ TODO cite Bootstrap, elaborate on percentile selection
 
 To visualize the effects of isolation technologies, we made scatter plots of CPU 
 time (we chose not to examine the wall-clock time because it seems that isolate 
-cannot measure it reliably) measurements for each system load level, workload 
-and isolation technology so that the plots for each isolation technology are 
-side by side for every workload. Because most of the measurements were made in 
-parallel, we colorized the measurements from one chosen worker process so that 
-we could get an idea about how the measurements differ between the parallel 
-workers. The plots revealed a handful of possible trends in the measured data. A 
-selection from these plots can be seen in Figure \ref{isolation-comparison}.
+cannot measure it reliably) measurements for each system load level, exercise 
+type and isolation technology so that the plots for each isolation technology 
+are side by side for every exercise type. Because most of the measurements were 
+made in parallel, we colorized the measurements from one chosen worker process 
+so that we could get an idea about how the measurements differ between the 
+parallel workers. The plots revealed a handful of possible trends in the 
+measured data. A selection from these plots can be seen in Figure 
+\ref{isolation-comparison}.
 
 ![A scatter plot of time measurements grouped by isolation for chosen setups and 
-workloads with results from a single worker highlighted in red 
+exercise types with results from a single worker highlighted in red 
 \label{isolation-comparison}](img/stability/isolation-comparison.png)
 
 The most prominent trend is that the measured values are centered around 
-different means under different isolation technologies for some workloads.
+different means under different isolation technologies for some exercise types.
 
 For example, an iteration of the `bsearch` and `exp_float` workloads tends to 
 take about 25-50ms more on the bare metal or in Docker than in VirtualBox. This 
@@ -122,23 +129,23 @@ these technologies use the same kernel facilities to achieve isolation.
 To examine the first observation in a more formal way, we compared 0.95 
 confidence intervals of the mean and standard deviation for the `bare`, 
 `docker-bare` and `vbox-bare` isolation setups. The comparison was performed 
-separately for each setup type and system load level and workload type. As shown 
-by Figure \ref{virt-ci-comparison}, the comparison of the means confirmed our 
-observation -- measurements in VirtualBox often yield lower times than in Docker 
-and on the bare metal. Measurements in Docker also yield lower times than on the 
-bare metal most of the time. The comparison of the standard deviations suggests 
-that measurements in VirtualBox are more stable than those on the bare metal and 
-in Docker and that there are no notable differences in stability between Docker 
-and the bare metal.
+separately for each execution setup type and system load level and exercise 
+type. As shown by Figure \ref{virt-ci-comparison}, the comparison of the means 
+confirmed our observation -- measurements in VirtualBox often yield lower times 
+than in Docker and on the bare metal. Measurements in Docker also yield lower 
+times than on the bare metal most of the time. The comparison of the standard 
+deviations suggests that measurements in VirtualBox are more stable than those 
+on the bare metal and in Docker and that there are no notable differences in 
+stability between Docker and the bare metal.
 
 We assessed the effect of adding Isolate to a setup in a similar way -- we 
-grouped the measurements by execution setup type and size, isolation technology 
-and workload type and compared confidence intervals of the mean and standard 
-deviation among groups of measurements with and without Isolate. The results of 
-this comparison (Figure \ref{isolate-ci-comparison}) show that measurements with 
-Isolate are generally slower (exhibit a higher mean) on the bare metal and with 
-Docker. In VirtualBox, adding Isolate does not seem to influence the mean in any 
-obvious way.
+grouped the measurements by execution setup type and system load level, 
+isolation technology and exercise type and compared confidence intervals of the 
+mean and standard deviation among groups of measurements with and without 
+Isolate. The results of this comparison (Figure \ref{isolate-ci-comparison}) 
+show that measurements with Isolate are generally slower (exhibit a higher mean) 
+on the bare metal and with Docker. In VirtualBox, adding Isolate does not seem 
+to influence the mean in any obvious way.
 
 However, we found that the addition of Isolate reduces the standard deviation of 
 measurement in many cases. This trend is most prevalent on the bare metal, but 
@@ -183,14 +190,14 @@ number of parallel workers (divided by isolation technology)
 When examining how raising the system load affects the stability of 
 measurements, we discovered several interesting trends.
 
-First, the execution times seem to be higher under higher system loads for all 
-workloads. For example, in Figure \ref{bsearch-over-isolations}, we can see that 
-a `bsearch` iteration normally takes about 0.35 seconds on the bare metal with a 
-single process and 0.4-0.45s when 10 processes are running in parallel. It is 
-worth mentioning that the difference seems much smaller for `exp_float`. This 
-could be due to the parallel workers competing for the last-level cache and 
-memory controller, which would affect memory-bound tasks more than it would 
-affect CPU-bound tasks.
+First, the execution times seem to be higher under higher levels of system load
+for all exercise types. For example, in Figure \ref{bsearch-over-isolations}, we 
+can see that a `bsearch` iteration normally takes about 0.35 seconds on the bare 
+metal with a single process and 0.4-0.45s when 10 processes are running in 
+parallel. It is worth mentioning that the difference seems much smaller for 
+`exp_float`. This could be due to the parallel workers competing for the 
+last-level cache and memory controller, which would affect memory-bound tasks 
+more than it would affect CPU-bound tasks.
 
 Second, the measurements seem to be notably stable with a single worker on the 
 bare metal (`B`) and in Docker (`D`). This stability, however, decays quickly 
@@ -227,11 +234,11 @@ form pairs of the number of hits and the total number of accesses for a type of
 cache. Therefore, it is natural to also examine the miss ratio for these 
 counters.
 
-The miss ratio for L1 data cache loads seems close to zero for every workload 
-except `bsearch`. However, the absolute number of misses is substantial (in the 
-order of millions of events per iteration). The miss ratio is also higher when 
-using `isolate`, although it is still in the order of tenths of a percent. No 
-change in the number of misses was observed with increasing system load. This 
+The miss ratio for L1 data cache loads seems close to zero for every exercise 
+type except `bsearch`. However, the absolute number of misses is substantial (in 
+the order of millions of events per iteration). The miss ratio is also higher 
+when using `isolate`, although it is still in the order of tenths of a percent. 
+No change in the number of misses was observed with increasing system load. This 
 shows that the values in L1 cache are used very frequently and it performs well 
 in all cases.
 
@@ -242,19 +249,19 @@ with `isolate`. This might be a part of the explanation for `isolate`
 measurements being slightly more stable than those on the bare metal.
 
 We observed an unexpectedly small last level cache load miss ratio in `bsearch` 
-(around 0.5%), when compared to the other workload types (up to 60%). This could 
+(around 0.5%), when compared to the other exercise types (up to 60%). This could 
 indicate that our binary search workload utilizes the last-level cache more than 
-the other workloads, which is plausible -- the other workloads seem to work with 
-the L1 data cache more efficiently and might not need to use the last level 
+the other workloads, which is plausible -- the other exercise types seem to work 
+with the L1 data cache more efficiently and might not need to use the last level 
 cache as much. We could not find any interesting trend in the data related to 
 neither using `isolate` nor increasing the system load.
 
 To see if there is a relationship between the results of measurements of 
 performance metrics and the measurements of CPU time, we calculated the standard 
 (Pearson) correlation coefficient and also the Spearman coefficient of each of 
-the performance metrics and the CPU time for every tested workload. The Spearman 
-coefficient should help in pointing out nonlinear relationships between the 
-variables.
+the performance metrics and the CPU time for every tested exercise type. The 
+Spearman coefficient should help in pointing out nonlinear relationships between 
+the variables.
 
 The correlation coefficients are listed in Table \ref{perf-correlations}. It 
 seems that no value from our selection influences the CPU time. The only result 
@@ -286,8 +293,8 @@ fixed subset of the available cores (this is elaborated on in Section
 \ref{hw-and-os}).
 
 To get an insight into the effects of CPU affinity settings, we compared the 
-means and standard deviations of results grouped by workload, isolation and 
-parallel setup, with and without affinity settings. We performed the comparison 
+means and standard deviations of results grouped by exercise type, isolation and 
+execution setup, with and without affinity settings. We performed the comparison 
 using confidence intervals obtained from a bootstrap procedure (the same way as 
 we used in previous sections).
 
