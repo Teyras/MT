@@ -54,12 +54,17 @@ Therefore, it is still necessary to verify whether or not warming up occurs.
 a single measurement worker running
 \label{warmup}](img/stability/warmup.tex)
 
-As seen in Figure \ref{warmup}, the results are not clearly higher during the 
-first iterations of the measurements than at the end. A handful of outliers can 
-be observed, but the overall trend seems stable enough. Although it is possible 
-that 100 measurements is not enough to detect a warmup period, it seems 
-improbable. Therefore, we can conclude that warming up is not an important 
-factor in our measurements.
+As seen in Figure \ref{warmup}, there is almost always an outlier in one of the 
+first iterations. A handful of outliers with similar execution time can however 
+be observed throughout every iteration of all the benchmarks. This situation 
+does not seem like the usual case of warming up where the first results are 
+regularly higher than the later ones and where the execution time does not rise 
+in subsequent iterations.
+
+Although it is possible that 100 measurements is not enough to detect such a 
+warmup period, it seems improbable. Therefore, we can conclude that warming up 
+is not an important factor in our measurements, even though it happens on a 
+small scale.
 
 If the opposite was true, we would have to change the way ReCodEx measures 
 submissions -- if a student submitted the same program in a quick succession, 
