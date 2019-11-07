@@ -380,8 +380,6 @@ The input sizes are as follows:
 - `sort/insertion_sort`: 16384 32-bit integers
 - `sort/qsort`: 1048576 32-bit integers
 
-TODO forward declaration of ReCodEx?
-
 ### Exercise Workload Languages
 
 The core exercises for our experiments shall be implemented in a compiled, 

@@ -149,3 +149,13 @@ responsibility of the broker to an appropriate worker.
 
 While this provides a great deal of flexibility, it also presents a challenge in 
 efficient scheduling of evaluation jobs.
+
+### Secure Execution of Submissions
+
+ReCodEx uses the `isolate`[@MaresIsolate] sandbox to ensure that code submitted 
+by students is executed in a secure and isolated environment and that their 
+usage of resources is limited.
+
+A separate instance of the sandbox is used for each stage of the evaluation 
+process where untrusted code is involved. In particular, this means compilation 
+of source codes and running the resulting program with test inputs.
