@@ -154,8 +154,12 @@ efficient scheduling of evaluation jobs.
 
 ReCodEx uses the `isolate`[@MaresIsolate] sandbox to ensure that code submitted 
 by students is executed in a secure and isolated environment and that their 
-usage of resources is limited.
+usage of resources is limited. The sandbox is controlled by the `isolate` 
+command line utility, which is executed as a subprocess by the worker daemon.
 
 A separate instance of the sandbox is used for each stage of the evaluation 
 process where untrusted code is involved. In particular, this means compilation 
-of source codes and running the resulting program with test inputs.
+of source codes and running the resulting program with test inputs. Files that 
+should be kept between the stages (typically compiled binaries) must be copied 
+by the worker (the files that are supposed to be copied are specified by the 
+configuration of the exercise).
