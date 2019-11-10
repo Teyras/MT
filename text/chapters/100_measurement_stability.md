@@ -1,4 +1,4 @@
-# Stability of Measurements
+# Stability of Measurements \label{measurement-stability}
 
 In this chapter, we examine the influence of various factors on the stability of 
 time measurements in a system that evaluates programming assignments. 
