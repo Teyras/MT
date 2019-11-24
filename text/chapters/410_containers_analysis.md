@@ -33,7 +33,7 @@ of existing programming languages, build toolkits, testing frameworks and third
 party libraries is so large that this process is almost unique for every 
 project.
 
-Continuous integrations services need to provide a way for users to specify the 
+Continuous integration services need to provide a way for users to specify the 
 building and testing process in a manner that is both simple and versatile 
 enough to satisfy the needs of any project.
 
