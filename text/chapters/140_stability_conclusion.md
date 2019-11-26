@@ -29,3 +29,5 @@ a large margin)
 
 TODO instruction counting - pretty stable, but especially memory loads are hard 
 to evaluate. Also, the output might be garbage for scripted/managed languages.
+
+TODO RPi clusters could be a way to go

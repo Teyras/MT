@@ -7,7 +7,8 @@ We also introduce ReCodEx -- the evaluation system that motivated this thesis.
 ## Analysis of Requirements
 
 This section aims to list the features that are required in a programming 
-assignment evaluation system.
+assignment evaluation system so that we can contrast these to the features 
+implemented by ReCodEx. 
 
 ### Low Latency
 
