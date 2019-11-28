@@ -108,7 +108,11 @@ versions of the worker itself, which might be needed by some future exercises
 Also, while adding a new runtime environment would mean extending the worker 
 image and deploying it everywhere, we would not have to change the worker 
 selection algorithm in the broker -- the available runtime environments could 
-still be enumerated in the configuration.
+still be enumerated in the configuration. However, extending a particular 
+environment with a library only for a set of exercises would either mean adding 
+it to an existing environment (thus making it accessible in other assignments), 
+or creating a new, globally visible runtime environment that would eventually be 
+deployed on every worker.
 
 An advantage of the second approach is that we would not need to maintain a 
 large worker image with all the desired runtime environments. The images would 
@@ -116,11 +120,21 @@ be smaller, easier to review and faster to build. Also, a single worker could
 handle mutliple versions of a runtime environment without significant effort, 
 which would contribute to the reproducibility of assignment evaluations.
 
-From these two possible approaches, we selected the second one. The main reason 
-for this choice is that it makes it easier to maintain a set of curated runtime 
-environments created by exercise authors, which would require administrators to 
-modify the main worker image each time somebody wishes to create a new runtime 
-environment.
+We could also implement a middle-ground approach that puts the worker inside a 
+container (like the first approach), but only with a single runtime environment. 
+This would make it easier to create single-use runtime environments. However, a 
+worker could only evaluate submissions in a single environment at any given 
+time. It would be a responsibility of the broker to instruct the host running 
+the worker to switch to a different image, which makes this approach 
+impractical.
+
+From the two basic approaches, we selected the second one. The main reason for 
+this choice is that it makes it easier to maintain a set of curated runtime 
+environments created by exercise authors. With the first approach, this would 
+require administrators to modify the main worker image each time somebody wishes 
+to create a new runtime environment. Furthermore, the second approach makes it 
+much simpler to create single use environments that will only be used for a 
+small set of exercises.
 
 In our implementation, we shall deploy a registry instance to be used by the 
 workers and the Web API server, without being directly accessible to the public.
