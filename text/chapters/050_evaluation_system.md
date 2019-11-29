@@ -99,6 +99,18 @@ without the need for an intervention from an administrator. Of course, if a
 submission is in fact impossible to evaluate, we must limit these retries so 
 that the evaluation does not proceed infinitely.
 
+### Scalability
+
+We understand scalability as the ability of the system to adapt to a growing or 
+declining number of clients by adding or removing resources. In a programming 
+assignment evaluation system, the driving factor for scaling is almost 
+exclusively the number of submissions.
+
+While automatic on-demand scaling is the ultimate goal, supporting manual 
+scaling (aided by an administrator) could also be sufficient. In fact, the main 
+benefit of automatic scaling is being able to react to sudden peaks in the 
+number of submissions.
+
 ### Latency and Throughput
 
 Fast feedback is one of the critical selling points for automating the process 
@@ -109,14 +121,7 @@ an increasing number of evaluations performed at the same time.
 
 The scheduling and on-demand scaling (or more broadly, resource management) 
 policies should also take throughput in account. The system must be able to 
-serve hundreds of students at the same moment.
-
-### Scalability
-
-We understand scalability as the ability of the system to adapt to a growing or 
-declining number of clients by adding or removing resources. In a programming 
-assignment evaluation system, the driving factor for scaling is almost 
-exclusively the number of submissions.
+serve hundreds of clients at the same moment.
 
 ### Extensibility
 
@@ -197,6 +202,16 @@ should be kept between the stages (typically compiled binaries) must be copied
 by the worker (the files that are supposed to be copied are specified by the 
 configuration of the exercise).
 
+### Judging Correctness of Output 
+
+ReCodEx supports various ways of judging the correctness of the output of a 
+submission using judges -- programs that read the output file and assign it a 
+rating between 0 and 1. There are multiple kinds of correctness rating 
+implemented by built-in judges and it is also possible to upload a custom 
+judging program for specialized exercises. ReCodEx also allows not specifying 
+any judge to allow for example just submitting the results of an experiment. 
+However, this use case is not interesting for our research.
+
 ### Description of Evaluation Jobs
 
 When the core receives a submission for evaluation, it takes the exercise 
@@ -255,3 +270,60 @@ In this section, we examine which requirements from Section
 shall then evaluate the latter group and clarify which of those will be 
 addressed by this thesis.
 
+The requirement on detecting incorrect solutions can be considered satisfied. 
+ReCodEx supports a wide range of judges that allow testing the correctness in 
+many different ways. One thing that is missing is the support for interactive 
+tasks where the solution communicates with another program.
+
+Thanks to `isolate`, ReCodEx can measure and limit the usage of a plethora of 
+resources, including CPU time, wall clock time, memory and disk usage. However, 
+we do not know if the stability of measurements cannot be influenced by the 
+isolation.
+
+The submitted code is also run in isolation from the rest of the host system and 
+from other solutions. The implementation makes it appear to the submission that 
+it runs as the only process in its own operating system that includes a file 
+system, inter-process communication and network communication. Of course, unless 
+explicitly allowed, the solution cannot reach any other programs using these 
+facilities.
+
+ReCodEx is tolerant to failures in evaluation, even when they result in a crash 
+of the worker machine. In such cases, the broker reassigns the evaluation to 
+another worker (with a limit on the number of reassignments). Evaluation jobs 
+are not lost even in the case of a broker breakdown. They are stored 
+persistently by the system core and once the broker becomes available again, 
+they can be resubmitted.
+
+ReCodEx can be easily scaled manually by adding more worker machines. This also
+includes adding more powerful hardware over time. However, there are two 
+problems that should be addressed. First, manual scaling cannot deal with sudden 
+peaks in usage efficiently. Second, we do not know if the load balancing 
+algorithm implemented by the broker is good enough to use the additional worker 
+machines efficiently.
+
+The load balancing algorithm also has a notable influence on the latency and 
+throughput of the system. Therefore, its efficiency must be measured and 
+compared to alternatives.
+
+The last two requirements left to evaluate are extensibility and support for 
+additional code quality metrics. Thanks to the general job configuration format 
+used by the worker, the only thing left to satisfy the second requirement is 
+being able to provide the quality checking software. The ReCodEx workers can use 
+any software installed on the host machine, which partially satisfies both of 
+the requirements. However, the software has to be installed first and the system 
+core has to be modified to emit job configurations that use it. This would 
+introduce a notable administration overhead if we needed to support per-exercise 
+runtime environments.
+
+### Summary
+
+From our examination of the requirements and the reality of ReCodEx, we can 
+conclude that the stability of measurements has to be researched in `isolate` 
+and when multiple measurements are performed on the same hardware.
+
+Furthermore, the efficiency of the load balancing algorithm must be examined, 
+because it affects the latency, throughput and scalability of the system. Also, 
+the viability of on-demand scaling should be assessed.
+
+The last obstacle on the path to a large scale deployment of ReCodEx is the 
+overhead of adding and extending runtime environments.
