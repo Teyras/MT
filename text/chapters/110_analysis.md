@@ -21,11 +21,11 @@ important.
 CPU cache exists to speed up accesses to frequently used areas of memory and it 
 also helps during sequential reads of data (although most modern processors 
 feature memory prefetchers whose influence is much larger in this case). 
-Unfortunately, we have no control the content of the cache when the program is 
-launching. In addition, the cache is shared with other programs running on the 
-machine, whose memory accesses cannot be controlled. Both of these facts make 
-the time required for memory accesses less predictable, making the CPU cache a 
-source of time measurement instability.
+Unfortunately, we have no control over the content of the cache when the program 
+is launching. In addition, the cache is shared with other programs running on 
+the machine, whose memory accesses cannot be controlled. Both of these facts 
+make the time required for memory accesses less predictable, making the CPU 
+cache a source of time measurement instability.
 
 Disk cache (or page cache) is a mechanism for improving the speed of accesses to 
 external memory (e.g., a HDD or SSD). Especially for HDDs, random accesses can 
@@ -44,8 +44,7 @@ these effects.
 
 Multiprocessing introduces another set of problems. Some parts of the CPU can 
 become a bottleneck by not allowing simultaneous access for all cores that can 
-be running in parallel -- the memory management unit is an important example of 
-this.
+be running in parallel -- the memory controller is an important example of this.
 
 Also, the processes can contend for the CPU cache in multiple ways. For example, 
 when two processes run on the same core, they can access the L3 cache in a 
@@ -85,21 +84,23 @@ The `chroot` system call (present in the UNIX specification since version 7,
 released in 1979) changes the root directory of the calling process[@Chroot], 
 thus isolating it from the rest of the system and preventing it from accessing 
 files not needed for assignment evaluation. Historically, this has been used as 
-an added layer of security for services that handle potentionally dangerous 
-input.
+an additional layer of security for services that handle potentionally dangerous 
+input such as web servers.
 
 Chroot itself however does neither limit resource usage nor provide accounting. 
 Inter-process communication and network access are also not limited.
 
 #### Debugger-based Isolation
 
-The MO system for evaluation of submissions in programming contests contains a 
-sandbox implementation with resource limiting capabilities based on `ptrace` -- 
-the UNIX interface primarily used by userspace debuggers[@MaresPerspectives]. 
-This sandbox was also used in CodEx (a programming assignment evaluator released 
-in 2006) and the CMS contest management system [@CMS]. The `ptrace` interface is 
-used to intercept system calls to achieve process isolation and most of the 
-resource limiting functionality is provided by `ulimit`.
+`ptrace` is the UNIX interface primarily used by userspace debuggers. It can 
+also be used to intercept system calls to achieve process isolation. By 
+combining this with `chroot` and a resource limiting call such as `ulimit`, a 
+full-fledged sandbox can be created.
+
+The MO system for evaluation of submissions in programming contests features a 
+sandbox like this[@MaresPerspectives]. The same sandbox was also used in CodEx 
+(a programming assignment evaluator released in 2006) and the CMS contest 
+management system [@CMS].
 
 A notable problem of this approach is that it does not work well with 
 multithreaded programs. The `ptrace` interface only suspends the main thread on 
@@ -125,15 +126,15 @@ zones in Solaris or sysjail in OpenBSD and NetBSD.
 The Linux kernel supports creating containers -- lightweight execution units 
 that can be used for isolation and resource limiting.
 
-Process isolation can be achieved using namespaces, a feature present in the 
-kernel since 2006[@LinuxNamespacesCommit]. These allow locking the process in an 
+Process isolation can be achieved using namespaces[@LinuxNamespacesCommit], a 
+feature present in the kernel since 2006. These allow locking the process in an 
 environment where communication methods such as networking or reading files 
 seemingly works without restrictions, but the sandboxed process can only 
 communicate with processes in the same namespaces (granular sharing is also 
 possible to allow e.g., connecting to services over the Internet).
 
 Resource limiting and usage accounting is implemented using control groups 
-(cgroups), merged into the kernel in 2007[@LinuxCgroupsLWN].
+(cgroups)[@LinuxCgroupsLWN], merged into the kernel in 2007.
 
 It can be reasoned that these measures should not have any noticeable overhead, 
 at least compared to processes running in the global process namespace and 

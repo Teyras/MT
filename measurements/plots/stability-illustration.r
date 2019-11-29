@@ -34,7 +34,8 @@ plot.small <- ggplot(samples, aes(n)) +
 	geom_line(aes(x=n, y=nlog, colour="nlog(n)")) +
 	ggtitle("5\\% error") +
 	ylim(0, 800) +
-	theme(legend.title=element_blank(), axis.title.y=element_blank())
+	ylab("Execution time [ms]") +
+	theme(legend.title=element_blank())
 
 plot.large <- ggplot(samples, aes(n)) +
 	geom_ribbon(aes(ymin=lin.ymin.large, ymax=lin.ymax.large, alpha=0.5, fill="4n"), show.legend=F) +
