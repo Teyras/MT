@@ -25,7 +25,7 @@ run_simulator() {
     setup_arg=$1
     workload_arg=$2
 
-    for queue_manager in multi; do
+    for queue_manager in multi single_fifo; do
         $SIMULATOR $queue_manager $SETUPS_DIR/$setup_arg.yml $WORKLOADS_DIR/$workload_arg.csv \
             2> $LOGS_DIR/$queue_manager,$setup_arg,$workload_arg.log |
             sed "s/^/$queue_manager,$setup_arg,$workload_arg,/"
@@ -33,13 +33,13 @@ run_simulator() {
 }
 
 for variant in small large; do
-    workload=simple+para_$variant
-    run_simulator simple+para_small $workload >> $results_file
-    run_simulator simple+para_large $workload >> $results_file
+    workload=simple+para-$variant
+    run_simulator simple+para-small $workload >> $results_file
+    run_simulator simple+para-large $workload >> $results_file
 done
 
 for variant in small large; do
-    workload=two_types_$variant
-    run_simulator two_types_small $workload >> $results_file
-    run_simulator two_types_large $workload >> $results_file
+    workload=two-types-$variant
+    run_simulator two-types-small $workload >> $results_file
+    run_simulator two-types-large $workload >> $results_file
 done

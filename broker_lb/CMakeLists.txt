@@ -9,6 +9,11 @@ include_directories(AFTER, broker/vendor/cppzmq)
 set(SOURCE_FILES
         simulator.cpp
 
+        queue_managers/single_queue_manager.h
+        queue_managers/fifo_policy.h
+        queue_managers/shortest_processing_time_first_policy.h
+        queue_managers/earliest_deadline_first_policy.h
+
         broker/src/worker_registry.cpp
         broker/src/worker_registry.h
         broker/src/config/broker_config.cpp

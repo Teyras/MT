@@ -11,6 +11,8 @@
 #include "broker/src/handlers/broker_handler.h"
 #include "broker/src/queuing/multi_queue_manager.h"
 
+#include "queue_managers/single_queue_manager.h"
+
 
 void load_workers(broker_handler &handler, std::istream &input)
 {
@@ -39,6 +41,11 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(const std::string 
 {
     if (type == "multi") {
         return std::make_shared<multi_queue_manager>();
+    }
+
+    if (type == "single_fifo") {
+        auto comparator = std::make_unique<fifo_job_comparator>();
+        return std::make_shared<single_queue_manager<fifo_job_comparator>>(std::move(comparator));
     }
 
     throw std::runtime_error("Unknown queue manager type");
