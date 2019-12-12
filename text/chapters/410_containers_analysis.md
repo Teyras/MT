@@ -14,6 +14,8 @@ and it is reasonable to presume we might be able to use them in a similar
 fashion since the problem of assignment evaluation is so similar to that of 
 continuous integration.
 
+TODO mention the paper about evaluation in Docker
+
 ### Secure Execution
 
 Public continuous integration servers run thousands of builds on completely 
