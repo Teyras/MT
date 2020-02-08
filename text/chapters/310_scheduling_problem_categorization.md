@@ -1,4 +1,4 @@
-## Problem Categorization
+## Problem Categorization \label{scheduling-categorization}
 
 Scheduling is the problem of assigning work units (jobs) to execution units 
 (worker machines in our case). Every job has a processing set -- a set of 
@@ -9,10 +9,11 @@ other characteristics.
 In this section, we list the subcategories of the scheduling problem that were 
 studied in previous work. The categories are based on whether the problem is 
 online or offline, on the characteristics of the worker machines and the 
-processing sets of the jobs, the characteristics of deadlines and on the ability 
-of the scheduler to interrupt jobs and estimate the processing times. Then, we
-attempt to assign our use case to these categories. We shall use this knowledge 
-to select the algorithms to be evaluated in subsequent experiments.
+processing sets of the jobs, the characteristics of deadlines, the existence of 
+explicit priorities and on the ability of the scheduler to interrupt jobs and 
+estimate the processing times. Then, we attempt to assign our use case to these 
+categories. We shall use this knowledge to select the algorithms to be evaluated 
+in subsequent experiments.
 
 ### Online/Offline Scheduling
 
@@ -27,11 +28,13 @@ scheduling decision has to be made immediately, it is irrevocable and after it
 is made, another job is presented to the algorithm.
 
 In scheduling over time, jobs arrive on their release date and can be scheduled 
-at any time after their arrival. The problem of scheduling assignment solutions 
-to worker machines corresponds to the time-based variant -- jobs that enter the 
-system can be held in a queue until a scheduling decision is made and other jobs 
-might arrive in the meantime. However, an algorithm for list-based scheduling 
-could also be used in an evaluation system without any problems.
+at any time after their arrival. Typically, actions are taken on decision points 
+-- points in time when a job arrives or when a job is finished. The problem of 
+scheduling assignment solutions to worker machines corresponds to the time-based 
+variant -- jobs that enter the system can be held in a queue until a scheduling 
+decision is made and other jobs might arrive in the meantime. However, an 
+algorithm for list-based scheduling could also be used in an evaluation system 
+without any problems.
 
 ### Preemption
 
@@ -57,11 +60,15 @@ a substantial amount of time by interrupting a measurement. Moreover, the job
 would have to be resumed on the same machine (and the scheduler would need to 
 keep track of the fact).
 
-Suspending measurements so that they can be resumed immediately would be a 
-challenging task due to its possible impact on measurement stability.
+Suspending measurements so that they can be resumed immediately and at the same 
+point of their execution would be a challenging task due to its probable impact 
+on measurement stability. A more achievable goal would be preemption by 
+cancelling the current task (atomic part of the job) and starting that task over 
+when the job is resumed.
 
-We will mainly be concerned with the non-preemptive variant, but if it shows 
-that preemption brings interesting benefits, it will also be considered.
+Due to these difficulties, we will mainly be concerned with the non-preemptive 
+variant, but if it shows that preemption brings interesting benefits, it will 
+also be considered.
 
 ### Clairvoyance
 
@@ -140,12 +147,15 @@ workers.
 
 ### Machine Characteristics
 
-In a setup with **related** machines, each job takes the same time on all of the 
-machines. In the **unrelated** case, the times can vary. For our problem, we 
-should mainly be concerned with algorithms for the unrelated case, because our 
-worker pool can contain machines of different processing power. However, 
-restricting the processing sets of jobs to machines with the same speed is also 
-a viable option.
+In a setup with **related** machines, each machine has a speed and the 
+processing time of a job on a machine can be obtained by dividing the length of 
+a job with the speed of the machine. A setup has **identical** machines if the 
+speeds are equal for all the machines. In the **unrelated** case, the times can 
+vary unpredictably on each machine. For our problem, we should mainly be 
+concerned with algorithms for the unrelated case, because our worker pool can 
+contain machines of different processing power. However, restricting the 
+processing sets of jobs to machines with the same speed is also a viable option. 
+To achieve this, assigning each job to exactly one hardware group would suffice.
 
 ### Job Deadlines
 
@@ -155,3 +165,16 @@ processing time of the jobs. This could help the subjective responsiveness of
 the system -- the scheduler could prioritize short jobs while allowing a longer 
 waiting time for long jobs.
 
+### Explicit Priorities
+
+In numerous scheduling problems, explicit priorities can be given to jobs when 
+they are entering the system. These priorities are then used to determine the 
+order in which the jobs are scheduled. An example of such priority is the 
+niceness factor given to UNIX processes by users.
+
+In our case, no such priority setting exists, even though there are requirements 
+such as that shorter jobs should be processed as soon as possible and jobs that 
+are expected to take minutes can be postponed. In a commercial assignment 
+evaluation system, we might need to establish multiple grades of service based 
+on billing rates. With such setup, lower grades of service would get a lower 
+priority. Such use cases are however out of the scope of our research.
