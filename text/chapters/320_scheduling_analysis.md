@@ -3,7 +3,7 @@
 - TODO forward link to Docker section? it will justify some of our workload 
   choices (thanks to Docker, most workers know how to do everything)
 
-### Requirements
+### Requirements \label{scheduling-requirements}
 
 Principally, there are two main performance metrics for scheduling algorithms: 
 latency and throughput. Latency is important for interactive workloads and 

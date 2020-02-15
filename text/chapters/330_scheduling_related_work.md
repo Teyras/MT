@@ -14,7 +14,7 @@ Since we are going to evaluate the algorithms experimentally, competitiveness
 ratios are not particularly interesting for us and we will not focus on them in 
 our survey.
 
-### Time and List Based Scheduling
+### Time and List Based Scheduling \label{time-vs-list-based-scheduling}
 
 It seems that the time-based variant of the online scheduling problem is not 
 very well researched, despite its practical applications. A heuristic approach 
@@ -41,12 +41,12 @@ survey the results in the following sections.
 ### Preemption
 
 The main benefit of being able to interrupt running jobs is that we can pause a 
-long running job in order to allow a shorter job to complete quickly. A basic 
-algorithm for scheduling with preemption is SRPT -- Shortest Remaining 
-Processing Time[@ValueOfPreemption]. The idea of this algorithm is that if a job 
-arrives and no idle worker is available, a job that is expected to complete 
-later than the incoming job should be interrupted. It is evident that this helps 
-achieve a better flow time (and thus improves the latency of the system).
+job in order to allow a shorter job to complete quickly. A basic algorithm for 
+scheduling with preemption is SRPT -- Shortest Remaining Processing 
+Time[@ValueOfPreemption]. The idea of this algorithm is that if a job arrives 
+and no idle worker is available, a job that is expected to complete later than 
+the incoming job should be interrupted. It is evident that this helps achieve a 
+better flow time (and thus improves the latency of the system).
 
 A drawback of the SRPT algorithm is that it does not take the cost of preemption 
 into consideration. In ReCodEx, interrupting a job would require cancelling the 
