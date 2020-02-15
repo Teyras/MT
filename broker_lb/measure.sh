@@ -25,7 +25,7 @@ run_simulator() {
     setup_arg=$1
     workload_arg=$2
 
-    for queue_manager in multi single_fifo; do
+    for queue_manager in multi single_fcfs; do
         $SIMULATOR $queue_manager $SETUPS_DIR/$setup_arg.yml $WORKLOADS_DIR/$workload_arg.csv \
             2> $LOGS_DIR/$queue_manager,$setup_arg,$workload_arg.log |
             sed "s/^/$queue_manager,$setup_arg,$workload_arg,/"

@@ -43,9 +43,9 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(const std::string 
         return std::make_shared<multi_queue_manager>();
     }
 
-    if (type == "single_fifo") {
-        auto comparator = std::make_unique<fifo_job_comparator>();
-        return std::make_shared<single_queue_manager<fifo_job_comparator>>(std::move(comparator));
+    if (type == "single_fcfs") {
+        auto comparator = std::make_unique<fcfs_job_comparator>();
+        return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator));
     }
 
     throw std::runtime_error("Unknown queue manager type");

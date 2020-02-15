@@ -10,7 +10,7 @@ struct request_entry {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> arrived_at;
 };
 
-struct fifo_job_comparator {
+struct fcfs_job_comparator {
     bool operator()(const request_entry &a, const request_entry &b) const
     {
         return a.arrived_at > b.arrived_at;
