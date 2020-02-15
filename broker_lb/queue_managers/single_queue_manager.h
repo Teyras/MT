@@ -17,6 +17,36 @@ struct fcfs_job_comparator {
     }
 };
 
+struct least_flexibility_job_comparator {
+    const worker_registry &registry;
+
+    explicit least_flexibility_job_comparator(const worker_registry &registry):
+        registry(registry)
+    {}
+
+    bool operator()(const request_entry &a, const request_entry &b) const
+    {
+        size_t flexibility_a = 0;
+        size_t flexibility_b = 0;
+
+        for (auto &worker: registry.get_workers()) {
+            if (worker->check_headers(a.request->headers)) {
+                flexibility_a += 1;
+            }
+
+            if (worker->check_headers(b.request->headers)) {
+                flexibility_b += 1;
+            }
+        }
+
+        if (flexibility_a == flexibility_b) {
+            return a.arrived_at < b.arrived_at;
+        }
+
+        return flexibility_a < flexibility_b;
+    }
+};
+
 template <typename JobComparator>
 class single_queue_manager : public queue_manager_interface
 {

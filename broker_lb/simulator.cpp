@@ -37,7 +37,8 @@ void load_workers(broker_handler &handler, std::istream &input)
     }
 }
 
-std::shared_ptr<queue_manager_interface> create_queue_manager(const std::string &type)
+std::shared_ptr<queue_manager_interface>
+create_queue_manager(const std::string &type, std::shared_ptr<worker_registry> registry)
 {
     if (type == "multi") {
         return std::make_shared<multi_queue_manager>();
@@ -46,6 +47,11 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(const std::string 
     if (type == "single_fcfs") {
         auto comparator = std::make_unique<fcfs_job_comparator>();
         return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator));
+    }
+
+    if (type == "single_lfj") {
+        auto comparator = std::make_unique<least_flexibility_job_comparator>(*registry);
+        return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator));
     }
 
     throw std::runtime_error("Unknown queue manager type");
@@ -291,11 +297,11 @@ int main(int argc, char **argv)
     // For maximum liveness and ping interval, we will use the default values.
     auto config = std::make_shared<const broker_config>();
 
-    // Create one of the predefined queue managers
-    auto queue = create_queue_manager(argv[1]);
-
     // Prepare a worker registry
     auto registry = std::make_shared<worker_registry>();
+
+    // Create one of the predefined queue managers
+    auto queue = create_queue_manager(argv[1], registry);
 
     // Create a logger that outputs to stderr
     auto sink = std::make_shared<spdlog::sinks::stderr_sink_mt>();
