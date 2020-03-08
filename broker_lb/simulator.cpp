@@ -12,6 +12,7 @@
 #include "broker/src/queuing/multi_queue_manager.h"
 
 #include "queue_managers/single_queue_manager.h"
+#include "queue_managers/multi_queue_manager.h"
 
 
 void load_workers(broker_handler &handler, std::istream &input)
@@ -54,6 +55,16 @@ create_queue_manager(const std::string &type, std::shared_ptr<worker_registry> r
         return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator));
     }
 
+    if (type == "multi_ll_queue_size") {
+        auto selector = std::make_unique<least_loaded_worker_selector<queue_length_load_estimator>>(std::make_unique<queue_length_load_estimator>());
+        return std::make_shared<advanced_multi_queue_manager<least_loaded_worker_selector<queue_length_load_estimator>>>(std::move(selector));
+    }
+
+    if (type == "multi_rand2_queue_size") {
+        auto selector = std::make_unique<two_random_choices_selector<queue_length_load_estimator>>(std::make_unique<queue_length_load_estimator>());
+        return std::make_shared<advanced_multi_queue_manager<two_random_choices_selector<queue_length_load_estimator>>>(std::move(selector));
+    }
+
     throw std::runtime_error("Unknown queue manager type");
 }
 
@@ -68,7 +79,7 @@ struct simulation_job {
 using worker_status_map = std::map<std::string, bool>;
 
 struct job_compare {
-    bool operator() (const simulation_job &first, const simulation_job &second)
+    bool operator() (const simulation_job &first, const simulation_job &second) const
     {
         return first.arrival_time < second.arrival_time;
     }

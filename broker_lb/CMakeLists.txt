@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(recodex-broker-lb-simulator)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
 
 include_directories(AFTER, broker/vendor/spdlog/include)
 include_directories(AFTER, broker/vendor/cppzmq)
@@ -10,6 +10,7 @@ set(SOURCE_FILES
         simulator.cpp
 
         queue_managers/single_queue_manager.h
+        queue_managers/multi_queue_manager.h
         queue_managers/fifo_policy.h
         queue_managers/shortest_processing_time_first_policy.h
         queue_managers/earliest_deadline_first_policy.h
