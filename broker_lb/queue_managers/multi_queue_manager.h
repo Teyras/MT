@@ -5,24 +5,30 @@
 #include <random>
 
 #include "../broker/src/queuing/queue_manager_interface.h"
+#include "../common.h"
 
 
-struct queue_length_load_estimator {
-    size_t estimate(const std::queue<request_ptr> &queue) const
-    {
-        return queue.size();
+template <typename ProcessingTimeEstimator>
+size_t estimate_queue_length(const worker_ptr &worker, const std::vector<request_ptr> &queue, const ProcessingTimeEstimator &estimator)
+{
+    size_t result = 0;
+
+    for (auto &request: queue) {
+        result += estimator->estimate(request, worker).count();
     }
-};
 
-template <typename LoadEstimator>
+    return result;
+}
+
+template <typename ProcessingTimeEstimator>
 struct least_loaded_worker_selector {
-    std::unique_ptr<LoadEstimator> load_estimator;
+    std::unique_ptr<ProcessingTimeEstimator> processing_time_estimator;
 
-    explicit least_loaded_worker_selector(std::unique_ptr<LoadEstimator> load_estimator):
-        load_estimator(std::move(load_estimator))
+    explicit least_loaded_worker_selector(std::unique_ptr<ProcessingTimeEstimator> processing_time_estimator):
+            processing_time_estimator(std::move(processing_time_estimator))
     {}
 
-    worker_ptr select(const std::map<worker_ptr, std::queue<request_ptr>> &queues, request_ptr request) const
+    worker_ptr select(const std::map<worker_ptr, std::vector<request_ptr>> &queues, request_ptr request) const
     {
         std::vector<worker_ptr> eligible_workers;
 
@@ -40,21 +46,21 @@ struct least_loaded_worker_selector {
             eligible_workers.begin(),
             eligible_workers.end(),
             [this, &queues] (const worker_ptr &a, const worker_ptr &b) {
-                return load_estimator->estimate(queues.at(a)) < load_estimator->estimate(queues.at(b));
+                return estimate_queue_length(a, queues.at(a), processing_time_estimator) < estimate_queue_length(b, queues.at(b), processing_time_estimator);
             }
         );
     }
 };
 
-template <typename LoadEstimator>
+template <typename ProcessingTimeEstimator>
 struct two_random_choices_selector {
-    std::unique_ptr<LoadEstimator> load_estimator;
+    std::unique_ptr<ProcessingTimeEstimator> processing_time_estimator;
 
-    explicit two_random_choices_selector(std::unique_ptr<LoadEstimator> load_estimator) :
-            load_estimator(std::move(load_estimator))
+    explicit two_random_choices_selector(std::unique_ptr<ProcessingTimeEstimator> processing_time_estimator) :
+            processing_time_estimator(std::move(processing_time_estimator))
             {}
 
-    worker_ptr select(const std::map<worker_ptr, std::queue<request_ptr>> &queues, request_ptr request) const {
+    worker_ptr select(const std::map<worker_ptr, std::vector<request_ptr>> &queues, request_ptr request) const {
         std::vector<worker_ptr> eligible_workers;
 
         for (auto &pair: queues) {
@@ -80,7 +86,7 @@ struct two_random_choices_selector {
             std::mt19937{std::random_device{}()}
         );
 
-        if (load_estimator->estimate(queues.at(selected_workers[0])) < load_estimator->estimate(queues.at(selected_workers[1]))) {
+        if (estimate_queue_length(selected_workers[0], queues.at(selected_workers[0]), processing_time_estimator) < estimate_queue_length(selected_workers[1], queues.at(selected_workers[1]), processing_time_estimator)) {
             return selected_workers[0];
         } else {
             return selected_workers[1];
@@ -91,7 +97,7 @@ struct two_random_choices_selector {
 template <typename WorkerSelector>
 class advanced_multi_queue_manager : public queue_manager_interface {
 private:
-    std::map<worker_ptr, std::queue<request_ptr>> queues_;
+    std::map<worker_ptr, std::vector<request_ptr>> queues_;
     std::map<worker_ptr, request_ptr> current_requests_;
     std::unique_ptr<WorkerSelector> worker_selector_;
 public:
@@ -101,7 +107,7 @@ public:
 
     request_ptr add_worker(worker_ptr worker, request_ptr current_request) override
     {
-        queues_.emplace(worker, std::queue<request_ptr>());
+        queues_.emplace(worker, std::vector<request_ptr>());
         current_requests_.emplace(worker, current_request);
         return nullptr;
     }
@@ -116,7 +122,7 @@ public:
 
         while (!queues_[worker].empty()) {
             result->push_back(queues_[worker].front());
-            queues_[worker].pop();
+            queues_[worker].erase(queues_[worker].cbegin());
         }
 
         queues_.erase(worker);
@@ -145,7 +151,7 @@ public:
                 result.assigned_to = worker;
             } else {
                 // The worker is occupied -> put the request in its queue
-                queues_[worker].push(request);
+                queues_[worker].push_back(request);
             }
         }
 
@@ -161,7 +167,7 @@ public:
         }
 
         request_ptr new_request = queues_[worker].front();
-        queues_[worker].pop();
+        queues_[worker].erase(queues_[worker].cbegin());
         current_requests_[worker] = new_request;
 
         return new_request;
@@ -179,7 +185,7 @@ public:
         }
 
         request_ptr new_request = queues_[worker].front();
-        queues_[worker].pop();
+        queues_[worker].erase(queues_[worker].cbegin());
         current_requests_[worker] = new_request;
 
         return new_request;

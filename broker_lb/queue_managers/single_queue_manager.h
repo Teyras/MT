@@ -11,7 +11,7 @@ struct request_entry {
 };
 
 struct fcfs_job_comparator {
-    bool operator()(const request_entry &a, const request_entry &b) const
+    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
     {
         return a.arrived_at < b.arrived_at;
     }
@@ -24,7 +24,7 @@ struct least_flexibility_job_comparator {
         registry(registry)
     {}
 
-    bool operator()(const request_entry &a, const request_entry &b) const
+    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
     {
         size_t flexibility_a = 0;
         size_t flexibility_b = 0;
@@ -47,18 +47,179 @@ struct least_flexibility_job_comparator {
     }
 };
 
-template <typename JobComparator>
+template <typename ProcessingTimeEstimator>
+struct shortest_processing_time_job_comparator {
+    std::shared_ptr<ProcessingTimeEstimator> estimator_;
+
+    explicit shortest_processing_time_job_comparator(std::shared_ptr<ProcessingTimeEstimator> estimator): estimator_((estimator))
+    {
+    }
+
+    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    {
+        return estimator_->estimate(a.request, nullptr) < estimator_->estimate(b.request, nullptr);
+    }
+};
+
+template <typename ProcessingTimeEstimator>
+struct earliest_deadline_job_comparator {
+    std::shared_ptr<ProcessingTimeEstimator> estimator_;
+
+    explicit earliest_deadline_job_comparator(std::shared_ptr<ProcessingTimeEstimator> estimator): estimator_(estimator)
+    {
+    }
+
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> determine_deadline(const request_entry &request) const
+    {
+        std::chrono::milliseconds processing_time = estimator_->estimate(request.request, nullptr);
+
+        if (processing_time < std::chrono::seconds(15)) {
+            return request.arrived_at + processing_time;
+        }
+
+        if (processing_time < std::chrono::seconds(45)) {
+            return request.arrived_at + processing_time + std::chrono::seconds(15);
+        }
+
+        return request.arrived_at + 2 * processing_time;
+    }
+
+    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    {
+        return determine_deadline(a) < determine_deadline(b);
+    }
+};
+
+template <typename ProcessingTimeEstimator>
+struct oagm_job_comparator {
+    std::shared_ptr<ProcessingTimeEstimator> estimator_;
+    const worker_registry &registry_;
+
+    explicit oagm_job_comparator(std::shared_ptr<ProcessingTimeEstimator> estimator, const worker_registry &registry): estimator_(estimator), registry_(registry)
+    {
+    }
+
+    size_t calculate_label(const request_entry &request, worker_ptr worker) const
+    {
+        if (worker == nullptr) {
+            return 0;
+        }
+
+        std::vector<worker_ptr> workers = registry_.get_workers();
+        std::sort(workers.begin(), workers.end(), [this, request, worker] (const worker_ptr &a, const worker_ptr &b) {
+            bool a_eligible = a->check_headers(request.request->headers);
+            bool b_eligible = b->check_headers(request.request->headers);
+
+            if (!a_eligible || !b_eligible) {
+                return a_eligible;
+            }
+
+            return estimator_->estimate(request.request, a) < estimator_->estimate(request.request, b);
+        });
+
+        auto lower_bound = std::lower_bound(workers.cbegin(), workers.cend(), worker);
+        return lower_bound - workers.cbegin();
+    }
+
+    size_t calculate_flexibility(const request_entry &request) const
+    {
+        size_t flexibility = 0;
+
+        for (auto worker: registry_.get_workers()) {
+            if (worker->check_headers(request.request->headers)) {
+                flexibility += 1;
+            }
+        }
+
+        return flexibility;
+    }
+
+    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    {
+        auto label_a = calculate_label(a, worker);
+        auto label_b = calculate_label(a, worker);
+
+        if (label_a != label_b) {
+            return label_a < label_b;
+        }
+
+        auto flex_a = calculate_flexibility(a);
+        auto flex_b = calculate_flexibility(b);
+
+        if (flex_a != flex_b) {
+            return flex_a < flex_b;
+        }
+
+        return estimator_->estimate(a.request, worker) < estimator_->estimate(b.request, worker);
+    }
+};
+
+struct first_idle_worker_selector {
+    worker_ptr select(const std::map<worker_ptr, request_ptr> &worker_jobs, request_ptr request) const
+    {
+        for (auto &pair: worker_jobs) {
+            if (pair.second == nullptr && pair.first->check_headers(request->headers)) {
+                return pair.first;
+            }
+        }
+
+        return nullptr;
+    }
+};
+
+template <typename ProcessingTimeEstimator>
+struct least_loaded_idle_worker_selector {
+    std::unique_ptr<ProcessingTimeEstimator> estimator_;
+
+    explicit least_loaded_idle_worker_selector(std::unique_ptr<ProcessingTimeEstimator> estimator): estimator_(std::move(estimator))
+    {
+    }
+    
+    std::chrono::milliseconds estimate_potential_worker_load(worker_ptr worker, const std::vector<request_entry> &queued_jobs) const
+    {
+        std::chrono::milliseconds result(0);
+
+        for (auto &job: queued_jobs) {
+            result += estimator_->estimate(job.request, worker);
+        }
+
+        return result;
+    }
+
+    worker_ptr select(const std::map<worker_ptr, request_ptr> &worker_jobs, const std::vector<request_entry> &queued_jobs, request_ptr request) const
+    {
+        worker_ptr result = nullptr;
+        std::chrono::milliseconds potential_load(0);
+
+        for (auto &pair: worker_jobs) {
+            if (pair.second != nullptr || !pair.first->check_headers(request->headers)) {
+                continue;
+            }
+
+            auto estimate = estimate_potential_worker_load(pair.first, queued_jobs);
+
+            if (result == nullptr || estimate < potential_load) {
+                result = pair.first;
+                potential_load = estimate;
+            }
+        }
+
+        return result;
+    }
+};
+
+template <typename JobComparator, typename IdleWorkerSelector=first_idle_worker_selector>
 class single_queue_manager : public queue_manager_interface
 {
 private:
     std::unique_ptr<JobComparator> comparator_;
-    std::multiset<request_entry, JobComparator> jobs_;
+    std::unique_ptr<IdleWorkerSelector> selector_;
+    std::vector<request_entry> jobs_;
     std::map<worker_ptr, request_ptr> worker_jobs_;
 
 public:
     explicit single_queue_manager(std::unique_ptr<JobComparator> comparator):
-        comparator_(std::move(comparator)),
-        jobs_(*comparator_)
+        comparator_(std::move(comparator)), selector_(std::make_unique<first_idle_worker_selector>())
     {
     }
 
@@ -77,6 +238,10 @@ public:
 
     request_ptr assign_request(worker_ptr worker) override
     {
+        std::sort(jobs_.begin(), jobs_.end(), [this, worker] (const request_entry &a, const request_entry &b) {
+            return comparator_->compare(a, b, worker);
+        });
+
         for (auto it = jobs_.cbegin(); it != jobs_.cend(); ++it) {
             if (!worker->check_headers(it->request->headers)) {
                 continue;
@@ -101,16 +266,13 @@ public:
 
     enqueue_result enqueue_request(request_ptr request) override
     {
-        // Try to find a free worker and assign the job
-        for (auto &pair: worker_jobs_) {
-            if (pair.second == nullptr && pair.first->check_headers(request->headers)) {
-                worker_jobs_[pair.first] = request;
-
-                return enqueue_result{
-                    .assigned_to = pair.first,
-                    .enqueued = true,
-                };
-            }
+        // Try to find an idle worker and assign the job
+        auto idle_worker = selector_->select(worker_jobs_, request);
+        if (idle_worker) {
+            return enqueue_result{
+                .assigned_to = idle_worker,
+                .enqueued = true,
+            };
         }
 
         // If no worker able to process the job exists, reject it
@@ -128,7 +290,7 @@ public:
         }
 
         // Enqueue the job
-        jobs_.insert(request_entry{
+        jobs_.push_back(request_entry{
             .request = request,
             .arrived_at = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
         });

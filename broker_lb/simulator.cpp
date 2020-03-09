@@ -13,6 +13,8 @@
 
 #include "queue_managers/single_queue_manager.h"
 #include "queue_managers/multi_queue_manager.h"
+#include "queue_managers/processing_time_estimators.h"
+#include "common.h"
 
 
 void load_workers(broker_handler &handler, std::istream &input)
@@ -38,44 +40,6 @@ void load_workers(broker_handler &handler, std::istream &input)
     }
 }
 
-std::shared_ptr<queue_manager_interface>
-create_queue_manager(const std::string &type, std::shared_ptr<worker_registry> registry)
-{
-    if (type == "multi") {
-        return std::make_shared<multi_queue_manager>();
-    }
-
-    if (type == "single_fcfs") {
-        auto comparator = std::make_unique<fcfs_job_comparator>();
-        return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator));
-    }
-
-    if (type == "single_lfj") {
-        auto comparator = std::make_unique<least_flexibility_job_comparator>(*registry);
-        return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator));
-    }
-
-    if (type == "multi_ll_queue_size") {
-        auto selector = std::make_unique<least_loaded_worker_selector<queue_length_load_estimator>>(std::make_unique<queue_length_load_estimator>());
-        return std::make_shared<advanced_multi_queue_manager<least_loaded_worker_selector<queue_length_load_estimator>>>(std::move(selector));
-    }
-
-    if (type == "multi_rand2_queue_size") {
-        auto selector = std::make_unique<two_random_choices_selector<queue_length_load_estimator>>(std::make_unique<queue_length_load_estimator>());
-        return std::make_shared<advanced_multi_queue_manager<two_random_choices_selector<queue_length_load_estimator>>>(std::move(selector));
-    }
-
-    throw std::runtime_error("Unknown queue manager type");
-}
-
-struct simulation_job {
-    std::string job_id;
-    std::vector<std::string> data;
-    boost::posix_time::milliseconds arrival_time;
-    boost::posix_time::milliseconds processing_time; // How long the job takes
-    boost::posix_time::milliseconds processing_started_time;
-};
-
 using worker_status_map = std::map<std::string, bool>;
 
 struct job_compare {
@@ -86,12 +50,72 @@ struct job_compare {
 };
 
 using job_queue = std::multiset<simulation_job, job_compare>;
-using job_data = std::map<std::string, simulation_job>;
+
+std::shared_ptr<queue_manager_interface>
+create_queue_manager(const std::string &type, std::shared_ptr<worker_registry> registry, std::shared_ptr<job_data> jobs)
+{
+    if (type == "multi") {
+        return std::make_shared<multi_queue_manager>();
+    }
+
+    if (type == "single_fcfs") {
+        auto comparator = std::make_unique<fcfs_job_comparator>();
+        return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator));
+    }
+
+    if (type == "single_lf") {
+        auto comparator = std::make_unique<least_flexibility_job_comparator>(*registry);
+        return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator));
+    }
+
+    if (type == "single_spt_queue_size") {
+        auto estimator = std::make_shared<equal_length_processing_time_estimator>();
+        auto comparator = std::make_unique<shortest_processing_time_job_comparator<equal_length_processing_time_estimator>>(estimator);
+        return std::make_shared<single_queue_manager<shortest_processing_time_job_comparator<equal_length_processing_time_estimator>>>(std::move(comparator));
+    }
+
+    if (type == "single_spt_oracle") {
+        auto comparator = std::make_unique<shortest_processing_time_job_comparator<oracle_processing_time_estimator>>(std::make_shared<oracle_processing_time_estimator>(jobs));
+        return std::make_shared<single_queue_manager<shortest_processing_time_job_comparator<oracle_processing_time_estimator>>>(std::move(comparator));
+    }
+
+    if (type == "single_edf_oracle") {
+        auto comparator = std::make_unique<earliest_deadline_job_comparator<oracle_processing_time_estimator>>(std::make_shared<oracle_processing_time_estimator>(jobs));
+        return std::make_shared<single_queue_manager<earliest_deadline_job_comparator<oracle_processing_time_estimator>>>(std::move(comparator));
+    }
+
+    if (type == "oagm_oracle") {
+        auto comparator = std::make_unique<oagm_job_comparator<oracle_processing_time_estimator>>(std::make_shared<oracle_processing_time_estimator>(jobs), *registry);
+        return std::make_shared<single_queue_manager<oagm_job_comparator<oracle_processing_time_estimator>>>(std::move(comparator));
+    }
+
+    if (type == "multi_ll_queue_size") {
+        auto selector = std::make_unique<least_loaded_worker_selector<equal_length_processing_time_estimator>>(std::make_unique<equal_length_processing_time_estimator>());
+        return std::make_shared<advanced_multi_queue_manager<least_loaded_worker_selector<equal_length_processing_time_estimator>>>(std::move(selector));
+    }
+
+    if (type == "multi_ll_oracle") {
+        auto selector = std::make_unique<least_loaded_worker_selector<oracle_processing_time_estimator>>(std::make_unique<oracle_processing_time_estimator>(jobs));
+        return std::make_shared<advanced_multi_queue_manager<least_loaded_worker_selector<oracle_processing_time_estimator>>>(std::move(selector));
+    }
+
+    if (type == "multi_rand2_queue_size") {
+        auto selector = std::make_unique<two_random_choices_selector<equal_length_processing_time_estimator>>(std::make_unique<equal_length_processing_time_estimator>());
+        return std::make_shared<advanced_multi_queue_manager<two_random_choices_selector<equal_length_processing_time_estimator>>>(std::move(selector));
+    }
+
+    if (type == "multi_rand2_oracle") {
+        auto selector = std::make_unique<two_random_choices_selector<oracle_processing_time_estimator>>(std::make_unique<oracle_processing_time_estimator>(jobs));
+        return std::make_shared<advanced_multi_queue_manager<two_random_choices_selector<oracle_processing_time_estimator>>>(std::move(selector));
+    }
+
+    throw std::runtime_error("Unknown queue manager type");
+}
 
 /**
  * Load jobs from a CSV file where a row contains the arrival time, processing time, and a varying number of columns for headers.
  */
-void load_jobs(job_data &jobs, std::istream &input)
+void load_jobs(std::shared_ptr<job_data> jobs, std::istream &input)
 {
     size_t i = 1;
     const auto ws = "\t\n\v\f\r ";
@@ -111,7 +135,7 @@ void load_jobs(job_data &jobs, std::istream &input)
         job_data.insert(std::end(job_data), std::begin(entry) + 2, std::end(entry));
         job_data.emplace_back("");
 
-        jobs.emplace(job_id, simulation_job{
+        jobs->emplace(job_id, simulation_job{
             .job_id=job_id,
             .data=job_data,
             .arrival_time=boost::posix_time::milliseconds(std::stoll(entry[0])),
@@ -134,12 +158,12 @@ private:
     boost::asio::deadline_timer reactor_periodic_timer_;
 
     job_queue incoming_jobs_;
-    job_data &job_data_;
+    std::shared_ptr<job_data> job_data_;
 
     boost::posix_time::ptime start_time_;
 
 public:
-    responder(broker_handler &handler, boost::asio::io_service &io, job_data &jobs, std::shared_ptr<worker_registry> registry):
+    responder(broker_handler &handler, boost::asio::io_service &io, std::shared_ptr<job_data> jobs, std::shared_ptr<worker_registry> registry):
         handler_(handler),
         io_(io),
         job_timer_(io_),
@@ -147,7 +171,7 @@ public:
         reactor_periodic_timer_(io_),
         job_data_(jobs)
     {
-        for (auto &it: jobs) {
+        for (auto &it: *jobs) {
             incoming_jobs_.insert(it.second);
         }
 
@@ -187,7 +211,7 @@ public:
         if (message.key == broker_connect::KEY_WORKERS) {
             if (message.data.at(0) == "eval") {
                 const std::string &job_id = message.data.at(1);
-                simulation_job &job = job_data_.at(job_id);
+                simulation_job &job = job_data_->at(job_id);
                 job.processing_started_time = time_since_start();
                 auto timer = std::make_shared<boost::asio::deadline_timer>(io_, job.processing_time);
                 timer->async_wait([this, job_id, message] (const boost::system::error_code&) {
@@ -311,8 +335,14 @@ int main(int argc, char **argv)
     // Prepare a worker registry
     auto registry = std::make_shared<worker_registry>();
 
+    // Load jobs to be simulated
+    auto jobs = std::make_shared<job_data>();
+
+    std::ifstream jobs_file(argv[3]);
+    load_jobs(jobs, jobs_file);
+
     // Create one of the predefined queue managers
-    auto queue = create_queue_manager(argv[1], registry);
+    auto queue = create_queue_manager(argv[1], registry, jobs);
 
     // Create a logger that outputs to stderr
     auto sink = std::make_shared<spdlog::sinks::stderr_sink_mt>();
@@ -325,12 +355,6 @@ int main(int argc, char **argv)
     std::ifstream workers_file(argv[2]);
     load_workers(handler, workers_file);
 
-    // Load jobs to be simulated
-    job_data jobs;
-
-    std::ifstream jobs_file(argv[3]);
-    load_jobs(jobs, jobs_file);
-
     boost::asio::io_service io;
 
     responder res{handler, io, jobs, registry};
@@ -340,7 +364,7 @@ int main(int argc, char **argv)
 
     std::cerr << "Done in " << std::to_string(res.time_since_start().total_milliseconds()) << "ms" << std::endl;
 
-    for (auto &it: jobs) {
+    for (auto &it: *jobs) {
         std::cout
             << it.second.job_id << ","
             << it.second.arrival_time.total_milliseconds() << ","
