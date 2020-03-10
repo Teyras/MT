@@ -7,7 +7,7 @@
 
 struct request_entry {
     request_ptr request;
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> arrived_at;
+    std::chrono::milliseconds arrived_at;
 };
 
 struct fcfs_job_comparator {
@@ -69,7 +69,7 @@ struct earliest_deadline_job_comparator {
     {
     }
 
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> determine_deadline(const request_entry &request) const
+    std::chrono::milliseconds determine_deadline(const request_entry &request) const
     {
         std::chrono::milliseconds processing_time = estimator_->estimate(request.request, nullptr);
 
@@ -155,7 +155,7 @@ struct oagm_job_comparator {
 };
 
 struct first_idle_worker_selector {
-    worker_ptr select(const std::map<worker_ptr, request_ptr> &worker_jobs, request_ptr request) const
+    worker_ptr select(const std::map<worker_ptr, request_ptr> &worker_jobs, const std::vector<request_entry> &queued_jobs, request_ptr request) const
     {
         for (auto &pair: worker_jobs) {
             if (pair.second == nullptr && pair.first->check_headers(request->headers)) {
@@ -169,9 +169,9 @@ struct first_idle_worker_selector {
 
 template <typename ProcessingTimeEstimator>
 struct least_loaded_idle_worker_selector {
-    std::unique_ptr<ProcessingTimeEstimator> estimator_;
+    std::shared_ptr<ProcessingTimeEstimator> estimator_;
 
-    explicit least_loaded_idle_worker_selector(std::unique_ptr<ProcessingTimeEstimator> estimator): estimator_(std::move(estimator))
+    explicit least_loaded_idle_worker_selector(std::shared_ptr<ProcessingTimeEstimator> estimator): estimator_(estimator)
     {
     }
     
@@ -216,12 +216,17 @@ private:
     std::unique_ptr<IdleWorkerSelector> selector_;
     std::vector<request_entry> jobs_;
     std::map<worker_ptr, request_ptr> worker_jobs_;
+    std::shared_ptr<const simulation_clock> clock_;
 
 public:
-    explicit single_queue_manager(std::unique_ptr<JobComparator> comparator):
-        comparator_(std::move(comparator)), selector_(std::make_unique<first_idle_worker_selector>())
+    explicit single_queue_manager(std::unique_ptr<JobComparator> comparator, std::shared_ptr<const simulation_clock> clock):
+        comparator_(std::move(comparator)), selector_(std::make_unique<first_idle_worker_selector>()), clock_(clock)
     {
     }
+
+    single_queue_manager(std::unique_ptr<JobComparator> comparator, std::unique_ptr<IdleWorkerSelector> selector, std::shared_ptr<const simulation_clock> clock):
+        comparator_(std::move(comparator)), selector_(std::move(selector)), clock_(clock)
+    {}
 
     ~single_queue_manager() override = default;
 
@@ -250,7 +255,7 @@ public:
             worker_jobs_[worker] = it->request;
             jobs_.erase(it);
 
-            return it->request;
+            return worker_jobs_[worker];
         }
 
         return nullptr;
@@ -267,8 +272,10 @@ public:
     enqueue_result enqueue_request(request_ptr request) override
     {
         // Try to find an idle worker and assign the job
-        auto idle_worker = selector_->select(worker_jobs_, request);
+        auto idle_worker = selector_->select(worker_jobs_, jobs_, request);
         if (idle_worker) {
+            worker_jobs_[idle_worker] = request;
+
             return enqueue_result{
                 .assigned_to = idle_worker,
                 .enqueued = true,
@@ -292,7 +299,7 @@ public:
         // Enqueue the job
         jobs_.push_back(request_entry{
             .request = request,
-            .arrived_at = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
+            .arrived_at = clock_->now()
         });
 
         return enqueue_result{

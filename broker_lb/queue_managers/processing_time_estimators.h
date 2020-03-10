@@ -19,7 +19,7 @@ struct oracle_processing_time_estimator {
 
     std::chrono::milliseconds estimate(const request_ptr &request, const worker_ptr &worker) const
     {
-        return std::chrono::milliseconds(jobs_->at(request->data.get_job_id()).processing_time.ticks());
+        return jobs_->at(request->data.get_job_id()).processing_time;
     }
 };
 

@@ -139,7 +139,7 @@ public:
         // Look for a suitable worker
         worker_ptr worker = nullptr;
 
-        worker_selector_->select(queues_, request);
+        worker = worker_selector_->select(queues_, request);
 
         // If a worker was found, enqueue the request
         if (worker) {
