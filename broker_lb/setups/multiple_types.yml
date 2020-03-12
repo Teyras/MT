@@ -1,0 +1,68 @@
+workers:
+  common_1:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+  common_2:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+  common_3:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+  common_4:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+  common_5:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+  common_6:
+    hwgroup: group_common_1
+    headers:
+      - env=c
+
+  common_7:
+    hwgroup: group_common_2
+    headers:
+      - env=c
+  common_8:
+    hwgroup: group_common_2
+    headers:
+      - env=c
+  common_9:
+    hwgroup: group_common_2
+    headers:
+      - env=c
+  common_10:
+    hwgroup: group_common_2
+    headers:
+      - env=c
+
+  parallel_1:
+    hwgroup: group_parallel
+    headers:
+      - env=c
+  parallel_2:
+    hwgroup: group_parallel
+    headers:
+      - env=c
+
+  gpu_1:
+    hwgroup: group_gpu
+    headers:
+      - env=c
+  gpu_2:
+    hwgroup: group_gpu
+    headers:
+      - env=c
+  gpu_3:
+    hwgroup: group_gpu
+    headers:
+      - env=c
+  gpu_4:
+    hwgroup: group_gpu
+    headers:
+      - env=c

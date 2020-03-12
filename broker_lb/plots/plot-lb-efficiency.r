@@ -10,6 +10,7 @@ values$wait.time <- values$processing.start - values$arrival
 values$relative.wait.time <- values$wait.time / values$processing.time
 values$queue.manager <- tex.safe(values$queue.manager)
 values$workload <- tex.safe(values$workload)
+values$setup <- tex.safe(values$setup)
 values$processing.end <- values$processing.start + values$processing.time
 values$lateness.class <- cut(values$relative.wait.time, breaks=c(0, 0.1, 1, 3, Inf), labels=c("on.time", "delayed", "late", "extremely.late"), right=F)
 
@@ -23,6 +24,7 @@ plot.efficiency <- function() {
 
 		plot <- ggplot(narrow.values[narrow.values$setup == setup, ], aes(x=queue.manager, y=value)) +
 			geom_violin() +
+			scale_y_log10() +
 			facet_grid(rows=vars(metric), cols=vars(workload), scales="free") +
 			theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
