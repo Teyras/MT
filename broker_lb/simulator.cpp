@@ -40,7 +40,7 @@ using worker_status_map = std::map<std::string, bool>;
 std::shared_ptr<queue_manager_interface> create_queue_manager(
 	const std::string &type, std::shared_ptr<worker_registry> registry, std::shared_ptr<job_data> jobs, std::shared_ptr<const simulation_clock> clock)
 {
-	if (type == "multi") {
+	if (type == "multi_rr") {
 		return std::make_shared<multi_queue_manager>();
 	}
 
