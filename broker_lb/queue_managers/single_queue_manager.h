@@ -15,35 +15,43 @@ struct fcfs_job_comparator {
     {
         return a.arrived_at < b.arrived_at;
     }
+
+    void drop_caches() {}
 };
 
 struct least_flexibility_job_comparator {
     const worker_registry &registry;
+    std::unordered_map<request_ptr, size_t> flexibility;
 
     explicit least_flexibility_job_comparator(const worker_registry &registry):
-        registry(registry)
+            registry(registry)
     {}
 
-    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    void ensure_flexibility(const request_entry &a)
     {
-        size_t flexibility_a = 0;
-        size_t flexibility_b = 0;
+        if (flexibility.find(a.request) != flexibility.end()){
+            return;
+        }
+
+        flexibility[a.request] = 0;
 
         for (auto &worker: registry.get_workers()) {
             if (worker->check_headers(a.request->headers)) {
-                flexibility_a += 1;
-            }
-
-            if (worker->check_headers(b.request->headers)) {
-                flexibility_b += 1;
+                flexibility[a.request] += 1;
             }
         }
+    }
 
-        if (flexibility_a == flexibility_b) {
-            return a.arrived_at < b.arrived_at;
-        }
+    bool compare(const request_entry &a, const request_entry &b, const worker_ptr &worker)
+    {
+        ensure_flexibility(a);
+        ensure_flexibility(b);
+        return flexibility[a.request] < flexibility[b.request];
+    }
 
-        return flexibility_a < flexibility_b;
+    void drop_caches()
+    {
+        flexibility.clear();
     }
 };
 
@@ -55,10 +63,12 @@ struct shortest_processing_time_job_comparator {
     {
     }
 
-    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    bool compare(const request_entry &a, const request_entry &b, const worker_ptr &worker) const
     {
         return estimator_->estimate(a.request, nullptr) < estimator_->estimate(b.request, nullptr);
     }
+
+    void drop_caches() {}
 };
 
 template <typename ProcessingTimeEstimator>
@@ -88,6 +98,8 @@ struct earliest_deadline_job_comparator {
     {
         return determine_deadline(a) < determine_deadline(b);
     }
+
+    void drop_caches() {}
 };
 
 template <typename ProcessingTimeEstimator>
@@ -99,14 +111,14 @@ struct oagm_job_comparator {
     {
     }
 
-    size_t calculate_label(const request_entry &request, worker_ptr worker) const
+    size_t calculate_label(const request_entry &request, const worker_ptr &worker) const
     {
         if (worker == nullptr) {
             return 0;
         }
 
         std::vector<worker_ptr> workers = registry_.get_workers();
-        std::sort(workers.begin(), workers.end(), [this, request, worker] (const worker_ptr &a, const worker_ptr &b) {
+        std::sort(workers.begin(), workers.end(), [this, request] (const worker_ptr &a, const worker_ptr &b) {
             bool a_eligible = a->check_headers(request.request->headers);
             bool b_eligible = b->check_headers(request.request->headers);
 
@@ -125,7 +137,7 @@ struct oagm_job_comparator {
     {
         size_t flexibility = 0;
 
-        for (auto worker: registry_.get_workers()) {
+        for (const auto &worker: registry_.get_workers()) {
             if (worker->check_headers(request.request->headers)) {
                 flexibility += 1;
             }
@@ -134,23 +146,27 @@ struct oagm_job_comparator {
         return flexibility;
     }
 
-    bool compare(const request_entry &a, const request_entry &b, worker_ptr worker) const
+    using comparison_key = std::tuple<size_t, size_t, std::chrono::milliseconds>;
+    std::unordered_map<worker_ptr, std::unordered_map<request_ptr, comparison_key>> comparison_keys;
+
+    void ensure_comparison_key(const request_entry &request, worker_ptr worker)
     {
-        auto label_a = calculate_label(a, worker);
-        auto label_b = calculate_label(a, worker);
-
-        if (label_a != label_b) {
-            return label_a < label_b;
+        if (comparison_keys.find(worker) == std::end(comparison_keys) || comparison_keys.at(worker).find(request.request) == std::end(comparison_keys.at(worker))) {
+            comparison_keys[worker][request.request] = std::make_tuple(calculate_label(request, worker), calculate_flexibility(request), -estimator_->estimate(request.request, worker));
         }
+    }
 
-        auto flex_a = calculate_flexibility(a);
-        auto flex_b = calculate_flexibility(b);
+    bool compare(const request_entry &a, const request_entry &b, const worker_ptr &worker)
+    {
+        ensure_comparison_key(a, worker);
+        ensure_comparison_key(b, worker);
 
-        if (flex_a != flex_b) {
-            return flex_a < flex_b;
-        }
+        return comparison_keys.at(worker).at(a.request) < comparison_keys.at(worker).at(b.request);
+    }
 
-        return estimator_->estimate(a.request, worker) < estimator_->estimate(b.request, worker);
+    void drop_caches()
+    {
+        comparison_keys.clear();
     }
 };
 
@@ -216,6 +232,7 @@ private:
     std::unique_ptr<IdleWorkerSelector> selector_;
     std::vector<request_entry> jobs_;
     std::map<worker_ptr, request_ptr> worker_jobs_;
+    std::vector<worker_ptr> workers_;
     std::shared_ptr<const simulation_clock> clock_;
 
 public:
@@ -233,6 +250,7 @@ public:
     request_ptr add_worker(worker_ptr worker, request_ptr current_request = nullptr) override
     {
         worker_jobs_[worker] = current_request;
+        workers_.push_back(worker);
 
         if (current_request != nullptr) {
             return current_request;
@@ -243,6 +261,9 @@ public:
 
     request_ptr assign_request(worker_ptr worker) override
     {
+        worker_jobs_[worker] = nullptr;
+        comparator_->drop_caches();
+
         std::sort(jobs_.begin(), jobs_.end(), [this, worker] (const request_entry &a, const request_entry &b) {
             return comparator_->compare(a, b, worker);
         });
@@ -266,6 +287,7 @@ public:
         auto result = std::make_shared<std::vector<request_ptr>>();
         result->push_back(worker_jobs_[worker]);
         worker_jobs_.erase(worker);
+        workers_.erase(std::remove(workers_.begin(), workers_.end(), worker), workers_.end());
         return result;
     }
 
