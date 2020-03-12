@@ -247,6 +247,10 @@ public:
 			// Pick first event in the queue
 			auto next_event = std::begin(events_);
 
+            if (next_event->first < clock_->now()) {
+                throw std::runtime_error("Error in event ordering");
+            }
+
 			// Execute periodic events that precede the selected event
 			while (std::any_of(periodic_events_.cbegin(),
 				periodic_events_.cend(),
