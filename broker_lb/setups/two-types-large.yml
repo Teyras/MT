@@ -38,11 +38,11 @@ workers:
     hwgroup: group_1
     headers:
       - env=c
+      - env=java
   common_10:
     hwgroup: group_1
     headers:
       - env=c
-      - env=java
       - env=java
   common_11:
     hwgroup: group_1
