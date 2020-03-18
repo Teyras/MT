@@ -107,6 +107,9 @@ struct oagm_job_comparator {
     std::shared_ptr<ProcessingTimeEstimator> estimator_;
     const worker_registry &registry_;
 
+    using comparison_key = std::tuple<size_t, size_t, std::chrono::milliseconds>;
+    std::unordered_map<worker_ptr, std::unordered_map<request_ptr, comparison_key>> comparison_keys;
+
     explicit oagm_job_comparator(std::shared_ptr<ProcessingTimeEstimator> estimator, const worker_registry &registry): estimator_(estimator), registry_(registry)
     {
     }
@@ -145,9 +148,6 @@ struct oagm_job_comparator {
 
         return flexibility;
     }
-
-    using comparison_key = std::tuple<size_t, size_t, std::chrono::milliseconds>;
-    std::unordered_map<worker_ptr, std::unordered_map<request_ptr, comparison_key>> comparison_keys;
 
     void ensure_comparison_key(const request_entry &request, worker_ptr worker)
     {

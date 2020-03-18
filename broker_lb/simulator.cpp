@@ -62,11 +62,27 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(comparator), clock);
 	}
 
-	if (type == "single_edf_oracle") {
-		auto comparator = std::make_unique<earliest_deadline_job_comparator<oracle_processing_time_estimator>>(
-			std::make_shared<oracle_processing_time_estimator>(jobs));
+    if (type == "single_spt_imprecise") {
+        auto comparator = std::make_unique<shortest_processing_time_job_comparator<imprecise_processing_time_estimator>>(
+                std::make_shared<imprecise_processing_time_estimator>(jobs));
+        return std::make_shared<
+                single_queue_manager<shortest_processing_time_job_comparator<imprecise_processing_time_estimator>>>(
+                std::move(comparator), clock);
+    }
+
+    if (type == "single_edf_oracle") {
+        auto comparator = std::make_unique<earliest_deadline_job_comparator<oracle_processing_time_estimator>>(
+                std::make_shared<oracle_processing_time_estimator>(jobs));
+        return std::make_shared<
+                single_queue_manager<earliest_deadline_job_comparator<oracle_processing_time_estimator>>>(
+                std::move(comparator), clock);
+    }
+
+	if (type == "single_edf_imprecise") {
+		auto comparator = std::make_unique<earliest_deadline_job_comparator<imprecise_processing_time_estimator>>(
+			std::make_shared<imprecise_processing_time_estimator>(jobs));
 		return std::make_shared<
-			single_queue_manager<earliest_deadline_job_comparator<oracle_processing_time_estimator>>>(
+			single_queue_manager<earliest_deadline_job_comparator<imprecise_processing_time_estimator>>>(
 			std::move(comparator), clock);
 	}
 
@@ -79,6 +95,16 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			least_loaded_idle_worker_selector<oracle_processing_time_estimator>>>(
 			std::move(comparator), std::move(selector), clock);
 	}
+
+    if (type == "oagm_imprecise") {
+        auto estimator = std::make_shared<imprecise_processing_time_estimator>(jobs);
+        auto comparator = std::make_unique<oagm_job_comparator<imprecise_processing_time_estimator>>(estimator, *registry);
+        auto selector =
+                std::make_unique<least_loaded_idle_worker_selector<imprecise_processing_time_estimator>>(estimator);
+        return std::make_shared<single_queue_manager<oagm_job_comparator<imprecise_processing_time_estimator>,
+                least_loaded_idle_worker_selector<imprecise_processing_time_estimator>>>(
+                std::move(comparator), std::move(selector), clock);
+    }
 
 	if (type == "multi_ll_queue_size") {
 		auto selector = std::make_unique<least_loaded_worker_selector<equal_length_processing_time_estimator>>(
@@ -96,6 +122,14 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
+    if (type == "multi_ll_imprecise") {
+        auto selector = std::make_unique<least_loaded_worker_selector<imprecise_processing_time_estimator>>(
+                std::make_unique<imprecise_processing_time_estimator>(jobs));
+        return std::make_shared<
+                advanced_multi_queue_manager<least_loaded_worker_selector<imprecise_processing_time_estimator>>>(
+                std::move(selector));
+    }
+
 	if (type == "multi_rand2_queue_size") {
 		auto selector = std::make_unique<two_random_choices_selector<equal_length_processing_time_estimator>>(
 			std::make_unique<equal_length_processing_time_estimator>());
@@ -111,6 +145,14 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			advanced_multi_queue_manager<two_random_choices_selector<oracle_processing_time_estimator>>>(
 			std::move(selector));
 	}
+
+    if (type == "multi_rand2_imprecise") {
+        auto selector = std::make_unique<two_random_choices_selector<imprecise_processing_time_estimator>>(
+                std::make_unique<imprecise_processing_time_estimator>(jobs));
+        return std::make_shared<
+                advanced_multi_queue_manager<two_random_choices_selector<imprecise_processing_time_estimator>>>(
+                std::move(selector));
+    }
 
 	throw std::runtime_error("Unknown queue manager type");
 }
