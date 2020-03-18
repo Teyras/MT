@@ -108,3 +108,5 @@ wl.labels <- function(labels) {
 	}))
 }
 
+tex.safe <- function(val) gsub('_', '\\\\_', val)
+tex.unsafe <- function(val) gsub('\\\\_', '_', val)
