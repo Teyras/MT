@@ -22,7 +22,7 @@ on a single priority queue of jobs with various policies. We will evaluate the
 following priority policies:
 
 - earliest time of arrival first (first come, first served)
-- the policy mentioned in Section \ref{time-vs-list-based-scheduling}
+- OAGM -- the policy mentioned in Section \ref{time-vs-list-based-scheduling}
 - shortest job first (based on previous processing times)
 - earliest deadline first (the modification presented in section 
   \ref{custom-edf})

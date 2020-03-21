@@ -181,11 +181,11 @@ adjustments.
 
 Step number 2 is more challenging. A naive approach would be to simply unpack 
 the image data each time we need to execute a command in it. This is implemented 
-by tools such as Charliecloud, but the process is not very complicated and we 
-could implement it on our own, too. This approach is inefficient for obvious 
-reasons -- typically, an evaluation requires the execution of tens of commands 
-and an image can have hundreds of megabytes. In total, this presents a sizable 
-overhead.
+by tools such as Charliecloud or `umoci`, but the process is not very 
+complicated and we could implement it on our own, too. This approach is 
+inefficient for obvious reasons -- typically, an evaluation requires the 
+execution of tens of commands and an image can have hundreds of megabytes. In 
+total, this presents a sizable overhead.
 
 There are two similar ways we could improve this situation. First, we could 
 mount the image exactly the way Docker does it. The default way is mounting the 

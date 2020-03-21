@@ -1,6 +1,7 @@
 source("../measurements/plots/helpers.r")
 
 library("ggplot2")
+library("ggrepel")
 library("tikzDevice")
 library("dplyr")
 
@@ -55,13 +56,16 @@ make.error.histogram <- function() {
 
 make.error.density.plots <- function() {
 	counts <- values %>% count(processing_time_category)
+	tikz("estimation-error-histograms.tex", width=5.5, height=8)
 	plot <- ggplot(values, aes(x=error_category)) +
 		geom_histogram(stat="count") +
-		geom_text(data=counts, aes(x=0, y=Inf, label=paste("n=", n, sep=""), hjust="left", vjust="top"), inherit.aes=F, parse=F, size=3) +
-		facet_wrap(~processing_time_category, scales="free") +
-		theme(axis.text.x = element_text(angle=90, hjust=1, size=4))
+		geom_text_repel(data=counts, aes(x=0, y=Inf, label=paste("n=", n, sep=""), hjust="left", vjust="top"), inherit.aes=F, parse=F, size=3) +
+		facet_wrap(~processing_time_category, scales="free", ncol=3) +
+		theme(axis.text.x = element_text(angle=90, hjust=1, size=4), axis.title.y = element_blank()) +
+		labs(x="Relative error [\\%]", y="Observation count")
 
-	ggsave("error-densities.png", plot)
+	print(plot)
+	ggsave("estimation-error-histograms.png", plot)
 }
 
 #make.plot(1)

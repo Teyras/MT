@@ -18,22 +18,24 @@ our survey.
 
 It seems that the time-based variant of the online scheduling problem is not 
 very well researched, despite its practical applications. A heuristic approach 
-for minimizing the makespan has been described[@HeuristicsScheduling] that uses 
-a single queue of incoming jobs ordered by three criteria: smallest label first 
-(where the label of a job on a worker is the position of the job in its 
-processing set ordered by the processing time on each of the workers), least 
-flexibility job first (a job is less flexible than another if its processing set 
-is a proper subset of the processing set of the other job) and longest 
-processing time first. If a job is due to be sent to an idle workers and there 
-are multiple candidates, the job is sent to the worker with the smallest sum of 
-processing times of queued jobs that also have that worker in their processing 
-sets.
+for minimizing the makespan called OAGM (Online Algorithm based on Greedy 
+algorithm and Machine preference) has been described[@HeuristicsScheduling] that 
+uses a single queue of incoming jobs ordered by three criteria: smallest label 
+first (where the label of a job on a worker is the position of the job in its 
+processing set ordered by the processing time, from smaller to larger, on each 
+of the workers), least flexibility job first (a job is less flexible than 
+another if its processing set is a proper subset of the processing set of the 
+other job) and longest processing time first. If a job is due to be sent to an 
+idle worker and there are multiple candidates, the job is sent to the worker 
+with the smallest sum of processing times of queued jobs that also have that 
+worker in their processing sets.
 
-This algorithm is expanded upon by a meta-heuristic algorithm that maintains a 
-job queue for each worker and tries to iteratively improve the schedule by 
-randomly moving jobs from the most loaded worker to another with a probability 
-based on the load of each worker. This approach is based on simulated annealing, 
-a probabilistic technique for approximating the global optimum of a function.
+This algorithm is expanded upon by a meta-heuristic algorithm (called meta-OAGM) 
+that maintains a job queue for each worker and tries to iteratively improve the 
+schedule by randomly moving jobs from the most loaded worker to another with a 
+probability based on the load of each worker. This approach is based on 
+simulated annealing, a probabilistic technique for approximating the global 
+optimum of a function.
 
 Most literature is concerned with the list-based variant of the problem. We will 
 survey the results in the following sections.
