@@ -80,7 +80,7 @@ feedback queues.
 
 For the semi-clairvoyant variant of the problem, where we only have approximate 
 knowledge of the processing times, it has been shown that SRPT works reasonably 
-well and a new algorithm based on multi-level feedback queues has been 
+well and a new algorithm similar to multi-level queues has been 
 studied[@SemiClairvoyant].
 
 ### Processing Set Characteristics
