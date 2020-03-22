@@ -14,6 +14,7 @@ requirements on fast feedback described in Section
 \ref{scheduling-requirements}).
 
 The formula to obtain a deadline is as follows:
+
 - Time of arrival + the estimated processing time for jobs shorter than 15 
   seconds
 - Time of arrival + the estimated processing time + 15 seconds for jobs shorter 

@@ -83,7 +83,7 @@ When researching the problem in literature, we should be primarily concerned
 with the first group (focused on latency). In experimental evaluation, we should 
 observe both the makespan and some subset of the metrics related to latency.
 
-### Experiment Methodology
+### Experiment Methodology \label{lb-experiment-methodology}
 
 To select the right scheduling algorithm, we will perform an experimental 
 evaluation. In this section, we attempt to find the optimal methodology for such 
@@ -105,12 +105,13 @@ into the system after we finish our evaluation.
 
 For an easily reproducible experiment, we should use some degree of simulation 
 to avoid setting up the entirety of the ReCodEx system, along with writing a 
-script that submits jobs to the system at scheduled times. Another problem of 
-measuring with the whole system up is that the results would contain noise 
-unrelated to the efficiency of the load balancing algorithm, such as delays 
-caused by network communication.
+script that emulates job submissions at scheduled times. Measuring with the 
+whole system up would introduce multiple problems, for example that the results 
+would contain noise unrelated to the efficiency of the load balancing algorithm
+(such as delays caused by network communication), and that the measurements 
+would take much longer than when we use simulation.
 
 Our experiment will be performed by a script that directly uses the scheduling 
 code of the ReCodEx broker and simulates incoming jobs based on a structured 
-description. The script will also support configuring the set of worker 
-machines.
+description, using a selected queue manager implementation. The script will also 
+support configuring the set of worker machines.

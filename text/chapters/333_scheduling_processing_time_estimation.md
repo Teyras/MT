@@ -76,3 +76,41 @@ devised, for example using machine learning techniques.
 
 ![Histograms of relative errors divided into facets by job processing times (in 
 seconds) \label{estimation-error-histograms}](img/lb/estimation-error-histograms.tex)
+
+### Estimation in Simulated Experiments
+
+As mentioned in Section \ref{lb-experiment-methodology}, we will evaluate queue 
+management algorithms in a simulated environment with simplified job data that 
+does not necessarily have to originate from actual records of ReCodEx traffic.
+
+Problems are very likely to aries if we test a queue manager that uses our 
+estimation strategy on simple, more predictable jobs -- its accuracy will be 
+different than it would be on real world data.
+
+As a countermeasure, we decided to implement an imprecise estimator for the 
+simulation that adds a random error to the actual processing time of the job. 
+The procedure for the error generation is as follows:
+
+- Determine whether the error will be positive or negative using random sampling 
+  based on the values from our dataset.
+- Generate a random integer `i` between 0 and 99.
+- Take a percentile table (there are separate rows for positive and negative 
+  errors, as shown in Table \ref{estimation-error-percentiles}) of the 
+  prediction errors in our dataset and select a pair of percentiles between 
+  which `i` fits.
+- Generate a random number from a uniform distribution between the values of the 
+  two percentiles.
+
+It is evident that the errors obtained using this procedure will have a 
+distribution that roughly approximates that of the errors encountered in our 
+dataset. A downside of this approach is that the errors are fixed and do not 
+change over time as the estimator receives more information.
+
+Table: Selected percentiles of estimation errors 
+\label{estimation-error-percentiles}
+
+|                | 5th  | 10th | 20th | 40th | 60th  | 80th  | 95th   | 100th    |
+|:---------------|-----:|-----:|-----:|-----:|------:|------:|-------:|---------:|
+| Positive Error | 0.2% | 0.5% | 1.1% | 3.1% | 11.3% | 68.6% | 963.2% | 63529.0% |
+| Negative Error | 0.3% | 0.6% | 1.4% | 4.0% | 12.0% | 37.1% | 83.8%  | 100.0%   |
+
