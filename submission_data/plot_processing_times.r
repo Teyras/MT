@@ -15,12 +15,12 @@ make.plot <- function() {
 		geom_histogram(bins=16) +
 		labs(x="Processing time", y="Evaluation count") +
 		scale_x_continuous(trans="log2") +
-		facet_wrap(~ runtime_environment_id,scales="free") +
+		facet_wrap(~ runtime_environment_id,scales="free", ncol=3) +
 		theme(axis.text.x = element_text(angle=90, hjust=1, size=6))
 
-	tikz("processing_times_hist.tex")
+	tikz("processing-times-histograms.tex", width=5.5, height=6)
 	print(plot)
-	ggsave("processing_times_hist.png")
+	ggsave("processing-times-histograms.png")
 }
 
 make.plot()
