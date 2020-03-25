@@ -45,6 +45,15 @@ plot.makespan <- function() {
 
 	print(plot)
 	dev.off()
+
+	tikz(file="makespans-selection.tex", width=5, height=6)
+	plot <- ggplot(makespans[makespans$workload %in% c("long+short\\_small", "medium+short\\_small"),], aes(x=queue.manager, y=x)) +
+		geom_col() +
+		facet_wrap(~ setup + workload, scales="free_y", ncol=1) +
+		theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+	print(plot)
+	dev.off()
 }
 
 plot.wait.time.trends <- function() {
@@ -83,6 +92,6 @@ plot.wait.time.trends <- function() {
 }
 
 
-plot.efficiency()
+#plot.efficiency()
 plot.makespan()
-plot.wait.time.trends()
+#plot.wait.time.trends()

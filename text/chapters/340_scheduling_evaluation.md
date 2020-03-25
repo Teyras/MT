@@ -12,10 +12,13 @@ until a worker is available.
 
 The current load balancing algorithm (a simple round robin over all workers) in 
 ReCodEx belongs to the first category, along with assigning incoming jobs to the 
-least loaded worker and the "Power of two choices" randomized algorithm. We 
-propose two ways of estimating the load of the workers -- simply counting the 
-jobs and summing the processing time estimates (calculated from processing times 
-of previous similar jobs). This gives a total of five algorithms to evaluate.
+least loaded worker and the "Power of two choices" randomized algorithm. We will 
+employ three ways of estimating the load of the workers -- simply counting the 
+jobs and summing the processing time estimates, once using an estimator called 
+`oracle`, which has access to the simulation data and returns the exact right
+processing time, and once using the `imprecise` estimator, which was described 
+in Section \ref{estimation-in-simulation}. This gives a total of seven 
+algorithms to evaluate.
 
 The non-immediate dispatch category contains two broad approaches. One is based 
 on a single priority queue of jobs with various policies. We will evaluate the 
@@ -27,6 +30,10 @@ following priority policies:
 - earliest deadline first (the modification presented in section 
   \ref{custom-edf})
 - least flexibility job first
+
+From these algorithms, three employ processing time estimation (earliest 
+deadline, shortest job and OAGM). These algorithms will be evaluated twice, once 
+with the `oracle` estimator and once with the `imprecise` estimator.
 
 The other approach is employed by the multi-level queue algorithm family. The 
 MLFQ algorithm depends heavily on preemption, which disqualifies it from our 
@@ -185,6 +192,29 @@ imprecise estimator causes an increase in cases with very large waiting times
 for `single_spt` and, to some extent, `single_edf`. The `oagm` algorithm does 
 not seem to be affected, possibly due to the other metrics it uses for ordering 
 the queue.
+
+The last subject of our evaluation were the makespans (total time it takes to 
+process a workload) of the individual queue managers. A selection of comparison 
+plots can be seen in Figure \ref{lb-makespans}. In most workloads, the queue 
+managers exhibit very similar makespans. An exception to this trend are the 
+`multi_ll_imprecise` and `multi_rand2_imprecise`, whose makespans are longer. A 
+plausible explanation of this is that they fail to balance the load on the 
+individual workers due to not being able to estimate the length of their queues 
+well enough.
+
+It is worth noting that using the imprecise estimator does not seem to affect 
+queue managers that keep a single queue nearly as much. It can be conjectured 
+that the estimation error becomes a problem only when many estimates are summed, 
+which is the case with multiple-queue strategies.
+
+On the `long+short_small` workload, the `oagm_oracle` algorithm seems to have 
+finished with a slightly shorter makespan than the other algorithms. However, 
+even if this was more than a random occurence, we would not prefer it over 
+`single_spt` because of its tendency to cause large relative waiting times for 
+some jobs (as shown in Figure \ref{lb-rel-wait-time-histogram}).
+
+![A comparison of makespans for individual queue managers and selected workloads
+\label{lb-makespans}](img/lb/makespans-selection.tex)
 
 ![TODO 
 \label{lb-rel-wait-time-histogram}](img/lb/rel_wait_time,uniform_large,long+short_small.tex)

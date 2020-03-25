@@ -77,13 +77,13 @@ devised, for example using machine learning techniques.
 ![Histograms of relative errors divided into facets by job processing times (in 
 seconds) \label{estimation-error-histograms}](img/lb/estimation-error-histograms.tex)
 
-### Estimation in Simulated Experiments
+### Estimation in Simulated Experiments \label{estimation-in-simulation}
 
 As mentioned in Section \ref{lb-experiment-methodology}, we will evaluate queue 
 management algorithms in a simulated environment with simplified job data that 
 does not necessarily have to originate from actual records of ReCodEx traffic.
 
-Problems are very likely to aries if we test a queue manager that uses our 
+Problems are very likely to arise if we test a queue manager that uses our 
 estimation strategy on simple, more predictable jobs -- its accuracy will be 
 different than it would be on real world data.
 
