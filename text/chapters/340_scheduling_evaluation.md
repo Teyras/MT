@@ -222,4 +222,22 @@ some jobs (as shown in Figure \ref{lb-rel-wait-time-histogram}).
 ## Conclusion
 
 Our experiment has shown that a simple "Shortest job first" algorithm beats all 
-the other approaches we evaluated.
+the other approaches we evaluated. Judging by intuition, long jobs could be 
+prone to starvation when this algorithm is used. However, our data suggests this 
+is not the case. On the contrary, it exhibits the least number of outliers in 
+terms of relative wait time with an ideal processing time estimator. With an 
+imprecise time estimator, its number of outliers is still competitive,
+
+There were cases where some other heuristic approaches showed promising results. 
+For example, the OAGM algorithm, the "Least flexible job first" heuristic or our 
+implementation of the "Earliest deadline first" policy. It is possible that some 
+combination of these approaches would have interesting performance, but an 
+exploration of such a large pool of combination is out of the scope of our 
+research. There is also a chance that the "Earliest deadline first" approach 
+could be improved by adjusting the deadline thresholds to fit the actual running 
+times of jobs better, or by implementing a mechanism that adjusts them 
+automatically.
+
+We have also found that imprecise processing time estimation does not greatly 
+affect the performance of single-queue load balancing algorithms, but it causes 
+longer makespans in multi-queue algortihms.

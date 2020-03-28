@@ -74,8 +74,9 @@ percent. It is certainly suitable for usage in our load balancing algorithm
 evaluation experiment. In the future, more sophisticated algorithms could be 
 devised, for example using machine learning techniques.
 
-![Histograms of relative errors divided into facets by job processing times (in 
-seconds) \label{estimation-error-histograms}](img/lb/estimation-error-histograms.tex)
+![Histograms of relative estimation errors divided into facets by job processing 
+times (in seconds) 
+\label{estimation-error-histograms}](img/lb/estimation-error-histograms.tex)
 
 ### Estimation in Simulated Experiments \label{estimation-in-simulation}
 
