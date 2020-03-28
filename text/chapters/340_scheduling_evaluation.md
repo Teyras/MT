@@ -161,7 +161,8 @@ workload. The `multi_rand2` performs slightly better, but it still has notably
 more jobs in the "delayed" and "late" categories. Curiously, the much less 
 sophisticated `multi_rr` algorithm does not suffer from this problem.
 
-![TODO 
+![Lateness classification for each queue manager over time for the 
+\texttt{simple+para\_small} workload in the \texttt{two\_types\_large} setup
 \label{lb-lateness-simple-para-small}](img/lb/lateness,two_types_large,simple+para_small.tex)
 
 Our second observation is that the `single-spt` algorithm performs better or 
@@ -174,10 +175,12 @@ illustration of the trend can be seen in Figure
 performing algorithms, with `single_lf` and `oagm` reaching the second and third 
 place.
 
-![TODO 
+![Lateness classification for each queue manager over time for the 
+\texttt{long+short\_small} workload in the \texttt{uniform\_large} setup
 \label{lb-lateness-long-short-small}](img/lb/lateness,uniform_large,long+short_small.tex)
 
-![TODO 
+![Lateness classification for each queue manager over time for the 
+\texttt{multi\_type\_small} workload in the \texttt{multiple\_types} setup
 \label{lb-lateness-multiple-types}](img/lb/lateness,multiple_types,multi_type_small.tex)
 
 The last observation we made is that the exact mechanism of processing time 
@@ -216,7 +219,8 @@ some jobs (as shown in Figure \ref{lb-rel-wait-time-histogram}).
 ![A comparison of makespans for individual queue managers and selected workloads
 \label{lb-makespans}](img/lb/makespans-selection.tex)
 
-![TODO 
+![Histogram of relative wait times for each queue manager for the 
+\texttt{long+short\_small} workload in the \texttt{uniform\_large} setup
 \label{lb-rel-wait-time-histogram}](img/lb/rel_wait_time,uniform_large,long+short_small.tex)
 
 ## Conclusion
