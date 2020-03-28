@@ -10,9 +10,11 @@ for future reference.
 
 This section aims to list the features that are required in a programming 
 assignment evaluation system so that we can contrast these to the features 
-implemented by ReCodEx.
+implemented by ReCodEx. The requirements were gathered by surveying various 
+assignment evaluation systems and environments for the management of programming 
+contests (a closely related topic), and also during the operation of ReCodEx.
 
-### Filtering of Incorrect Solutions
+### Correctness \label{correctness}
 
 There are many objective qualities of a computer program that can be assessed 
 automatically. The most important and obvious one is whether the program
@@ -27,7 +29,7 @@ between 0 (absolutely incorrect) and 1 (absolutely correct). An example of such
 correctness measures could be the accuracy of predictions made by a neural 
 network or the ratio of a compression algorithm.
 
-### Measuring and Limiting of Execution Time
+### Execution Time \label{execution-time}
 
 Execution time is another important evaluation criterion. There can be solutions 
 that are logically correct, but require too much time to yield the results. 
@@ -58,7 +60,7 @@ Ideally, all measurements of execution time should be fair and reproducible
 notably unstable). Without this, teachers could not depend on the measurement 
 results for grading, because the resulting grade could be different each time.
 
-### Resource Usage Limiting
+### Resource Utilization \label{resource-utilization}
 
 Memory usage is another important measure of the efficiency of a program. While 
 it sometimes cannot be directly controlled by the programmer (due to garbage 
@@ -69,26 +71,37 @@ too much memory for other programs to function correctly.
 
 Apart from time and memory, which are essential performance metrics, there are 
 other system resources whose usage shall be limited (or disabled in some cases) 
--- for example disk usage and network bandwidth.
+-- for example disk space and network bandwidth.
 
-### Additional Metrics of Code Quality 
+### Additional Metrics of Code Quality \label{additional-metrics}
 
 Static code analysis can also provide valuable insights about code quality. For 
 example, it might be useful to filter out solutions that do not handle all 
 exceptions that can be thrown in the program for some languages and exercise 
-types. This kind of functionality is sometimes provided by compilers, and also 
-by specialized utilities called linters.
+types. Another example is ensuring that the source code adheres to a specified 
+coding style guideline. This kind of functionality is sometimes provided by 
+compilers, and also by specialized utilities called linters.
 
-### Isolation of Executed Code
+Other tools can be used during the runtime of the program for various reasons. 
+We could for example check for memory leaks with Valgrind (minor ones might 
+evade memory limits), detect invalid usage of pointers and arrays with mudflap 
+or report performance metrics in environments that use a virtual machine, such 
+as Java (where JVM instrumentation could possibly be used).
 
-It is critical to guarantee that submitted  code is run in an isolated 
+### Isolation of Executed Code \label{isolation}
+
+It is critical to guarantee that submitted code is run in an isolated 
 environment. An untrusted program should not be able to exploit the host system 
 (the system performing the evaluation), for example by accessing its files or by 
 using inter-process communication (such as shared memory or UNIX signals) to 
-communicate with system daemons. Connecting to other evaluated programs must 
-also be prohibited.
+communicate with system daemons. Such activities might even lead to a takeover 
+of the host system.
 
-### Resilience
+Connecting to other evaluated programs must also be prohibited. Otherwise, 
+student submissions could for example read output files of other programs to 
+bypass limits on processing time and memory.
+
+### Resilience \label{resilience}
 
 Despite isolation technologies being used, it is still possible for parts of the 
 system to malfunction. This is even more of a problem in distributed systems, 
@@ -99,7 +112,7 @@ without the need for an intervention from an administrator. Of course, if a
 submission is in fact impossible to evaluate, we must limit these retries so 
 that the evaluation does not proceed infinitely.
 
-### Scalability
+### Scalability \label{scalability}
 
 We understand scalability as the ability of the system to adapt to a growing or 
 declining number of clients by adding or removing resources. In a programming 
@@ -111,7 +124,7 @@ scaling (aided by an administrator) could also be sufficient. In fact, the main
 benefit of automatic scaling is being able to react to sudden peaks in the 
 number of submissions.
 
-### Latency and Throughput
+### Latency and Throughput \label{latency-and-throughput}
 
 Fast feedback is one of the critical selling points for automating the process 
 of evaluation of programming assignments. Therefore, it is necessary that the 
@@ -123,7 +136,7 @@ The scheduling and on-demand scaling (or more broadly, resource management)
 policies should also take throughput in account. The system must be able to 
 serve hundreds of clients at the same moment.
 
-### Extensibility
+### Extensibility \label{extensibility}
 
 The system should allow adding support for new languages without significant 
 changes to the code base and without overhead for the administrators. Also, 
@@ -151,7 +164,7 @@ the project.
 
 The system is divided into multiple independent components depicted in Figure 
 \ref{recodex-components}. The functionality of the system is exposed to users by 
-an HTTP API implemented by a business logic core, which is run as a CGI-like 
+an HTTP API provided by a business logic core, which is run as a CGI-like 
 application in a web server. The business logic requires persistent storage of 
 many kinds of data ranging from user accounts to test inputs for exercises and 
 evaluation results. A combination of a relational database and plain file system 
@@ -208,9 +221,7 @@ ReCodEx supports various ways of judging the correctness of the output of a
 submission using judges -- programs that read the output file and assign it a 
 rating between 0 and 1. There are multiple kinds of correctness rating 
 implemented by built-in judges and it is also possible to upload a custom 
-judging program for specialized exercises. ReCodEx also allows not specifying 
-any judge to allow for example just submitting the results of an experiment. 
-However, this use case is not interesting for our research.
+judging program for specialized exercises. 
 
 ### Description of Evaluation Jobs
 
@@ -263,67 +274,73 @@ configured string identifiers shared by machines with similar hardware
 specifications, and having a separate set of limits for each hardware group 
 allowed by an exercise.
 
-## Requirement Fulfillment in ReCodEx
+## Requirements Fulfilled by ReCodEx
 
 In this section, we examine which requirements from Section 
 \ref{analysis-of-requirements} are satisfied by ReCodEx and which are not. We 
 shall then evaluate the latter group and clarify which of those will be 
 addressed by this thesis.
 
-The requirement on detecting incorrect solutions can be considered satisfied. 
-ReCodEx supports a wide range of judges that allow testing the correctness in 
-many different ways. One thing that is missing is the support for interactive 
-tasks where the solution communicates with another program.
+The requirement on detecting incorrect solutions (Section \ref{correctness}) can 
+be considered satisfied. ReCodEx supports a wide range of judges that allow 
+testing the correctness in many different ways. One thing that is missing is the 
+support for interactive tasks where the solution communicates with another 
+program.
 
 Thanks to `isolate`, ReCodEx can measure and limit the usage of a plethora of 
-resources, including CPU time, wall clock time, memory and disk usage. However, 
-we do not know if the stability of measurements cannot be influenced by the 
-isolation.
+resources, including CPU time, wall clock time, memory and disk usage (Sections 
+\ref{execution-time} and \ref{resource-utilization}). However, we do not know if 
+the stability of measurements cannot be influenced by the isolation (or by 
+multiple parallel measurements sharing the hardware).
 
 The submitted code is also run in isolation from the rest of the host system and 
-from other solutions. The implementation makes it appear to the submission that 
-it runs as the only process in its own operating system that includes a file 
-system, inter-process communication and network communication. Of course, unless 
-explicitly allowed, the solution cannot reach any other programs using these 
-facilities.
+from other solutions (Section \ref{isolation}). The implementation makes it 
+appear to the submission that it runs as the only process in its own operating 
+system that includes a file system, inter-process communication and network 
+communication. Of course, unless explicitly allowed, the solution cannot reach 
+any other programs using these facilities.
 
 ReCodEx is tolerant to failures in evaluation, even when they result in a crash 
-of the worker machine. In such cases, the broker reassigns the evaluation to 
-another worker (with a limit on the number of reassignments). Evaluation jobs 
-are not lost even in the case of a broker breakdown. They are stored 
-persistently by the system core and once the broker becomes available again, 
-they can be resubmitted.
+of the worker machine (Section \ref{resilience}). In such cases, the broker 
+reassigns the evaluation to another worker (with a limit on the number of 
+reassignments). Evaluation jobs are not lost even in the case of a broker 
+breakdown. They are stored persistently by the system core and once the broker 
+becomes available again, they can be resubmitted.
 
-ReCodEx can be easily scaled manually by adding more worker machines. This also
-includes adding more powerful hardware over time. However, there are two 
-problems that should be addressed. First, manual scaling cannot deal with sudden 
-peaks in usage efficiently. Second, we do not know if the load balancing 
-algorithm implemented by the broker is good enough to use the additional worker 
-machines efficiently.
+ReCodEx can be easily scaled manually by adding more worker machines (Section 
+\ref{scalability}). This also includes adding more powerful hardware over time. 
+However, there are two problems that should be addressed. First, manual scaling 
+cannot deal with sudden peaks in usage efficiently. Second, we do not know if 
+the load balancing algorithm implemented by the broker is good enough to use the 
+additional worker machines efficiently. As of now, ReCodEx uses 17 workers, 8 of 
+them that are general purpose and 9 that are reserved for specific subjects.
 
 The load balancing algorithm also has a notable influence on the latency and 
-throughput of the system. Therefore, its efficiency must be measured and 
-compared to alternatives.
+throughput of the system (Section \ref{latency-and-throughput}). Therefore, its 
+efficiency must be measured and compared to alternatives.
 
-The last two requirements left to evaluate are extensibility and support for 
-additional code quality metrics. Thanks to the general job configuration format 
-used by the worker, the only thing left to satisfy the second requirement is 
-being able to provide the quality checking software. The ReCodEx workers can use 
-any software installed on the host machine, which partially satisfies both of 
-the requirements. However, the software has to be installed first and the system 
+The last two remaining requirements to examine are extensibility (Section 
+\ref{extensibility}) and support for additional code quality metrics (Section 
+\ref{additional-metrics}). Thanks to the general job configuration format used 
+by the worker, the only thing left to satisfy the second requirement is being 
+able to provide the quality checking software. The ReCodEx workers can use any 
+software installed on the host machine, which partially satisfies both of the 
+requirements. However, the software has to be installed first and the system 
 core has to be modified to emit job configurations that use it. This would 
 introduce a notable administration overhead if we needed to support per-exercise 
 runtime environments.
 
 ### Summary
 
-From our examination of the requirements and the reality of ReCodEx, we can 
-conclude that the stability of measurements has to be researched in `isolate` 
-and when multiple measurements are performed on the same hardware.
+From our examination of the requirements and the reality of ReCodEx, we conclude 
+that a number of topics has to be researched. The stability of measurements has 
+to be measured when `isolate` is used and when multiple measurements are 
+performed on the same hardware.
 
 Furthermore, the efficiency of the load balancing algorithm must be examined, 
-because it affects the latency, throughput and scalability of the system. Also, 
+because it affects the latency, throughput, and scalability of the system. Also
 the viability of on-demand scaling should be assessed.
 
 The last obstacle on the path to a large scale deployment of ReCodEx is the 
-overhead of adding and extending runtime environments.
+overhead of adding and extending runtime environments, and it could be removed 
+by using container technologies.
