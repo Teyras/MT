@@ -192,7 +192,16 @@ Virtualization allows to run multiple guest operating systems on a single
 physical host without modifying them. The guests then operate under an illusion 
 that they are running alone on a physical machine[@IntelVirtualization].
 
-TODO something about trapping interrupts, emulating instructions, ...
+The virtualization is enabled by having a virtual machine monitor (commonly 
+called the hypervisor) installed in the host system. There are multiple ways of 
+running the code of the virtual machine, but in all of them, it is desirable to 
+run as many instructions directly, without any intervention from the hypervisor.
+However, for some instructions, this is not possible -- for example, memory 
+access instructions can have a multitude of possible side effects, such as 
+triggering memory-mapped IO or page table modifications. This can be handled in 
+a variety of ways, like trapping these instructions and emulating them, 
+dynamically translating them to different instructions or exploiting 
+infrastructure for virtualization provided by CPU manufacturers.
 
 Paravirtualization requires the guest operating system to be modified to avoid 
 emulation of some instructions. For example, a block device driver can be 
@@ -200,7 +209,11 @@ implemented by directly calling the virtual machine monitor on the host which
 can keep the data from an emulated drive in a file or in memory. Xen[@Xen] is 
 one of the most prominent paravirtualization technologies.
 
-TODO how these might affect measurements
+It is evident that these mechanisms can affect measurement stability. The effect 
+can be either negative, because the virtualization could introduce additional 
+non-deterministic factors into the measurements, or positive -- the virtualized 
+equivalents of IO operations, for example, might prove to be more stable than 
+the actual operations.
 
 #### The Selection for our Measurements
 
@@ -496,20 +509,22 @@ will be run separately to make sure that the profiling does not influence our
 results. With this data, we will have a better insight into the causes of 
 potential unstable measurements.
 
-The exact measured events are:
+The exact counted events are:
 
-- `L1-dcache-loads`
-- `L1-dcache-misses`
-- `LLC-stores`
-- `LLC-store-misses`
-- `LLC-loads`
-- `LLC-load-misses`
-- `page-faults`
+- `L1-dcache-loads` -- loads from the L1 data cache
+- `L1-dcache-misses` -- unsuccessful loads from the L1 data cache
+- `LLC-stores` -- stores to the last level cache (shared by all cores)
+- `LLC-store-misses` -- memory stores that resulted into a write to the memory 
+  (instead of just altering the cache)
+- `LLC-loads` -- loads from the last level cache
+- `LLC-load-misses` -- unsuccessful loads from the last level cache that led to 
+  a memory load
+- `page-faults` -- memory loads that led to a page walk
 
-TODO describe the events
-
-TODO disk latency would be interesting to observe, but perf events are either 
-uninteresting or undocumented. There are things like iotop.
+For some workloads, it might be interesting to observe disk-related metrics such 
+as latency. However, the computational workloads we measure are not likely to be 
+influenced by such factors. Also, this kind of events does not seem to be 
+supported by perf to our best knowledge. 
 
 ## Hardware and OS Configuration \label{hw-and-os}
 
