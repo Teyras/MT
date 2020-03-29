@@ -49,12 +49,12 @@ be running in parallel -- the memory controller is an important example of this.
 Also, the processes can contend for the CPU cache in multiple ways. For example, 
 when two processes run on the same core, they can access the L3 cache in a 
 pattern that makes each of them force the cached addresses of the other process 
-out. This can also happen when one process is suspended by the process scheduler 
-to allow another process to run or when it is migrated to another core.
+out. This can also happen when one process is suspended by the scheduler to 
+allow another process to run or when it is migrated to another core.
 
 Languages that feature JIT (just in time compilation), such as C# or Java, can 
 also suffer from measurement instability because of this. It is common practice 
-when becnhmarking these languages to let the benchmark warm up before starting 
+when benchmarking these languages to let the benchmark warm up before starting 
 the actual measurements. This way, the JIT compiler has a chance to optimize the 
 critical parts and we do not have to account for the overhead of both running 
 unoptimized code and performing the optimizations when we evaluate the results. 
@@ -138,22 +138,53 @@ Resource limiting and usage accounting is implemented using control groups
 
 It can be reasoned that these measures should not have any noticeable overhead, 
 at least compared to processes running in the global process namespace and 
-cgroup. After all, the global namespace is still a namespace. TODO better words, 
-maybe cite something.
+cgroup -- in modern versions of Linux, the same restriction mechanisms are used 
+in any case, even when no isolation is desired and no additional namespaces and 
+cgroups are created by the user.
 
-TODO LXC
+Linux containers have been adopted by many projects, some of which we list here:
 
-TODO Docker
+- **Docker**[@Docker], which is the most prominent container technology as of 
+  now. It provides means for building images (templates for creating 
+  containers), transferring them between hosts via Docker Registry, creating 
+  containers based on the images and running programs in them. Docker is based 
+  on an open source project called Moby, which implements a number of 
+  specifications authored by the OCI (Open Containers Initiative)[@OCI], mainly 
+  the Runtime Specification (which describes how to run a container from a local 
+  filesystem) and the Image Specification (which describes the format of image 
+  data and metadata). Over time, projects that provide alternative 
+  implementations for parts of the OCI-specified functionality have emerged, 
+  such as Podman[@Podman] or Buildah[@Buildah]. The main use case supported by 
+  Docker is deployment of applications or services as containers, as opposed to 
+  projects that use containers as lightweight virtual machines. This choice has 
+  many consequences in the way Docker is used -- for example, data persistence 
+  must be set up explicitly by binding paths in the host file system into the 
+  container.
+- **LXC**[@LXC] (an abbreviation of "Linux Containers") provides a usage flow 
+  that is more similar to the traditional virtual machine computation model -- a 
+  template is downloaded and used to create a container, which is a fully 
+  functional operating system that uses the kernel of the host. Users can then 
+  attach to this container and run commands inside it like they would in a 
+  virtual machine or a remote server. At the inception of the project, Docker 
+  used LXC as its backend for running containers.
+- **Isolate**[@MaresIsolate] is a minimalistic wrapper around cgroups, 
+  namespaces and other resource limiting facilities provided by Linux. It was 
+  designed for running and measuring resource usage of untrusted code in 
+  programming contests and homework assignment evaluation.
+- **Singularity**[@Singularity] is an effort to bring user-defined software 
+  stacks to systems for high-performance computing. It uses Linux namespaces to 
+  isolate executed code. It can also integrate with resource managers such as 
+  Slurm, which is not a typical use case for Docker, for example. However, OCI 
+  images can be used as a base for Singularity images.
+- **Charliecloud**[@Charliecloud] is a set of scripts for running Docker images 
+  on existing infrastructure with minimal alterations, without the Docker daemon 
+  itself. It does however use Linux namespaces for isolation.
 
-TODO Isolate (used for measurements and isolation in ReCodEx)
-
-TODO Charliecloud and Singularity
-
-There were efforts to implement container support in Linux even before the 
-inception of namespaces and cgroups. Possibly the most widely adopted one was 
-OpenVZ[@OpenVZ] (released in 2005, based on commercial Virtuozzo from 2000). It 
-shipped a modified Linux kernel that enabled container isolation and also 
-provided hardware virtualization support in later versions.
+As a side note, there were efforts to implement container support in Linux even 
+before the inception of namespaces and cgroups. Possibly the most widely adopted 
+one was OpenVZ[@OpenVZ] (released in 2005, based on commercial Virtuozzo
+from 2000). It shipped a modified Linux kernel that enabled container isolation 
+and also provided hardware virtualization support in later versions.
 
 #### Virtualization and Paravirtualization
 
