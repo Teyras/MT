@@ -528,13 +528,24 @@ supported by perf to our best knowledge.
 
 ## Hardware and OS Configuration \label{hw-and-os}
 
-TODO needs more prose
-
-Dell PowerEdge M1000e
+The measurements will be performed on a Dell PowerEdge M1000e server with two 
+10-core CPUs. This kind of machine is similar to what could be used for 
+assignment evaluation in a university, for example. The exact specifications are 
+as follows:
 
 - CPU: 2* Intel(R) Xeon(R) CPU E5-2630 v4 @ 2.20GHz (A total of 20 physical CPUs 
   with hyperthreading) in a NUMA setup
 - Memory: 256GB DDR4 (8 DIMMs by 32GB) \@2400Mhz
+
+The server runs CentOS 7 with Linux 3.10.0 kernel. CentOS is a freely available 
+Linux distribution functionally compatible with Red Hat Enterprise Linux, a 
+commonly used server operating system. Our operating system is configured 
+according to the recommendations given by the documentation of isolate:
+
+- swap is disabled
+- CPU frequency scaling governor is set to `performance`
+- kernel address space randomization is disabled
+- transparent hugepage support is disabled
 
 Due to the CPU topology, we will measure the following parallel configurations:
 
@@ -548,14 +559,6 @@ Due to the CPU topology, we will measure the following parallel configurations:
   last-level cache)
 - 40 processes (one process per logical CPU core, 20 processes share the 
   last-level cache)
-
-The server runs CentOS 7 with Linux 3.10.0 kernel. The OS is configured 
-according to the recommendations by the authors of isolate in its documentation:
-
-- swap is disabled
-- CPU frequency scaling governor is set to `performance`
-- kernel address space randomization is disabled
-- transparent hugepage support is disabled
 
 There are two ways of distributing the measured exercises over CPU cores when 
 measuring with `taskset`. Both are implemented by the `distribute_workers.sh` 
