@@ -56,13 +56,13 @@ mkdir <- function(dir) {
 }
 
 ci.compare <- function (boot1, boot2) {
-	ci1 <- boot.ci(boot1, type="basic")
-	lower1 <- ci1$basic[1, 4]
-	upper1 <- ci1$basic[1, 5]
+	ci1 <- boot.ci(boot1, type="perc")
+	lower1 <- ci1$perc[1, 4]
+	upper1 <- ci1$perc[1, 5]
 
-	ci2 <- boot.ci(boot2, type="basic")
-	lower2 <- ci2$basic[1, 4]
-	upper2 <- ci2$basic[1, 5]
+	ci2 <- boot.ci(boot2, type="perc")
+	lower2 <- ci2$perc[1, 4]
+	upper2 <- ci2$perc[1, 5]
 
 	if (lower1 > upper2) {
 		return("higher")

@@ -15,7 +15,8 @@ data$setup_type_raw <- data$setup_type %>%
 	{gsub("-numa$", "", .)} %>%
 	{gsub("-taskset-noht$", "", .)} %>%
 	{gsub("-taskset-multi-noht$", "", .)} %>%
-	{gsub("-numa-noht$", "", .)}
+	{gsub("-numa-noht$", "", .)} %>%
+	{gsub("-noht$", "", .)}
 data$setup_label <- paste(data$setup_type_raw, data$setup_size, sep=",")
 
 setup_types <- unique(data[data$taskset == TRUE, ]$setup_type_raw)
@@ -94,14 +95,15 @@ taskset.plots <- function() {
 my.mean <- function (x, d) mean(x[d])
 my.sd <- function (x, d) sd(x[d])
 
-compare.boot <- function (fnc, row, data) {
+compare.boot <- function (fnc, row, multi, data) {
 	reference <- values[
 			values$workload == row["workload"] & 
 			values$input_size == row["input_size"] & 
 			values$setup_type_raw == row["setup_type_raw"] & 
 			values$isolation == row["isolation"] &
 			values$metric == row["metric"] &
-			values$taskset == FALSE &
+			values$taskset == multi &
+			values$multi == multi &
 			values$numa == F &
 			values$noht == F
 		, ]$value
@@ -117,7 +119,8 @@ extract.taskset <- function (row) {
 		values$isolation == row["isolation"] &
 		values$metric == row["metric"] &
 		values$taskset == T &
-		values$multi == F
+		values$multi == F &
+		values$noht == F
 	, ]$value)
 }
 
@@ -129,7 +132,8 @@ extract.taskset.multi <- function (row) {
 		values$isolation == row["isolation"] &
 		values$metric == row["metric"] &
 		values$taskset == T &
-		values$multi == T
+		values$multi == T &
+		values$noht == F
 	, ]$value)
 }
 
@@ -140,23 +144,68 @@ extract.numa <- function (row) {
 		values$setup_type_raw == row["setup_type_raw"] & 
 		values$isolation == row["isolation"] &
 		values$metric == row["metric"] &
-		values$numa == T
+		values$numa == T &
+		values$noht == F
+	, ]$value)
+}
+
+extract.noht <- function (row) {
+	return(values[
+		values$workload == row["workload"] & 
+		values$input_size == row["input_size"] & 
+		values$setup_type_raw == row["setup_type_raw"] & 
+		values$isolation == row["isolation"] &
+		values$metric == row["metric"] &
+		values$numa == F &
+		values$taskset == F &
+		values$multi == F &
+		values$noht == T
+	, ]$value)
+}
+
+extract.noht.multi <- function (row) {
+	return(values[
+		values$workload == row["workload"] & 
+		values$input_size == row["input_size"] & 
+		values$setup_type_raw == row["setup_type_raw"] & 
+		values$isolation == row["isolation"] &
+		values$metric == row["metric"] &
+		values$numa == F &
+		values$multi == T &
+		values$noht == T
 	, ]$value)
 }
 
 make.comparison.plot <- function() {
-	tikz("taskset/taskset-comparison.tex", width=5.5, height=4)
-
 	comparisons <- unique(values[
 			      values$setup_type_raw %in% setup_types & values$metric == "cpu", 
 			      c("setup_type_raw", "workload", "input_size", "isolation", "metric")
 		      ])
-	comparisons$mean.taskset <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, extract.taskset(row)))
-	comparisons$sd.taskset <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, extract.taskset(row)))
-	comparisons$mean.taskset.multi <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, extract.taskset.multi(row)))
-	comparisons$sd.taskset.multi <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, extract.taskset.multi(row)))
-	comparisons$mean.numa <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, extract.numa(row)))
-	comparisons$sd.numa <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, extract.numa(row)))
+	comparisons$mean.taskset <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, F, extract.taskset(row)))
+	comparisons$sd.taskset <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, F, extract.taskset(row)))
+	comparisons$mean.taskset.multi <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, F, extract.taskset.multi(row)))
+	comparisons$sd.taskset.multi <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, F, extract.taskset.multi(row)))
+	comparisons$mean.numa <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, F, extract.numa(row)))
+	comparisons$sd.numa <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, F, extract.numa(row)))
+	comparisons$mean.noht <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, F, extract.noht(row)))
+	comparisons$sd.noht <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, F, extract.noht(row)))
+	comparisons$mean.noht.multi <- apply(comparisons, 1, function (row) compare.boot(my.mean, row, T, extract.noht.multi(row)))
+	comparisons$sd.noht.multi <- apply(comparisons, 1, function (row) compare.boot(my.sd, row, T, extract.noht.multi(row)))
+
+	labels.metric <- c(
+		"mean.taskset" = "Mean",
+		"sd.taskset" = "Std. dev.",
+		"mean.taskset.multi" = "Mean",
+		"sd.taskset.multi" = "Std. dev.",
+		"mean.numa" = "Mean",
+		"sd.numa" = "Std. dev.",
+		"mean.noht" = "Mean",
+		"sd.noht" = "Std. dev.",
+		"mean.noht.multi" = "Mean",
+		"sd.noht.multi" = "Std. dev."
+	)
+
+	tikz("taskset/taskset-comparison.tex", width=5.5, height=4)
 
 	plot.data <- gather(comparisons, key, value, mean.taskset, sd.taskset, mean.taskset.multi, sd.taskset.multi, mean.numa, sd.numa)
 	plot.data <- drop_na(plot.data, value)
@@ -167,14 +216,29 @@ make.comparison.plot <- function() {
 		geom_bar(stat="count") +
 		coord_flip() +
 		labs(x="", y="") +
-		scale_x_discrete(labels=c(
-					"mean.taskset" = "Mean",
-					"sd.taskset" = "Std. dev.",
-					"mean.taskset.multi" = "Mean",
-					"sd.taskset.multi" = "Std. dev.",
-					"mean.numa" = "Mean",
-					"sd.numa" = "Std. dev."
-					  )) +
+		scale_x_discrete(labels=labels.metric) +
+		scale_fill_discrete(name="Comparison result", labels=c(
+					"Higher",
+					"Lesser",
+					"Equal"
+				       )) +
+		facet_wrap(. ~ label, ncol=1, scales="free") +
+		theme(legend.position="bottom")
+	print(plot)
+	dev.off()
+
+	tikz("taskset/taskset-comparison-noht.tex", width=5.5, height=4)
+
+	plot.data <- gather(comparisons, key, value, mean.noht, sd.noht, mean.noht.multi, sd.noht.multi)
+	#plot.data <- drop_na(plot.data, value)
+	plot.data$value[which(plot.data$value == "overlap")] <- "same"
+	plot.data$label <- ifelse(grepl("multi", plot.data$key), "Multicore taskset", "No affinity settings")
+
+	plot <- ggplot(plot.data, aes(x=key, fill=value)) +
+		geom_bar(stat="count") +
+		coord_flip() +
+		labs(x="", y="") +
+		scale_x_discrete(labels=labels.metric) +
 		scale_fill_discrete(name="Comparison result", labels=c(
 					"Higher",
 					"Lesser",
@@ -194,12 +258,20 @@ wl.labels <- function(labels) lapply(labels, function(wl) {
 	return(wl)
 })
 
+noht.labels <- function(labels) lapply(labels, function(noht) {
+       if (noht == F) {
+	       return("Logical Cores")
+       } else {
+	       return("No Logical Cores")
+       }
+})
+
 make.default.vs.multi.plot <- function(isolation) {
 	tikz(paste("taskset/taskset-default-vs-taskset-multi-", isolation, ".tex", sep=""), width=5.5, height=8)
 
 	subset <- data[
-			 data$setup_type_raw %in% c("parallel-homogenous") & 
-			 data$setup_size %in% c(2, 4, 8, 10, 20) &
+			 data$setup_type_raw %in% c("single", "parallel-homogenous") & 
+			 data$setup_size %in% c(1, 2, 4, 8, 10, 20) &
 			 data$wl.short %in% c("exp_float", "bsearch") &
 			 data$isolation == isolation &
 		 	 data$metric == "cpu" &
@@ -209,10 +281,10 @@ make.default.vs.multi.plot <- function(isolation) {
 		 ]
 
 	plot <- ggplot(subset, aes(x=iteration, y=value)) +
-		geom_point(aes(color=subset$multi), shape=19, size=0.1) +
+		geom_point(aes(color=multi), shape=19, size=0.1) +
 		scale_color_manual(name="", values=c("#444444", "#ff0000"), labels=c("No affinity settings", "Multi-core taskset")) +
 		labs(x="Iteration", y="CPU time") +
-		facet_grid(cols=vars(wl.short), rows=vars(setup_size), labeller=labeller(wl.short=wl.labels)) +
+		facet_grid(setup_size ~ wl.short + noht, labeller=labeller(wl.short=wl.labels, noht=noht.labels)) +
 		theme(legend.position="bottom")
 	print(plot)
 	dev.off()

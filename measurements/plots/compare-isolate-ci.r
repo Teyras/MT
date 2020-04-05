@@ -18,7 +18,7 @@ compare.fn.ci <- function (fnc, wl, setup, isolation1, isolation2) {
 	data1 <- values[values$wl.short == wl & values$setup == setup & values$isolation == isolation1, ]$value
 	data2 <- values[values$wl.short == wl & values$setup == setup & values$isolation == isolation2, ]$value
 
-	return(compare.fnc.boot(data1, data2))
+	return(compare.fnc.boot(fnc, data1, data2))
 }
 
 workloads <- c("sort/qsort", "exp/exp_float", "bsearch/bsearch", "gray/gray2bin")

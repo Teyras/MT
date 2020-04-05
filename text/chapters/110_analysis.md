@@ -209,6 +209,10 @@ implemented by directly calling the virtual machine monitor on the host which
 can keep the data from an emulated drive in a file or in memory. Xen[@Xen] is 
 one of the most prominent paravirtualization technologies.
 
+It is important to note that in some virtualization platforms (such as 
+VirtualBox), the virtual machine monitor runs in userspace, which means it is 
+also subject to resource management mechanisms such as process scheduling.
+
 It is evident that these mechanisms can affect measurement stability. The effect 
 can be either negative, because the virtualization could introduce additional 
 non-deterministic factors into the measurements, or positive -- the virtualized 

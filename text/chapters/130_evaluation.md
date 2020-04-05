@@ -87,16 +87,14 @@ conclude that the characteristic differs for the groups. When one of the
 intervals engulfs the other, the characteristic is probably the same. When the 
 intervals overlap, we cannot conclude anything.
 
-We obtain the confidence interval using the Bootstrap method, which is a 
-resampling method that does not rely on any particular distribution of the data. 
-The core idea is that we take random samples of our measurements repeatedly 
-(1000 times in our case), calculating the statistic whose confidence interval we 
-are trying to estimate in each iteration. This way, we get a set of observations 
-of our statistic. Then, we select the 0.95-th percentile to receive a confidence 
-interval. The implementation we use is provided by the `boot` package for the R 
-language.
-
-TODO cite Bootstrap, elaborate on percentile selection
+We obtain the confidence interval using the Bootstrap method[@Bootstrap], which 
+is a resampling method that does not rely on any particular distribution of the 
+data. The core idea is that we take random samples of our measurements 
+repeatedly (1000 times in our case), calculating the statistic whose confidence 
+interval we are trying to estimate in each iteration. This way, we get a set of 
+observations of our statistic. Then, we select the 0.05-th and 0.95-th 
+percentile to receive a 0.95 confidence interval. The implementation we use is 
+provided by the `boot` package for the R statistic toolkit.
 
 ### Isolation and Measurement Stability
 
@@ -160,8 +158,10 @@ deviations among various measurement groups, divided by isolation technology
 deviations among various measurement groups, with and without isolate
 \label{isolate-ci-comparison}](img/stability/isolate-ci-comparison.tex)
 
-TODO the wall-clock time measurements in VirtualBox seems to have the largest 
-outliers.
+As a side note, in VirtualBox, the wall-clock time measurements of some 
+workloads such as `qsort.py` tend to have larger outliers (such as 12 seconds 
+when the median is around 6 seconds). However, this phenomenon only manifests in 
+a few cases and we decided not to study it further.
 
 ### Validation of Parallel Worker Results
 
@@ -204,35 +204,34 @@ bare metal (`B`) and in Docker (`D`). This stability, however, decays quickly
 with as little as two workers measuring in parallel. In `isolate` (`I`) on the 
 bare metal, in Docker with `isolate` (`D+I`) and in VirtualBox (`V` and `V+I`), 
 the stability of measurements seems similar in the cases with one and two 
-parallel workers. A noticeable decay appears with four workers.
+parallel workers. A noticeable decay appears with four workers. These trends are 
+illustrated by Figure \ref{isolation comparison}.
 
-Third, the previous two trends are more prominent in measurements of 
-memory-bound workloads than in those of CPU-bound workloads. This could however 
-be a coincidence since the CPU-bound workloads take less time per iteration than 
-the memory-bound ones.
-
-TODO use a graph to show this
+Third, the instability related to a higher degree of parallelism seems more 
+prominent in measurements of memory-bound workloads than in those of CPU-bound 
+workloads. This could however be a coincidence since the CPU-bound workloads 
+take less time per iteration than the memory-bound ones.
 
 A conclusion follows from our observations: we cannot allow a number of parallel 
 workers that is so high that any of these effects manifests. Otherwise, we risk 
-that our measurements will become too unstable. 
-
-TODO wrap up
+that our measurements will become too unstable. In the case of our hardware, it 
+seems that running as little as four workers in parallel might lead to a 
+measurable instability.
 
 ### Evaluation of Performance Metrics
-
-TODO illustrate the observations with graphs... somehow (without using up four 
-pages)
-
-TODO show that page faults don't really happen
 
 In this section, we try to explain the changes in results of our time 
 measurements caused by using `isolate` and increasing the system load using the 
 data gathered by `perf` (the exact list of counted events can be found in 
 Section \ref{measured-data}). With the exception of `page-faults`, the events 
-form pairs of the number of hits and the total number of accesses for a type of 
-cache. Therefore, it is natural to also examine the miss ratio for these 
-counters.
+form pairs of the number of misses and the total number of accesses for a type 
+of cache. Therefore, it is natural to also examine the miss ratio for these 
+counters, which is depicted in Figure \ref{perf-miss-ratios}.
+
+![The ratios of the number of miss events and number of load/store events for 
+the L1 data cache (L1D) and the last-level cache (LLC), shown as box plots 
+divided by isolation technology and number of parallel workers
+\label{perf-miss-ratios}](img/stability/miss-ratios-combined.tex)
 
 The miss ratio for L1 data cache loads seems close to zero for every exercise 
 type except `bsearch`. However, the absolute number of misses is substantial (in 
@@ -246,7 +245,8 @@ For stores in the last level cache, the miss ratio seems larger with `isolate`
 than on the bare metal. However, it does not increase with the system load as 
 much. The ratio is mostly less than 0.05% on the bare metal and close to 0.1% 
 with `isolate`. This might be a part of the explanation for `isolate` 
-measurements being slightly more stable than those on the bare metal.
+measurements being slightly less unstable with increasing number of parallel 
+workers than measurements on the bare metal.
 
 We observed an unexpectedly small last level cache load miss ratio in `bsearch` 
 (around 0.5%), when compared to the other exercise types (up to 60%). This could 
@@ -267,9 +267,24 @@ The correlation coefficients are listed in Table \ref{perf-correlations}. It
 seems that no value from our selection influences the CPU time. The only result 
 that does not clearly suggest that the values are unrelated is that the standard 
 (Pearson) correlation of the number of L1 cache misses and the CPU time is 
-`0.417`. However, this is not nearly enough evidence for any conclusion.
+`0.417` for the `bsearch` workload. However, this is not nearly enough evidence 
+for any conclusion. Also, even though L1 data cache misses occur more during the 
+`bsearch` workload than during other workloads, their frequency does not seem to 
+be greatly influenced neither by the number of parallel workers nor by using 
+`isolate`.
 
 !include tables/stability/perf-correlations.md
+
+The last metric left to examine is the number of page faults (depicted in Figure 
+\ref{perf-page-faults}). We can see that it does not increase with the number of 
+parallel workers, which is not a surprising result. Apart from this, it is 
+evident that using `isolate` results in cca. 300 page faults, regardless of the 
+workload type. This is likely the cost for loading the `isolate` binary, which 
+is also measured by `perf`.
+
+![Box plots of the number of page faults, divided by number of parallel workers, 
+workload type and isolation technology
+\label{perf-page-faults}](img/stability/pagefaults.tex)
 
 The result of our analysis is that we could not find any explanation of the 
 phenomena observed in the previous section based on the data obtained from 
@@ -281,11 +296,13 @@ observed events would be required.
 Process schedulers in modern operating systems for multi-CPU systems are complex
 software that relies on sophisticated algorithms. Trying to bypass the scheduler
 by pinning worker processes to CPUs with taskset would not be generally
-recommended. However, schedulers are typically not concerned with measurement
-stability when they assign processes to CPU cores, so it makes sense to examine
-the effects of setting the CPU affinity explicitly.
+recommended.
 
-TODO some citation would be lovely here
+However, schedulers are typically concerned about objectives such as throughput, 
+latency of IO-bound tasks and fairness (prevention of 
+starvation)[@UnderstandingLinuxSched], and measurement stability is not an 
+important consideration when they assign processes to CPU cores, so it makes 
+sense to examine the effects of setting the CPU affinity explicitly.
 
 We ran our experiment using three different ways of setting the affinity -- 
 using `numactl`, using `taskset` with a single core and using `taskset` with a 
@@ -345,3 +362,49 @@ different ways of setting the affinity
 ![A scatter plot of measured CPU times by iteration for increasing setup sizes 
 (using isolate for process isolation) 
 \label{taskset-points-isolate}](img/stability/taskset-default-vs-taskset-multi-isolate.tex)
+
+### The Effects of Disabling Logical Cores
+
+Disabling logical cores (HyperThreading) might improve the stability of 
+measurements, since it stands to reason that processes that run on different 
+logical cores in a single physical core influence each other more than processes 
+on separate physical cores.
+
+As a side note, disabling HyperThreading can also help increase the security of 
+a server, since many exploits have surfaced recently that use this technology. 
+We do not expect students to submit functional HyperThreading exploits into 
+ReCodEx, but it might be a concern if we were building a public programmer 
+education platform.
+
+To verify our hypothesis about stability, we repeated the measurements on the 
+same machine with the HyperThreading feature disabled (using a startup 
+configuration option). The results for selected workloads on the bare metal and 
+with `isolate` can be seen in Figure \ref{taskset-points-bare} and Figure 
+\ref{taskset-points-isolate}, respectively. It seems that disabling logical 
+cores increases the stability for bare metal measurements in some workloads and 
+that the multi-core taskset setting further improves the situation. This trend 
+is not as prominent when `isolate` is used. In fact, the scatter plot of 
+measurements without logical cores in Figure \ref{taskset-points-isolate} looks 
+almost indistinguishable from that with logical cores enabled.
+
+A comparison of confidence intervals of the means and standard deviations for 
+all groups of measurements by workload type, execution setup and isolation 
+technique (as depicted in Figure \ref{taskset-comparison-noht}) shows that with 
+no affinity settings, the measurements with logical cores disabled have a lesser 
+mean and standard deviation that those with logical cores enabled in almost all 
+cases.
+
+The results are not as conclusive when we compare measurements performed with 
+the multicore taskset setting (again, we compare measurements with logical cores 
+disabled to those that use logical cores). While the mean is decreased in the 
+majority cases and increased in none of them, the standard deviation increases 
+in about 20% of the cases.
+
+![A plot showing the results of a comparison between mean and standard deviation 
+values for measurements with and without logical cores enabled. One group of 
+comparisons was made with no explicit affinity setting and the other was made 
+with the multi-core taskset policy.
+\label{taskset-comparison-noht}](img/stability/taskset-comparison-noht.tex)
+
+In summary, it seems that disabling logical cores improves the overall stability 
+of measurements, but the improvement is not as large when `isolate` is used.
