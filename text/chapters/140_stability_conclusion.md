@@ -33,12 +33,17 @@ improvements.
 
 It seems that taking advantage of servers with multiple CPU cores for assignment 
 evaluation is difficult due to the instability introduced by parallel 
-measurements. A statistically sound way of counteracting this could be 
-performing multiple measurements and outputting an extended summary of the 
-results -- for example, a trimmed mean and standard deviation. This approach 
-comes with a higher computational cost, which would incur both a larger latency 
-(and worse user experience) and a smaller throughput of the whole system. 
-However, there are several measures we could take to alleviate this:
+measurements. Here, we present a handful of proposals that could improve the 
+situation, and that could serve as a basis for future work.
+
+#### Repeated Measurements
+
+Performing multiple measurements and outputting an extended summary of the 
+results, such as a trimmed mean and standard deviation, could be a statistically 
+sound way of counteracting the instability. This approach comes with a higher 
+computational cost, which would incur both a larger latency (and worse user 
+experience) and a smaller throughput of the whole system. However, there are 
+several measures we could take to alleviate this:
 
 - Provide preliminary results after the first measurement, so that students 
   receive feedback quickly, even if it might be subject to change later.
@@ -52,19 +57,29 @@ These mitigation steps, along with being able to use more cores than if we
 relied on a single measurement, might lead to a better overall throughput of the 
 system and a tolerable increase in latency.
 
+#### Instruction Counting
+
 The count of executed instructions is a stable measure of execution time that we 
 could use for judging instead of the CPU time or wall clock time. However, there 
-is a drawback -- the execution time of different types of instructions can vary. 
-A possible implementation could assign a cost to each instruction type and then 
-calculate the sum of the instruction counts multiplied by their respective 
-costs. The instruction counts could be obtained using the `perf` tool. We would 
-also have to consider that the instruction may vary with different processor 
-models.
+are multiple considerations:
 
-Our last idea is using a large number of single board computers (such as the 
-Raspberry Pi), where each of them only evaluates a single submission. This way, 
-we could achieve a large degree of parallelism without any concern about 
-measurements influencing each other. The total power consumption of these 
-computers should be comparable to that of a single server computer. However, the 
-fact that most single computers use a different instruction set than x86 might 
-restrict the set of usable exercises.
+- The execution time of different types of instructions can vary. A possible 
+  implementation could assign a cost to each instruction type and then calculate 
+  the sum of the instruction counts multiplied by their respective costs. 
+- To our best knowledge, there is no practical way of measuring the exact number 
+  of executed instructions divided by type. A sample could be obtained by 
+  profiling the submission using the `perf` tool. If we chose to sample too 
+  frequently, we might unnecessarily prolong the evaluation.
+- Sampling parallelized programs might impact their performance.
+- The execution costs of instructions, and even the instruction set itself, can 
+  vary with different processor models.
+
+#### Using Single-board Computers
+
+Using a large number of single board computers (such as the Raspberry Pi), where 
+each evaluates a single submission might prove to be a viable alternative to 
+using a server machine. We could achieve a large degree of parallelism without 
+any concern about measurements influencing each other. The total power 
+consumption of these computers should be comparable to that of a single server 
+computer. However, the fact that most single computers use a different 
+instruction set than x86 might restrict the set of usable exercises.
