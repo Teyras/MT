@@ -1,4 +1,4 @@
-# Advanced Usage of Containers
+# Advanced Usage of Containers \label{containers}
 
 In previous chapters, we only considered containers as isolated execution 
 environments for programs that save computing resources thanks to sharing most 

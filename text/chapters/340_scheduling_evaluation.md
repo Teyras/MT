@@ -244,4 +244,8 @@ automatically.
 
 We have also found that imprecise processing time estimation does not greatly 
 affect the performance of single-queue load balancing algorithms, but it causes 
-longer makespans in multi-queue algortihms.
+longer makespans in multi-queue algorithms. As a side note, small flexibility is 
+a general problem of multi-queue algorithms that dispatch jobs immediately after 
+arrival. In setups where workers can go offline at any time or where new workers 
+can be added to the pool over time, additional measures must be taken to 
+redistribute the work and avoid starvation.

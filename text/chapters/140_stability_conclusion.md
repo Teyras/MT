@@ -13,6 +13,12 @@ appeared with as little as 4 parallel workers. However, the requirements for
 measurement stability vary for different assignments and decisions about worker 
 deployment should be based on test measurement data.
 
+The fact that measurements on the same machine interfere with each other has one 
+more consequence -- using common virtualized platforms for evaluation is not an 
+option when stable measurements are required, since we have no control of 
+neither the hardware performing the measurements nor other programs being 
+executed in parallel.
+
 Our experiment also yielded three smaller results. First, the wall-clock time 
 measured by isolate tends to be unstable and should not be trusted when high 
 precision measurements are required. Of course, this phenomenon should be 

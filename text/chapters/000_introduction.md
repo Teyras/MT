@@ -54,8 +54,7 @@ programming assignment solution evaluation, as the choice of a load balancing
 algorithm greatly affects the overall throughput of the whole system. The 
 comparison also takes into account a possibly heterogenous computing environment 
 (e.g., both physical and virtual machines with different capabilities) and the 
-on
-demand scaling features of current virtual infrastructure providers.
+on demand scaling features of current virtual infrastructure providers.
 
 The last part of the thesis deals with the possibility of leveraging container 
 technologies in other ways than to run submissions in isolation. They could also 
