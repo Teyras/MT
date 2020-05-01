@@ -1,26 +1,9 @@
-from argparse import Namespace, ArgumentTypeError
-from dataclasses import dataclass
+from argparse import Namespace
 import random
 
 from numpy.random import normal
 
-from common import create_args_parser, generate
-
-
-@dataclass
-class JobType:
-    hwgroup: str
-    weight: int
-    duration_mean: int
-    duration_sd: int
-
-    @classmethod
-    def load(cls, string_value):
-        try:
-            parts = string_value.split(",")
-            return JobType(hwgroup=parts[1], weight=int(parts[0]), duration_mean=int(parts[2]), duration_sd=int(parts[3]))
-        except Exception as e:
-            raise ArgumentTypeError(f"Invalid job type specification: {str(e)}")
+from common import create_args_parser, generate, JobType
 
 
 args_parser = create_args_parser("Generate jobs of multiple types with the same composition over the whole duration of the workload.")

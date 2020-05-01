@@ -2,9 +2,9 @@
 
 Scheduling is the problem of assigning work units (jobs) to execution units 
 (worker machines in our case). Every job has a processing set -- a set of 
-machines that are capable of processing it. There are various subproblems with 
-different requirements on the worker machines, processing set restrictions and 
-other characteristics.
+machines that are capable of processing it. There are variants of the problem 
+with different requirements on the worker machines, processing set restrictions 
+and other characteristics.
 
 In this section, we list the subcategories of the scheduling problem that were 
 studied in previous work. The categories are based on whether the problem is 
@@ -73,11 +73,11 @@ also be considered.
 ### Clairvoyance
 
 In the clairvoyant variant of the scheduling problem, the algorithm knows the 
-exact processing time of each job on arrival. Naturally, this makes it possible 
-to schedule jobs more efficiently. In the non-clairvoyant variant, the algorithm 
-knows nothing about the processing times. A similar subcategory of the problem 
-exists, where the algorithm has an estimate of the processing time. This is 
-called semi-clairvoyant scheduling.
+exact processing time of each job on arrival[@NonClairvoyant]. Naturally, this 
+makes it possible to schedule jobs more efficiently. In the non-clairvoyant 
+variant, the algorithm knows nothing about the processing times. A similar 
+subcategory of the problem exists, where the algorithm has an estimate of the 
+processing time. This is called semi-clairvoyant scheduling.
 
 Typically, the longest part of job processing in ReCodEx is compilation and 
 execution of code submitted by students. The time required for this is highly 
@@ -95,7 +95,7 @@ those for the non-clairvoyant variant.
 ### Processing Set Characteristics
 
 Specialized algorithms exist that solve the online scheduling problem for jobs 
-whose processing sets satisfy additional criteria.
+whose processing sets satisfy additional criteria[@SchedulingEligibility].
 
 The **Inclusive** variant requires the processing sets of any two jobs to be 
 comparable (i.e., one must be a subset of the other). This is a criterion we 
@@ -140,10 +140,13 @@ not the criterion holds under more complicated eligibility constraints (for
 example, if we wanted to filter the processing sets by additional criteria such 
 as the allowed number of parallel threads).
 
-For our purpose, we will mainly be looking for algorithms that allow arbitrary 
-processing sets. We shall also consider interesting results for the nested and 
-interval variants, even though these would impose restrictions on the pool of 
-workers.
+Since the current job routing model used in ReCodEx requires an algorithm that 
+supports arbitrary processing sets, we will mainly be looking for those. It is 
+also possible to restrict the job routing model (and the diversity of the worker 
+pool) so that it conforms to the nested or interval variants of the problem. If 
+we find any interesting results for these varieties (such as a hypothetical 
+algorithm that would perform well on interval processing sets), we will consider 
+this tradeoff.
 
 ### Machine Characteristics
 
@@ -151,11 +154,12 @@ In a setup with **related** machines, each machine has a speed and the
 processing time of a job on a machine can be obtained by dividing the length of 
 a job with the speed of the machine. A setup has **identical** machines if the 
 speeds are equal for all the machines. In the **unrelated** case, the times can 
-vary unpredictably on each machine. For our problem, we should mainly be 
-concerned with algorithms for the unrelated case, because our worker pool can 
-contain machines of different processing power. However, restricting the 
-processing sets of jobs to machines with the same speed is also a viable option. 
-To achieve this, assigning each job to exactly one hardware group would suffice.
+vary unpredictably on each machine[@FlowTimeRelatedUnrelated]. For our problem, 
+we should mainly be concerned with algorithms for the unrelated case, because 
+our worker pool can contain machines of different processing power. However, 
+restricting the processing sets of jobs to machines with the same speed is also 
+a viable option. To achieve this, assigning each job to exactly one hardware 
+group would suffice.
 
 ### Job Deadlines
 

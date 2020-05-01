@@ -59,14 +59,14 @@ ones (74898 vs. 61260) and that the relative error was smaller than 10% for 57%
 of the observations and smaller than 20% for 82% of the observations.
 
 After an inspection of histograms of the relative errors grouped by actual 
-processing times (Figure \ref{estimation-error-histograms}), we see that 
-positive errors larger than 100% are fairly frequent (around 7% of the total 
-number of observations). Also, for very short jobs (less than 100 milliseconds), 
-we overestimate the processing time very often. This is not surprising, since 
-short processing times often indicate a failure, which is difficult to predict 
-based on the available information. This phenomenon is also likely to have 
-caused the notably large frequency of 100% negative errors in longer jobs 
-(longer than 50 seconds).
+processing times (Figure \ref{estimation-error-histograms}), we see that the 
+number of overestimations by more than 100% is not negligible (around 7% of the 
+total number of observations). Also, for very short jobs (less than 100 
+milliseconds), we overestimate the processing time very often. This is not 
+surprising, since short processing times often indicate a failure, which is 
+difficult to predict based on the available information. This phenomenon is also 
+likely to have caused the notably large frequency of cca. 100% negative errors 
+(the estimator returned a very small prediction) in jobs longer than 50 seconds.
 
 In summary, the estimation algorithm seems to perform rather well, despite 
 infrequently overestimating the processing time by a margin of several hundred 
@@ -95,10 +95,11 @@ The procedure for the error generation is as follows:
 - Determine whether the error will be positive or negative using random sampling 
   based on the values from our dataset.
 - Generate a random integer `i` between 0 and 99.
-- Take a percentile table (there are separate rows for positive and negative 
-  errors, as shown in Table \ref{estimation-error-percentiles}) of the 
-  prediction errors in our dataset and select a pair of percentiles between 
-  which `i` fits.
+- Take a table of selected percentiles of the prediction errors in our dataset 
+  (Table \ref{estimation-error-percentiles}) and select a pair of percentiles 
+  between which `i` fits (there are separate rows for positive and negative 
+  errors). The way $i$ is selected guarantees that the probability that a span 
+  between two percentiles is chosen corresponds to its size.
 - Generate a random number from a uniform distribution between the values of the 
   two percentiles.
 
@@ -107,7 +108,8 @@ distribution that roughly approximates that of the errors encountered in our
 dataset. A downside of this approach is that the errors are fixed and do not 
 change over time as the estimator receives more information.
 
-Table: Selected percentiles of estimation errors 
+Table: Selected percentiles of empirical estimation errors used to determine 
+estimation errors in synthetic workloads for load balancing algorithm evaluation
 \label{estimation-error-percentiles}
 
 |                | 5th  | 10th | 20th | 40th | 60th  | 80th  | 95th   | 100th    |

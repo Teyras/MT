@@ -6,52 +6,52 @@ workers:
       - env=cpp
       - threads=16
   common_1:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_2:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_3:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_4:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_5:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_6:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_7:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_8:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_9:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1
   common_10:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - threads=1

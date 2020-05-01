@@ -1,21 +1,21 @@
 workers:
   common_1:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - env=java
   common_2:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - env=java
   common_3:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - env=java
   common_4:
-    hwgroup: group_common
+    hwgroup: group_common_1
     headers:
       - env=c
       - env=java

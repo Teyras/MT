@@ -205,7 +205,7 @@ with as little as two workers measuring in parallel. In `isolate` (`I`) on the
 bare metal, in Docker with `isolate` (`D+I`) and in VirtualBox (`V` and `V+I`), 
 the stability of measurements seems similar in the cases with one and two 
 parallel workers. A noticeable decay appears with four workers. These trends are 
-illustrated by Figure \ref{isolation comparison}.
+illustrated by Figure \ref{isolation-comparison}.
 
 Third, the instability related to a higher degree of parallelism seems more 
 prominent in measurements of memory-bound workloads than in those of CPU-bound 

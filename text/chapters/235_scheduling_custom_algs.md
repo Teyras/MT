@@ -13,14 +13,21 @@ times of similar jobs) and allow additional time for longer jobs (based on the
 requirements on fast feedback described in Section 
 \ref{scheduling-requirements}).
 
-The formula to obtain a deadline is as follows:
+We propose the formula to obtain a deadline as follows:
 
 - Time of arrival + the estimated processing time for jobs shorter than 15 
-  seconds
+  seconds. The threshold is based on the fact that users are likely to wait for 
+  actions that take 5-10 seconds[@WaitingTimeStudy] and that assignment authors 
+  are more motivated to see the results than common visitors of a web page.
 - Time of arrival + the estimated processing time + 15 seconds for jobs shorter 
-  than 45 seconds
+  than 45 seconds. A regular web page visitor is unlikely to wait until an 
+  action is completed longer than 45 seconds[@WaitingTimeStudy], but assignment 
+  authors might be willing to wait longer. We expect that the added 15 seconds 
+  will help the scheduler prioritize very short jobs.
 - Time of arrival + twice the estimated processing time for jobs longer than 45 
-  seconds
+  seconds. Since users are likely to switch to another task while waiting for 
+  the submission to be evaluated, we can allow a rather large portion of time 
+  for it to be spent in a queue while shorter evaluations are performed.
 
 Deadlines set like this should ensure that short jobs are processed as soon as 
 possible, but longer jobs do not wait in the queue indefinitely.

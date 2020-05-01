@@ -1,6 +1,7 @@
 import csv
+from dataclasses import dataclass
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, ArgumentTypeError, Namespace
 from numpy.random import exponential
 from typing import Generator, Any, List, Tuple
 
@@ -14,6 +15,24 @@ def create_args_parser(description: str) -> ArgumentParser:
 
 def calculate_delay(average: int):
     return int(exponential(average))
+
+
+@dataclass
+class JobType:
+    hwgroup: str
+    weight: int
+    duration_mean: int
+    duration_sd: int
+
+    @classmethod
+    def load(cls, string_value):
+        try:
+            parts = string_value.split(",")
+            return JobType(hwgroup=parts[1], weight=int(parts[0]), duration_mean=int(parts[2]), duration_sd=int(parts[3]))
+        except Exception as e:
+            raise ArgumentTypeError(f"Invalid job type specification: {str(e)}")
+
+
 
 
 def generate(generator: Generator[Tuple[int, List[str]], int, Any], args: Namespace):
