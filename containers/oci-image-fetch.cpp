@@ -4,7 +4,6 @@
 #include <curl/curl.h>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <regex>
 #include <yaml-cpp/yaml.h>
@@ -219,20 +218,4 @@ void fetch_image(const fs::path &images_dir, const std::string &image_name)
         auto blob_content = download_as_string(image_url + "/blobs/" + blob_digest, layer_headers);
         unpack_layer_archive(blob_content, blobs_dir / strip_digest_type(blob_digest));
     }
-}
-
-void print_usage(const char *program_name)
-{
-    std::cerr << "usage: " << program_name << " IMAGE_DIR IMAGE_URL" << std::endl;
-}
-
-int main(int argc, char **argv)
-{
-    if (argc < 2) {
-        print_usage(argv[0]);
-        return 1;
-    }
-
-    fetch_image(argv[1], argv[2]);
-    return 0;
 }

@@ -4,13 +4,13 @@ project(containers)
 set(CMAKE_CXX_STANDARD 17)
 
 set(FETCH_EXEC oci-image-fetch)
-add_executable(${FETCH_EXEC} common.cpp oci-image-fetch.cpp)
+add_executable(${FETCH_EXEC} common.cpp oci-image-fetch.cpp oci-image-fetch-main.cpp)
 
 set(MOUNT_EXEC oci-image-mount)
-add_executable(${MOUNT_EXEC} common.cpp oci-image-mount.cpp)
+add_executable(${MOUNT_EXEC} common.cpp oci-image-mount.cpp oci-image-mount-main.cpp)
 
 set(UNPACK_EXEC oci-image-unpack)
-add_executable(${UNPACK_EXEC} common.cpp oci-image-unpack.cpp)
+add_executable(${UNPACK_EXEC} common.cpp oci-image-unpack.cpp oci-image-unpack-main.cpp)
 
 # Set up LibArchive
 find_package(LibArchive REQUIRED)

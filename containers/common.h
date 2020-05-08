@@ -1,6 +1,8 @@
 #ifndef CONTAINERS_COMMON_H
 #define CONTAINERS_COMMON_H
 
+#include <string>
+
 struct image_data {
     std::string repository;
     std::string name;
