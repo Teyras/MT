@@ -14,7 +14,7 @@ void unpack_image(const fs::path &images_dir, const std::string &image_name, con
 
     for (int i = 0; i < manifest["layers"].size(); i++) {
         auto digest = manifest["layers"][manifest["layers"].size() - 1 - i]["digest"].as<std::string>();
-        fs::copy(blobs_dir / strip_digest_type(digest), target_dir, fs::copy_options::recursive | fs::copy_options::copy_symlinks);
+        fs::copy(blobs_dir / strip_digest_type(digest), target_dir, fs::copy_options::recursive | fs::copy_options::copy_symlinks | fs::copy_options::overwrite_existing);
     }
 }
 

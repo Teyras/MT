@@ -1,9 +1,10 @@
 ## Related work
 
 In Section \ref{containers-analysis}, we listed requirements on a programming 
-evaluation system that might have already been solved by continuous integration 
-services. This section surveys a handful of such services and the way they 
-address these requirements.
+evaluation system that could be solved using container technologies. Because of 
+the similarity between automated assignment evaluation and continuous 
+integration, we shall survey a handful of public continous integration services 
+and the way they address these requirements.
 
 ### GitLab CI
 
@@ -21,9 +22,9 @@ The jobs are executed with the help of GitLab runner -- a program that can be
 installed on worker machines that process builds. Shell scripts invoked by jobs 
 are executed without any security layer, which means allowing those is not 
 suitable for publicly accessible runners. Docker-based jobs are considered safe 
-enough for public runners. The runners provided by the community-provided GitLab 
+enough for public runners. The runners shipped with the community GitLab 
 instance are run in a virtualized environment[@GitLabScaling], which provides 
-another layer of security and the possibility of on-demand scaling.
+another layer of security, along with the possibility of on-demand scaling.
 
 In order to prepare a custom build environment, one must either configure a 
 custom runner and use a script-based job, or build a Docker image, push it to a 
@@ -34,8 +35,6 @@ the build.
 With GitLab CI, it is also possible to use Docker containers to launch 
 additional services needed for testing the project -- a typical example would be 
 a database or file storage server.
-
-### CircleCI
 
 The way the building and testing process is described and processed in CircleCI 
 is very similar to that of GitLab CI. Since the way our requirements are handled 

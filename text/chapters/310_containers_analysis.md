@@ -1,20 +1,18 @@
 ## Analysis \label{containers-analysis}
 
 The evaluation process in a system for programming assignment evaluation 
-resembles a continuous integration service (a service that ensures the quality 
-of a codebase with each change, typically by building it and running unit tests 
-or various static analyzers). Submitted source code is built using a 
-pre-configured toolchain and then subjected to tests. Based on its performance, 
-the solution is awarded a rating. The main difference from a classical 
-continuous integration service is that performance and resource usage is a key 
-element of the rating.
+resembles the way a continuous integration service (a service that ensures the 
+quality of a codebase with each change, typically by building it and running 
+unit tests or various static analyzers) works. Submitted source code is built 
+using a pre-configured toolchain and then subjected to tests. Based on its 
+performance, the solution is awarded a rating. The main difference from a 
+classical continuous integration service is that performance and resource usage 
+is a key element of the rating.
 
 Modern continuous integration services often use containers for various tasks, 
 and it is reasonable to presume we might be able to use them in a similar 
 fashion since the problem of assignment evaluation is so similar to that of 
 continuous integration.
-
-TODO mention the paper about evaluation in Docker
 
 ### Secure Execution
 
@@ -23,10 +21,10 @@ untrusted codebases every day. Just as in our case, there are two basic
 scenarios to address -- intentional attacks and programming errors that lead to 
 system failures.
 
-In Chapter \ref{measurement-stability}, we found that using `isolate` leads to 
-problems with wall-clock time measurements. It seems to affect the overall 
-stability of measurements as well, and therefore, it is sensible to consider
-a different approach to secure execution for ReCodEx.
+It is sensible to consider different approaches to secure execution in ReCodEx 
+than using `isolate`, since it causes problems with the stability of wall-clock 
+time measurements (as shown in Chapter \ref{measurement-stability}), and it 
+affects the overall stability of measurements as well.
 
 ### User-defined Runtime Environments
 
@@ -46,13 +44,17 @@ set up complicated build pipelines for every new exercise. However, in some
 areas such as web development, it is common to use a large number of third-party 
 libraries. Over time, this trend has also found its way into ReCodEx. For 
 example, machine learning classes require a Python environment with the 
-TensorFlow library installed. This example also shows us that it is not 
-acceptable to install such libraries in a manner that makes them accessible to 
-all exercises that use the same language -- using machine learning libraries 
-should not be allowed in Python assignments for introductory programming 
-courses.
+TensorFlow library installed, along with supplementary packages such as `gym`. 
 
-It is clear we need a way to let exercise authors create a new, independent 
+We can expect that in the near future, new exercise types with complex external 
+dependencies will appear, and installing these dependencies directly on the host 
+system will no longer be acceptable. There are two important arguments to 
+support this prediction. First, some advanced libraries should not be available 
+for evaluation of basic exercises. Second, backward incompatible changes are 
+common in many community-maintained libraries and some exercise types might 
+require incompatible dependency versions.
+
+It is clear that we need a way to let exercise authors create a new, independent 
 runtime environment based on an existing one, and that we can draw inspiration 
 from continuous integration services, even though the build and testing steps we 
 require are usually much simpler.
