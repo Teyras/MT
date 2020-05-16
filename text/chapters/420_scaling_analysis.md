@@ -24,7 +24,8 @@ facilities for being powered on remotely (such as Wake-on-LAN). This is
 justified by both the intended use case and the low overall power consumption.
 However, the device boots at the moment the power supply is plugged in, so it 
 should be feasible to build a monitor machine that would manage the cluster by 
-interrupting and restoring the power supply of each individual device.
+interrupting and restoring the power supply of each individual device. Another 
+option is using a prebuilt switched PDU (power distribution unit) for USB.
 
 An obvious drawback of using physical machines owned by the maintainer of the 
 system is that we cannot scale them up infinitely on demand -- we are always 
@@ -54,13 +55,6 @@ As far as on-demand scaling is concerned, container platforms are very similar
 to virtual machine platforms. The problem with measurement stability is also 
 present, and interfaces for automated management of instances (containers) are 
 ubiquitous.
-
-#### Summary
-
-Both physical machines and virtual machines are viable for usage in an 
-automatically scaled system, but adjusting the total capacity of a virtual 
-machine pool is a much simpler task. Being able to combine both execution models 
-could also be valuable.
 
 ### Performance Indicators
 
@@ -106,14 +100,6 @@ the queued jobs the worker can process. Although this seems like a reasonable
 approach that is also utilized by the OAGM scheduling algorithm, an experiment 
 that evaluates its usefulness would be necessary.
 
-#### Summary
-
-It is evident that low level metrics such as CPU utilization do not reflect the 
-actual worker utilization in a programming assignment evaluation system. The 
-queue length, which is a more promising indicator, cannot be inferred by the 
-autoscaler itself from these low level metrics, and if we are to use it, we will 
-have to implement support for reporting it to the autoscaler from the broker.
-
 ### Load Balancing Constraints
 
 In Chapter \ref{scheduling}, we outlined a number of challenges specific to load 
@@ -143,3 +129,22 @@ the autoscaler (and also the scheduler) much easier. If we employ container
 technologies to automatically deploy new runtime environments as laid out in 
 Chapter \ref{containers}, we will also eliminate the only cause of diverse 
 worker headers within a single hardware group encountered in ReCodEx until now.
+
+### Summary
+
+Both physical machines and virtual machines are viable for usage in an 
+automatically scaled system, but adjusting the total capacity of a virtual 
+machine pool is a much simpler task than controlling physical machines. Being 
+able to combine both execution models could also be valuable.
+
+It is evident that low level metrics such as CPU utilization or network traffic 
+do not reflect the actual worker utilization in a programming assignment 
+evaluation system. The queue length, which is a more promising indicator, cannot 
+be inferred by the autoscaler itself from these low level metrics, and if we are 
+to use it, we will have to implement support for reporting it to the autoscaler 
+from the broker.
+
+Using arbitrary routing headers to select a machine for a job is likely to prove 
+difficult to combine with on-demand scaling. Maintaining several scalable groups 
+of workers with identical hardware and software configuration seems like a more 
+viable approach.

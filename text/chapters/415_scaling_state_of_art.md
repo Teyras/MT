@@ -49,14 +49,15 @@ during which an opposite decision cannot be made.
 
 ### Available Auto-scalers \label{available-auto-scalers}
 
+The Kubernetes workload orchestrator is one of the leading drivers of 
+auto-scaler development. One example of such auto-scalers is 
+Clusterman[@Clusterman], an auto-scaler developed by Yelp that also features a 
+simulator that receives a time series of performance indicator values, and 
+outputs whether the cluster is under-provisioned or over-provisioned and an 
+approximate cost. As more examples, we can mention Cerebral (part of the 
+Containership cloud platform[@Containership]), KEDA[@KEDA] or 
+Escalator[@Escalator].
+
 ConPaaS[@ConPaaS] is an open source cloud platform that allegedly features 
 automatic scaling. Unfortunately, we failed to find any documentation of this 
 functionality so we cannot assess it.
-
-Numerous open source auto-scalers exist for the Kubernetes workload 
-orchestrator. One example is Clusterman[@Clusterman], an auto-scaler developed 
-by Yelp that also features a simulator that receives a time series of 
-performance indicator values, and outputs whether the cluster is 
-under-provisioned or over-provisioned and an approximate cost. As more examples, 
-we can mention Cerebral (part of the Containership cloud 
-platform[@Containership]), KEDA[@KEDA] or Escalator[@Escalator].
