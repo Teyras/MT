@@ -117,7 +117,7 @@ character of incoming jobs.
 
 The are two workloads that employ a sequence of jobs of two different lengths. 
 The first one is called `medium+short` and it is composed of `common_medium` and 
-`common_short` jobs in a 1:1 ratio with a 1OOms average delay. It is executed on 
+`common_short` jobs in a 1:1 ratio with a 100ms average delay. It is executed on 
 a set of 4 identical workers. The other workload is called `long+short` and 
 contains `common_short` and `common_long` jobs in a 4:1 ratio with a 100ms mean 
 delay. We use 40 identical worker machines to execute this workload.
@@ -141,13 +141,13 @@ arriving in a short period of time.
 Table: Parameters of jobs in the `multi_type` workload type 
 \label{multi-type-workload-jobs}
 
-| Probability | Job type                                     | 
-|------------:|:---------------------------------------------|
-| 35%         | common_medium (common hardware group 1)      |
-| 30%         | common_medium (common hardware group 2       |
-| 30%         | common_medium (common hardware group 1 and 2 |
-| 4%          | parallel                                     |
-| 1%          | gpu                                          |
+| Probability | Job type                                      | 
+|------------:|:----------------------------------------------|
+| 35%         | common_medium (common hardware group 1)       |
+| 30%         | common_medium (common hardware group 2        |
+| 30%         | common_medium (common hardware group 1 and 2) |
+| 4%          | parallel                                      |
+| 1%          | gpu                                           |
 
 ### Summary of Results
 
