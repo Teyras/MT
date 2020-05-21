@@ -50,15 +50,15 @@ generate_inputs() {
 }
 
 arg_sets=$(mktemp)
-queue_managers="multi_rr single_fcfs single_lf single_spt_oracle single_spt_imprecise single_edf_oracle \
-                single_edf_imprecise oagm_oracle oagm_imprecise multi_ll_queue_size multi_ll_oracle multi_ll_imprecise \
-                multi_rand2_queue_size multi_rand2_oracle multi_rand2_imprecise"
+queue_managers="n/rr/ 1/fcfs/ 1/lf/ 1/spt/oracle 1/spt/imprecise 1/edf/oracle 1/edf/imprecise 1/oagm/oracle \
+                1/oagm/imprecise n/ll/queue_size n/ll/oracle n/ll/imprecise n/rand2/queue_size n/rand2/oracle \
+                n/rand2/imprecise"
 for queue_manager in $queue_managers; do
-    workload=simple+para_small
+    workload=common+para_small
     echo $queue_manager two_types_small $workload >> $arg_sets
     # echo $queue_manager two_types_large $workload >> $arg_sets
 
-    workload=simple+para_large
+    workload=common+para_large
     echo $queue_manager two_types_large $workload >> $arg_sets
 
     workload=multi_type

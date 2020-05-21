@@ -40,21 +40,21 @@ using worker_status_map = std::map<std::string, bool>;
 std::shared_ptr<queue_manager_interface> create_queue_manager(
 	const std::string &type, std::shared_ptr<worker_registry> registry, std::shared_ptr<job_data> jobs, std::shared_ptr<const simulation_clock> clock)
 {
-	if (type == "multi_rr") {
+	if (type == "n/rr/") {
 		return std::make_shared<multi_queue_manager>();
 	}
 
-	if (type == "single_fcfs") {
+	if (type == "1/fcfs/") {
 		auto comparator = std::make_unique<fcfs_job_comparator>();
 		return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator), clock);
 	}
 
-	if (type == "single_lf") {
+	if (type == "1/lf/") {
 		auto comparator = std::make_unique<least_flexibility_job_comparator>(*registry);
 		return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator), clock);
 	}
 
-	if (type == "single_spt_oracle") {
+	if (type == "1/spt/oracle") {
 		auto comparator = std::make_unique<shortest_processing_time_job_comparator<oracle_processing_time_estimator>>(
 			std::make_shared<oracle_processing_time_estimator>(jobs));
 		return std::make_shared<
@@ -62,7 +62,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(comparator), clock);
 	}
 
-    if (type == "single_spt_imprecise") {
+    if (type == "1/spt/imprecise") {
         auto comparator = std::make_unique<shortest_processing_time_job_comparator<imprecise_processing_time_estimator>>(
                 std::make_shared<imprecise_processing_time_estimator>(jobs));
         return std::make_shared<
@@ -70,7 +70,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
                 std::move(comparator), clock);
     }
 
-    if (type == "single_edf_oracle") {
+    if (type == "1/edf/oracle") {
         auto comparator = std::make_unique<earliest_deadline_job_comparator<oracle_processing_time_estimator>>(
                 std::make_shared<oracle_processing_time_estimator>(jobs));
         return std::make_shared<
@@ -78,7 +78,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
                 std::move(comparator), clock);
     }
 
-	if (type == "single_edf_imprecise") {
+	if (type == "1/edf/imprecise") {
 		auto comparator = std::make_unique<earliest_deadline_job_comparator<imprecise_processing_time_estimator>>(
 			std::make_shared<imprecise_processing_time_estimator>(jobs));
 		return std::make_shared<
@@ -86,7 +86,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(comparator), clock);
 	}
 
-	if (type == "oagm_oracle") {
+	if (type == "1/oagm/oracle") {
 		auto estimator = std::make_shared<oracle_processing_time_estimator>(jobs);
 		auto comparator = std::make_unique<oagm_job_comparator<oracle_processing_time_estimator>>(estimator, *registry);
 		auto selector =
@@ -96,7 +96,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(comparator), std::move(selector), clock);
 	}
 
-    if (type == "oagm_imprecise") {
+    if (type == "1/oagm/imprecise") {
         auto estimator = std::make_shared<imprecise_processing_time_estimator>(jobs);
         auto comparator = std::make_unique<oagm_job_comparator<imprecise_processing_time_estimator>>(estimator, *registry);
         auto selector =
@@ -106,7 +106,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
                 std::move(comparator), std::move(selector), clock);
     }
 
-	if (type == "multi_ll_queue_size") {
+	if (type == "n/ll/queue_size") {
 		auto selector = std::make_unique<least_loaded_worker_selector<equal_length_processing_time_estimator>>(
 			std::make_unique<equal_length_processing_time_estimator>());
 		return std::make_shared<
@@ -114,7 +114,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-	if (type == "multi_ll_oracle") {
+	if (type == "n/ll/oracle") {
 		auto selector = std::make_unique<least_loaded_worker_selector<oracle_processing_time_estimator>>(
 			std::make_unique<oracle_processing_time_estimator>(jobs));
 		return std::make_shared<
@@ -122,7 +122,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-    if (type == "multi_ll_imprecise") {
+    if (type == "n/ll/imprecise") {
         auto selector = std::make_unique<least_loaded_worker_selector<imprecise_processing_time_estimator>>(
                 std::make_unique<imprecise_processing_time_estimator>(jobs));
         return std::make_shared<
@@ -130,7 +130,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
                 std::move(selector));
     }
 
-	if (type == "multi_rand2_queue_size") {
+	if (type == "n/rand2/queue_size") {
 		auto selector = std::make_unique<two_random_choices_selector<equal_length_processing_time_estimator>>(
 			std::make_unique<equal_length_processing_time_estimator>());
 		return std::make_shared<
@@ -138,7 +138,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-	if (type == "multi_rand2_oracle") {
+	if (type == "n/rand2/oracle") {
 		auto selector = std::make_unique<two_random_choices_selector<oracle_processing_time_estimator>>(
 			std::make_unique<oracle_processing_time_estimator>(jobs));
 		return std::make_shared<
@@ -146,7 +146,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-    if (type == "multi_rand2_imprecise") {
+    if (type == "n/rand2/imprecise") {
         auto selector = std::make_unique<two_random_choices_selector<imprecise_processing_time_estimator>>(
                 std::make_unique<imprecise_processing_time_estimator>(jobs));
         return std::make_shared<
