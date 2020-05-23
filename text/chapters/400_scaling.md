@@ -1,4 +1,4 @@
-# On-demand Scaling
+# On-demand Scaling \label{scaling}
 
 In this chapter, we survey the current practical applications of on-demand 
 scaling and their viability in automated evaluation of assignments. Although we 

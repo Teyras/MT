@@ -54,7 +54,7 @@ programming assignment solution evaluation, as the choice of a load balancing
 algorithm greatly affects the overall throughput of the whole system. The 
 comparison also takes into account a possibly heterogenous computing environment 
 (e.g., both physical and virtual machines with different capabilities) and the 
-on demand scaling features of current virtual infrastructure providers.
+on-demand scaling features of current virtual infrastructure providers.
 
 The last part of the thesis deals with the possibility of leveraging container 
 technologies in other ways than to run submissions in isolation. They could also 
@@ -65,6 +65,18 @@ environments, for example by installing additional libraries that will not be
 available for other exercises, without introducing overhead for the system 
 administrators.
 
-TODO pat myself on the back and offer a taste of the results
-
-TODO add thesis outline
+The thesis is structured in the following way. In Chapter 
+\ref{assignment-evaluation}, we introduce the problem of automated programming 
+assignment evaluation in detail. In Chapter \ref{measurement-stability}, the 
+stability of time measurements is evaluated with various isolation technologies 
+and degrees of parallelism. We use the results to determine how many parallel 
+measurements can be used on a single machine with multiple CPUs, and whether 
+using isolation techniques is beneficial or detrimental to the stability. 
+Chapter \ref{scheduling} categorizes our specific variant of the scheduling 
+problem in the context of prior research in this area, and then presents an 
+experiment that compares the performance of existing algorithms. Chapter 
+\ref{containers} examines the possibilities of using containers to simplify the 
+deployment of software environments required for evaluation. Key parts of the 
+functionality is implemented and a short benchmark is presented. Finally, 
+Chapter \ref{scaling} analyzes the integration of on-demand scaling into an 
+assignment evaluation system. 

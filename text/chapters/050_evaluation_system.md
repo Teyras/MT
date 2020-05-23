@@ -1,4 +1,4 @@
-# Assignment Evaluation 
+# Assignment Evaluation \label{assignment-evaluation}
 
 In this chapter, we outline the specifics of automated evaluation of programming 
 assignments from the perspective of load balancing and large-scale deployments. 

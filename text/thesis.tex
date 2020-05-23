@@ -17,7 +17,7 @@
 % \openright makes the following text appear on a right-hand page
 \let\openright=\clearpage
 
-% Make "h" the default figure placement
+% Make "tp" the default figure placement
 \makeatletter
 \def\fps@figure{tp}
 \makeatother
@@ -91,7 +91,7 @@
 \def\Supervisor{RNDr. Martin Kruliš, Ph.D.}
 
 % Supervisor's department (again according to Organizational structure of MFF)
-\def\SupervisorsDepartment{department}
+\def\SupervisorsDepartment{Department of Software Engineering}
 
 % Study programme and specialization
 \def\StudyProgramme{Computer Science}
@@ -105,12 +105,28 @@
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
 \def\Abstract{%
-Abstract.
+In teaching of programming, systems for the automated evaluation of assignments are
+a valuable aid that benefits both the teachers and the students. The objective of
+this thesis is to examine the possibilities of deploying such systems in a large-scale
+distributed environment and the challenges of such endeavors.
+
+Modern server multi-core processors provide considerable computing power that can be used
+for assignment evaluation. However, parallel measurements can interfere with each other. This
+causes unstable results, which detriments the fairness of grading. Isolation (sandboxing)
+technologies can cause similar effects. We measure both of these influences and use the results
+to determine to what degree can multi-core processors be exploited.
+
+The problem of efficient distribution of work between multiple evaluation workers is complementary
+to that of utilizing multi-core machines. We survey scheduling algorithms and design an experiment
+to compare their performance. Additionally, we examine the possibility of leveraging container
+technologies to simplify the deployment of software required for evaluation. This leads to both
+a smaller administration overhead and a less complex structure of the pool of evaluation workers,
+which simplifies the task of the scheduler.
 }
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
 \def\Keywords{%
-{key} {words}
+	{Load balancing} {Scheduling} {Sandboxing} {Virtualization} {Cloud computing}
 }
 
 %% The hyperref package for clickable links in PDF and also for storing
@@ -145,7 +161,7 @@ Abstract.
 
 %%% Abbreviations used in the thesis, if any, including their explanation
 %%% In mathematical theses, it could be better to move the list of abbreviations to the beginning of the thesis.
-\chapwithtoc{List of Abbreviations}
+%\chapwithtoc{List of Abbreviations}
 
 %%% Attachments to the master thesis, if any. Each attachment must be
 %%% referred to at least once from the text of the thesis. Attachments
