@@ -13,7 +13,8 @@ times of similar jobs) and allow additional time for longer jobs (based on the
 requirements on fast feedback described in Section 
 \ref{scheduling-requirements}).
 
-We propose the formula to obtain a deadline as follows:
+We propose the formula to obtain a deadline based on the time of arrival and 
+estimated processing time as follows:
 
 - Time of arrival + the estimated processing time for jobs shorter than 15 
   seconds. The threshold is based on the fact that users are likely to wait for 

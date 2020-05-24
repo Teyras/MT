@@ -23,16 +23,18 @@ algorithms. The other two parts are simply identifiers of the algorithm and
 processing time estimator names.
 
 When the estimator name is omitted from the algorithm description (e.g., 
-`n/rand2/`), we are just referring to the algorithm and the processing time 
-estimation mechanism is not important.
+`n/rand2`), we are just referring to the algorithm and the processing time 
+estimation mechanism is not important. For algorithms that do not employ 
+estimation at all, we fill in a dash as the estimator name (e.g., 
+`n/round_robin/-`)
 
 ### Evaluated Algorithms
 
-The current load balancing algorithm (`n/rr/`, a simple round robin over all 
-workers) in ReCodEx belongs to the first category (multiple queues, immediate 
-dispatch), along with assigning incoming jobs to the least loaded worker 
-(`n/ll/`) and the "Power of two choices" randomized algorithm (`n/rand2/`). We 
-will employ three ways of estimating the load of the workers:
+The current load balancing algorithm (`n/round_robin/-`, a simple round robin 
+over all workers) in ReCodEx belongs to the first category (multiple queues, 
+immediate dispatch), along with assigning incoming jobs to the least loaded 
+worker (`n/load`) and the "Power of two choices" randomized algorithm 
+(`n/rand2`). We will employ three ways of estimating the load of the workers:
 
 - `queue_size` -- simply counting the jobs and using the total as the load size,
 - `oracle` -- an estimator which has access to the simulation data and returns 
@@ -40,8 +42,8 @@ will employ three ways of estimating the load of the workers:
 - `imprecise`, which was described in Section \ref{estimation-in-simulation}. 
 
 This gives us a total of seven algorithms to evaluate -- three variants of both 
-`n/ll/` and `n/rand2/` (`n/ll/oracle`, `n/rand2/queue_size`, etc.), and the 
-original algorithm, `n/rr/`.
+`n/load` and `n/rand2` (`n/load/oracle`, `n/rand2/queue_size`, etc.), and the 
+original algorithm, `n/round_robin/-`.
 
 The single queue (delayed dispatch) category contains two broad approaches. One 
 is based on a single priority queue of jobs with various policies. We will 
@@ -51,20 +53,20 @@ Possibly the most straightforward algorithm in the delayed dispatch category is
 based on a single priority queue of jobs. There are many possible policies for 
 assigning priorities to jobs. From these, we will evaluate the following:
 
-- `1/fcfs/` -- first come, first served, also known as earliest time of arrival 
+- `1/fcfs/-` -- first come, first served, also known as earliest time of arrival 
   first,
-- `1/oagm/` -- Online Algorithm based on Greedy algorithm and Machine 
-  preference, the policy mentioned in Section 
-  \ref{time-vs-list-based-scheduling}, which uses multiple criteria derived from 
-  the processing time and flexibility of jobs to order the queue,
-- `1/spt/` -- shortest job first (based on previous processing times),
-- `1/edf/` -- earliest deadline first (the modification presented in Section 
+- `1/oagm` -- Online Algorithm based on Greedy algorithm and Machine preference, 
+  the policy mentioned in Section \ref{time-vs-list-based-scheduling}, which 
+  uses multiple criteria derived from the processing time and flexibility of 
+  jobs to order the queue,
+- `1/spt` -- shortest job first (based on previous processing times),
+- `1/edf` -- earliest deadline first (the modification presented in Section 
   \ref{custom-edf}), and
-- `1/lf/` -- least flexibility job first.
+- `1/least_flex/-` -- least flexibility job first.
 
-From these algorithms, three employ processing time estimation (`1/edf/`, 
-`1/spt/` and `1/oagm/`). These algorithms will be evaluated twice, once with the 
-`oracle` estimator and once with the `imprecise` estimator (`1/edf/oracle`, 
+From these algorithms, three employ processing time estimation (`1/edf`, `1/spt` 
+and `1/oagm`). These algorithms will be evaluated twice, once with the `oracle` 
+estimator and once with the `imprecise` estimator (`1/edf/oracle`, 
 `1/spt/imprecise`, etc.).
 
 The multi-level queue family contains examples of more sophisticated deleayed 
@@ -85,8 +87,12 @@ iterations of the experiment. The job sequences, on the other hand, are randomly
 generated to ensure the robustness of our experiment. The job processing times 
 are sampled from a normal distribution with a mean ($\mu$) and standard 
 deviation ($\sigma$) based on historical data from ReCodEx, which are depicted 
-in Figure \ref{processing-time-histograms}. No rigorous tests for goodness of 
-fit of a normal distribution on actual job processing times have been performed.
+in Figure \ref{processing-time-histograms}. Description of the runtime 
+environments can be found in ReCodEx documentation[@ReCodExRuntimes] (it is 
+worth noting that the `python` environment is used both for short programs in 
+programming basics courses and for machine learning assignments that take 
+several minutes to run). No rigorous tests for goodness of fit of a normal 
+distribution on actual job processing times have been performed.
 
 Throughout the experiment, we use the following job types:
 
@@ -104,20 +110,25 @@ Throughout the experiment, we use the following job types:
 
 The delays between jobs are sampled from an exponential distribution with a mean 
 that varies with the workload types (although 100ms is a common value), which is 
-a common assumption when modelling queueing scenarios.
+a common assumption when modelling queueing scenarios. For some workloads, the 
+mean delay was used to adjust the intensity of incoming jobs and thus help 
+realize the scenario tested by the workload (e.g., fully saturating a particular 
+group of workers).
 
-![A breakdown of job processing times divided by runtime environments
+![A breakdown of job processing times from ReCodEx divided by runtime 
+environments
 \label{processing-time-histograms}](img/lb/processing-times-histograms.tex)
 
 #### Common and Parallel Jobs
 
 The common and parallel workload, which is denoted as `common+para_small` and 
 `common+para_large` in measurement scripts and results, contains jobs of the 
-`common_medium` and `parallel` types in a 3:1 ratio. In the small variant, there 
+`common_medium` and `parallel` types in a 3:1 ratio (so that the makespans are 
+similar on the common and parallel worker groups). In the small variant, there 
 are 1000 jobs executed on 10 workers capable of processing the `common_medium` 
 type and 1 worker capable of processing the `parallel` type.
 
-In the large variant, there are 4000 job executed on four parallel workers and 
+In the large variant, there are 4000 jobs executed on four parallel workers and 
 40 common workers. Both variants have a mean delay of 100ms. The purpose of the 
 workload is to show how queue managers handle job types with disjoint processing 
 sets.
@@ -127,7 +138,7 @@ sets.
 In the two-phase workload (denoted as `two_phase_small` and `two_phase_large` in 
 measurement scripts and results), there are 2000 jobs. The first 1000 is of the 
 `common_short` type. The second 1000 contains jobs of both the `common_short` 
-and `common_long` types in a 1:5 ratio.
+and `common_long` types in a 1:5 ratio (chosen empirically).
 
 The workload is executed on 40 identical workers with a mean delay of 550ms in 
 the large variant and on 4 workers with a 45ms mean delay in the small variant. 
@@ -143,7 +154,8 @@ The first one is called `medium+short` and it is composed of `common_medium` and
 `common_short` jobs in a 1:1 ratio with a 100ms average delay. It is executed on 
 a set of 4 identical workers. The other workload is called `long+short` and 
 contains `common_short` and `common_long` jobs in a 4:1 ratio with a 100ms mean 
-delay. We use 40 identical worker machines to execute this workload.
+delay. We use 40 identical worker machines to execute this workload. The ratio 
+of the job types is a tunable parameter that carries no particular meaning.
 
 This kind of workloads aims to test whether the load is distributed evenly among 
 the workers. If not, we should observe a longer makespan.
@@ -159,7 +171,8 @@ with 4 workers.
 
 This workload is meant to test the queue managers in a setting that is closer to 
 a real-world usage scenario than the others, with multiple kinds of jobs 
-arriving in a short period of time.
+arriving in a short period of time. The frequencies of each type are chosen 
+arbitrarily, without any relation to real world data.
 
 Table: Parameters of jobs in the `multi_type` workload type 
 \label{multi-type-workload-jobs}
@@ -208,23 +221,24 @@ separately for each bin using a stacked bar plot.
 Our examination of the measurements revealed several interesting trends. First 
 of all, most of the queue managers that use per-worker queues perform worse than 
 others, even on simple workloads. This is demonstrated in the case of the 
-`n/ll/`, `n/rand2/` and `n/rr/` strategies and the `long+short` workload (as 
-shown by Figure \ref{lb-lateness-long-short}). While other algorithms manage to 
-process most jobs on time, the multi-queue algorithms only achieve that for a 
-fraction of the workload. The share of "late" jobs is somewhat larger for the 
-`n/rr/` algorithm, which is much less sophisticated than the others. 
+`n/load`, `n/rand2` and `n/round_robin/-` strategies and the `long+short` 
+workload (as shown by Figure \ref{lb-lateness-long-short}). While other 
+algorithms manage to process most jobs on time, the multi-queue algorithms only 
+achieve that for a fraction of the workload. The share of "late" jobs is 
+somewhat larger for the `n/round_robin/-` algorithm, which is much less 
+sophisticated than the others. 
 
 ![Lateness classification for each queue manager over arrival time windows for 
 the \texttt{long+short} workload 
 \label{lb-lateness-long-short}](img/lb/lateness,uniform_large,long+short.tex)
 
 A similar situation can be seen in the case of the `multi_type` workload (
-depicted by Figure \ref{lb-lateness-multiple-types}). Here, the `n/ll/` 
-algorithms perform better than the `n/rr/` and `n/rand2/` variants. However, the 
-single-queue algorithms still outperform them in terms of the ratio of jobs 
-processed on time. On the other hand, it is worth noting that most of the 
-single-queue approaches processed some jobs extremely late, which did not happen 
-with multi-queue approaches.
+depicted by Figure \ref{lb-lateness-multiple-types}). Here, the `n/load` 
+algorithms perform better than the `n/round_robin/-` and `n/rand2` variants. 
+However, the single-queue algorithms still outperform them in terms of the ratio 
+of jobs processed on time. On the other hand, it is worth noting that most of 
+the single-queue approaches processed some jobs extremely late, which did not 
+happen with multi-queue approaches.
 
 ![Lateness classification for each queue manager over arrival time windows for 
 the \texttt{multi\_type} workload
@@ -238,21 +252,21 @@ the \texttt{two\_phase\_large} workload
 \texttt{common+para\_small} workload 
 \label{lb-lateness-simple-para-small}](img/lb/lateness,two_types_small,common+para_small.tex)
 
-Our second observation is that the `1/spt/` algorithm performs better or 
+Our second observation is that the `1/spt` algorithm performs better or 
 similarly well as the others on all measured workloads, as long as we are 
 concerned about the number of jobs processed on time. This fact can be seen in 
 Figure \ref{lb-lateness-two-phase}, where most queue managers initially perform 
 rather well, but their performance drops dramatically after roughly 250 jobs, 
-while `1/spt/` still manages to process a part of the jobs on time. The 
-`1/oagm/` and `1/lf/` algorithms also seem to have somewhat better results than 
-other algorithms. In the case of `1/lf/`, this should be attributed to 
+while `1/spt` still manages to process a part of the jobs on time. The `1/oagm` 
+and `1/least_flex/-` algorithms also seem to have somewhat better results than 
+other algorithms. In the case of `1/least_flex/-`, this should be attributed to 
 coincidence, since this workload employs identical workloads and all jobs are 
 considered equal by the queue manager.
 
 Another occurence of this trend is the `common+para_small` workload, whose 
 lateness classification can be seen in Figure 
-\ref{lb-lateness-common-para-small}. The results show `1/spt/` to be the best 
-performing algorithm, with `1/oagm/` on the second place. In this case, `1/spt/` 
+\ref{lb-lateness-common-para-small}. The results show `1/spt` to be the best 
+performing algorithm, with `1/oagm` on the second place. In this case, `1/spt` 
 prevails not only in terms of the number of jobs processed on times, but also in 
 terms of the number of jobs that were processed late or extremely late.
 
@@ -265,20 +279,20 @@ For a more detailed insight, we plotted separate histograms of the relative
 waiting times for each queue manager (as depicted in Figure 
 \ref{lb-rel-wait-time-histogram}). In these, we have noticed that using the 
 imprecise estimator causes an increase in cases with very large relative waiting 
-times for `1/spt/`. The other algorithms that employ processing time estimation 
-do not seem to be affected in any notable way. In the case of `n/ll/` and 
-`n/rand2/`, this could be caused by the larger estimation errors being 
+times for `1/spt`. The other algorithms that employ processing time estimation 
+do not seem to be affected in any notable way. In the case of `n/load` and 
+`n/rand2`, this could be caused by the larger estimation errors being 
 compensated for by other jobs with better estimates in each queue.
-It is difficult to find an explanation in the case of `1/edf/` and `1/oagm/`. We 
-hypothesize that `1/oagm/` is not as reliant on processing time estimation 
+It is difficult to find an explanation in the case of `1/edf` and `1/oagm`. We 
+hypothesize that `1/oagm` is not as reliant on processing time estimation 
 because it also uses other metrics to order the job queue. The results for 
-`1/edf/` should probably be attributed to coincidence.
+`1/edf` should probably be attributed to coincidence.
 
 The last subject of our evaluation were the makespans (total time it takes to 
 process a workload) of the individual queue managers. A selection of comparison 
 plots can be seen in Figure \ref{lb-makespans}. In most workloads, the queue 
 managers exhibit very similar makespans. An exception to this trend are the 
-`n/ll/imprecise` and `n/rand2/imprecise`, whose makespans are longer. A 
+`n/load/imprecise` and `n/rand2/imprecise`, whose makespans are longer. A 
 plausible explanation of this is that they fail to balance the load on the 
 individual workers due to not being able to estimate the length of their queues 
 well enough. In some cases, longer makespans can be observed for 

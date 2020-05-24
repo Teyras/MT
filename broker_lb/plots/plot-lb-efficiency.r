@@ -50,19 +50,18 @@ plot.makespan <- function() {
 	tikz(file="makespans.tex", width=15, height=20)
 	plot <- ggplot(makespans, aes(x=queue.manager, y=x)) +
 		geom_col() +
-		facet_wrap(~ setup + workload, scales="free", ncol=2) +
+		facet_wrap(~ setup + workload, scales="free", ncol=3) +
 		theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 	print(plot)
 	dev.off()
 
-	tikz(file="makespans-selection.tex", width=5, height=5)
-	plot <- ggplot(makespans[makespans$workload %in% c("long+short", tex.safe("two_phase_large")),], aes(x=queue.manager, y=x)) +
-		geom_col() +
-		facet_wrap(~ workload, scales="free_y", ncol=1) +
-		ylab("Makespan [s]") +
-		xlab("Queue manager") +
-		theme(axis.text.x = element_text(angle = 90, hjust = 1))
+	tikz(file="makespans-selection.tex", width=5.5, height=3.5)
+	plot <- ggplot(makespans[makespans$workload %in% c("long+short", tex.safe("two_phase_large")),], aes(x=x, y=queue.manager)) +
+		geom_col(orientation="y") +
+		facet_wrap(~ workload, scales="free_x", ncol=2) +
+		xlab("Makespan [s]") +
+		ylab("Queue manager")
 
 	print(plot)
 	dev.off()
@@ -87,10 +86,10 @@ plot.queue.sizes <- function() {
 		queue.events <- aggregate(queue.size ~ queue.manager + time, data=queue.events, min)
 
 		file <- tex.unsafe(paste(dir, "/", group$setup, ",", group$workload, sep=""))
-		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=7)
+		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=6)
 		plot <- ggplot(queue.events, aes(x=time, y=queue.size)) +
 			geom_line() +
-			facet_wrap(vars(queue.events$queue.manager), ncol=2)
+			facet_wrap(vars(queue.events$queue.manager), ncol=3)
 
 		print(plot)
 		ggsave(file=paste(file, ".png", sep=""), plot)
@@ -109,25 +108,31 @@ plot.wait.time.trends <- function() {
 
 		# Lateness graph
 		file <- tex.unsafe(paste(dir, "/lateness,", group$setup, ",", group$workload, sep=""))
-		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=7)
+		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=6)
 
 		plot <- ggplot(data, aes(arrival.discrete)) +
 			geom_bar(aes(fill=lateness.class), position=position_fill()) +
-			scale_fill_manual(values=c("On time"="darkgreen", "Delayed"="green", "Late"="pink", "Extremely late"="red")) +
-			theme(axis.ticks.y=element_blank(), axis.text.y=element_blank()) + 
-			facet_wrap(vars(data$queue.manager), ncol=2)
+			scale_fill_manual(values=c("On time"="darkgreen", "Delayed"="green", "Late"="pink", "Extremely late"="red"), name="Lateness\nclassification") +
+			theme(
+			      axis.ticks.y=element_blank(), axis.text.y=element_blank(),
+		        ) + 
+			ggtitle(paste("Workload: ", group$workload, sep="")) +
+			scale_x_discrete(breaks=c(0, 5, 10, 15, 20)) +
+			facet_wrap(vars(data$queue.manager), ncol=3) + 
+			labs(x="Discretized time of arrival", y="Number of jobs")
 		print(plot)
 		ggsave(file=paste(file, ".png", sep=""), plot)
 		dev.off()
 
 		# Relative wait time histogram
 		file <- tex.unsafe(paste(dir, "/rel_wait_time,", group$setup, ",", group$workload, sep=""))
-		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=7)
+		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=6)
 
 		plot <- ggplot(data, aes(relative.wait.time)) +
 			geom_histogram() +
 			scale_y_log10() +
-			facet_wrap(vars(data$queue.manager), ncol=2)
+			facet_wrap(vars(data$queue.manager), ncol=3) +
+			labs(x="Relative wait time", y="Number of jobs")
 		print(plot)
 		ggsave(file=paste(file, ".png", sep=""), plot)
 		dev.off()
@@ -136,12 +141,13 @@ plot.wait.time.trends <- function() {
 
 plot.relative.wait.time.all <- function() {
 	file <- tex.unsafe("rel_wait_time")
-	tikz(file=paste(file, ".tex", sep=""), width=5.5, height=7)
+	tikz(file=paste(file, ".tex", sep=""), width=5.5, height=6)
 
 	plot <- ggplot(values, aes(relative.wait.time)) +
 		geom_histogram() +
 		scale_y_log10() +
-		facet_wrap(vars(values$queue.manager), ncol=2)
+		labs(x="Relative wait time", y="Number of jobs (log-scale)") +
+		facet_wrap(vars(values$queue.manager), ncol=3)
 	print(plot)
 	ggsave(file=paste(file, ".png", sep=""), plot)
 	dev.off()

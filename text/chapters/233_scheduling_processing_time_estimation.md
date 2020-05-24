@@ -23,7 +23,7 @@ Based on this information, we propose the following estimation algorithm:
 - Maintain three dictionary structures. The first one is indexed by runtime 
   environment, the second one by runtime environment and exercise identifier and 
   the third one by runtime environment, exercise identifier and author 
-  identifier. The values in these dictionaries are circular buffers of size 10.
+  identifier. The values in these dictionaries are circular buffers of size 20.
 - Whenever an evaluation is finished, save the processing time into all three 
   dictionaries under corresponding indexes (the value is inserted into the 
   circular buffers).
@@ -46,6 +46,19 @@ length of the queue for a worker and not of an individual job.
 
 The thresholds used when determining whether a particular buffer of measurements 
 should be selected were found by evaluating the algorithm on a testing data set.
+
+The limit on the size of the circular buffers is necessary to keep memory usage 
+from continuously growing as long as the system is online, and also to prevent 
+old processing times from influencing predictions too far into the future. The 
+exact value of the size limit (20) was chosen empirically, based on preliminary 
+test runs of the estimation program -- lower values caused a decline in accuracy 
+and the improvement of higher values was negligible.
+
+We conjectured that using a smaller buffer size for the last level dictionary 
+(by author, exercise and runtime environment) might improve prediction accuracy, 
+because subsequent submission are typically either very similar or faster, but 
+we failed to verify this conjecture. Therefore, we did not use this optimization 
+to keep the algorithm simpler.
 
 ### Evaluation of the Estimation Formula
 

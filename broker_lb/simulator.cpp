@@ -40,16 +40,16 @@ using worker_status_map = std::map<std::string, bool>;
 std::shared_ptr<queue_manager_interface> create_queue_manager(
 	const std::string &type, std::shared_ptr<worker_registry> registry, std::shared_ptr<job_data> jobs, std::shared_ptr<const simulation_clock> clock)
 {
-	if (type == "n/rr/") {
+	if (type == "n/round_robin/-") {
 		return std::make_shared<multi_queue_manager>();
 	}
 
-	if (type == "1/fcfs/") {
+	if (type == "1/fcfs/-") {
 		auto comparator = std::make_unique<fcfs_job_comparator>();
 		return std::make_shared<single_queue_manager<fcfs_job_comparator>>(std::move(comparator), clock);
 	}
 
-	if (type == "1/lf/") {
+	if (type == "1/least_flex/-") {
 		auto comparator = std::make_unique<least_flexibility_job_comparator>(*registry);
 		return std::make_shared<single_queue_manager<least_flexibility_job_comparator>>(std::move(comparator), clock);
 	}
@@ -106,7 +106,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
                 std::move(comparator), std::move(selector), clock);
     }
 
-	if (type == "n/ll/queue_size") {
+	if (type == "n/load/queue_size") {
 		auto selector = std::make_unique<least_loaded_worker_selector<equal_length_processing_time_estimator>>(
 			std::make_unique<equal_length_processing_time_estimator>());
 		return std::make_shared<
@@ -114,7 +114,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-	if (type == "n/ll/oracle") {
+	if (type == "n/load/oracle") {
 		auto selector = std::make_unique<least_loaded_worker_selector<oracle_processing_time_estimator>>(
 			std::make_unique<oracle_processing_time_estimator>(jobs));
 		return std::make_shared<
@@ -122,7 +122,7 @@ std::shared_ptr<queue_manager_interface> create_queue_manager(
 			std::move(selector));
 	}
 
-    if (type == "n/ll/imprecise") {
+    if (type == "n/load/imprecise") {
         auto selector = std::make_unique<least_loaded_worker_selector<imprecise_processing_time_estimator>>(
                 std::make_unique<imprecise_processing_time_estimator>(jobs));
         return std::make_shared<

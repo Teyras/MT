@@ -32,6 +32,10 @@ image is composed of layers -- collections of files that we can imagine being
 laid on top of each other, making only the latest version of a file visible. 
 This mechanism is useful for efficient updates and extension of images -- image 
 authors can easily add layers to install additional libraries, for example.
+Every image contains a manifest - a collection of various metadata about the 
+image, its contents and the intended usage. It is also possible to add 
+user-defined labels that could be leveraged by higher layers of an assignment
+evaluation system.
 
 Images are used for the creation of containers. These can be thought of as 
 concrete instances of an image. A container is created by adding a writable 
