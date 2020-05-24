@@ -3,7 +3,7 @@
 In Section \ref{containers-analysis}, we listed requirements on a programming 
 evaluation system that could be solved using container technologies. Because of 
 the similarity between automated assignment evaluation and continuous 
-integration, we shall survey a handful of public continous integration services 
+integration, we shall survey a handful of public continuous integration services 
 and the way they address these requirements.
 
 ### GitLab CI

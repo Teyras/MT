@@ -71,8 +71,8 @@ Additionally, it is difficult to predict this cost. A way to counteract this
 cost could be allowing some time before resuming an interrupted job so that 
 additional short jobs can be scheduled in the meantime.
 
-Schedulers in operating systems typically switch processses frequently to give 
-each a fair share of the computing power (the time each process is alotted is 
+Schedulers in operating systems typically switch processes frequently to give 
+each a fair share of the computing power (the time each process is allotted is 
 called the quantum). This approach would be problematic with our implementation 
 of job interruption -- long tasks could keep being interrupted repeatedly, 
 causing an unnecessary delay of the job. However, we could still take 

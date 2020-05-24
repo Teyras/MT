@@ -24,7 +24,7 @@ does not vary -- even the outliers are within milliseconds from the median of
 the means. However, as shown by Figure \ref{dep-input-sd}, the range of standard 
 deviations is rather large, reaching up to 11ms. Upon closer inspection, we 
 found that this is due to a small number of outliers. We conclude that the input 
-data has a neglible effect on the execution time, even though there is a handful 
+data has a negligible effect on the execution time, even though there is a handful 
 of inputs for the `qsort`, `bsearch` and `gray2bin` exercise types on which the 
 time measurements exhibit a notably higher standard deviation.
 
@@ -62,7 +62,7 @@ regularly higher than the later ones and where the execution time does not rise
 in subsequent iterations.
 
 Although it is possible that 100 measurements is not enough to detect such a 
-warmup period, it seems improbable. Therefore, we can conclude that warming up 
+warm-up period, it seems improbable. Therefore, we can conclude that warming up 
 is not an important factor in our measurements, even though it happens on a 
 small scale.
 

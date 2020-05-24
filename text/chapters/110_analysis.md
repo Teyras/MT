@@ -20,7 +20,7 @@ important.
 
 CPU cache exists to speed up accesses to frequently used areas of memory and it 
 also helps during sequential reads of data (although most modern processors 
-feature memory prefetchers whose influence is much larger in this case). 
+feature memory pre-fetchers whose influence is much larger in this case). 
 Unfortunately, we have no control over the content of the cache when the program 
 is launching. In addition, the cache is shared with other programs running on 
 the machine, whose memory accesses cannot be controlled. Both of these facts 
@@ -84,7 +84,7 @@ The `chroot` system call (present in the UNIX specification since version 7,
 released in 1979) changes the root directory of the calling process[@Chroot], 
 thus isolating it from the rest of the system and preventing it from accessing 
 files not needed for assignment evaluation. Historically, this has been used as 
-an additional layer of security for services that handle potentionally dangerous 
+an additional layer of security for services that handle potentially dangerous 
 input such as web servers.
 
 Chroot itself however does neither limit resource usage nor provide accounting. 
@@ -103,8 +103,8 @@ sandbox like this[@MaresPerspectives]. The same sandbox was also used in CodEx
 management system [@CMS].
 
 A notable problem of this approach is that it does not work well with 
-multithreaded programs. The `ptrace` interface only suspends the main thread on 
-system calls. Therefore, a sandbox with multithreading support would have to 
+multi-threaded programs. The `ptrace` interface only suspends the main thread on 
+system calls. Therefore, a sandbox with multi-threading support would have to 
 intercept calls that spawn new threads and start monitoring them too. Such 
 approach would however introduce a host of new problems and attack surfaces. For 
 example, it would be possible to spawn two threads, A and B, where A performs a 
@@ -114,7 +114,7 @@ call is actually executed, but after the sandbox is done inspecting it.
 #### FreeBSD Jails
 
 Jails[@FreeBSDJail] (featured since 2000) expand on the concept of chroots. In 
-addition to confining a process to a part of the filesystem, they also provide 
+addition to confining a process to a part of the file system, they also provide 
 network and process isolation and time, memory, and disk usage 
 limits[@FreeBSDRLimit].
 
@@ -151,7 +151,7 @@ Linux containers have been adopted by many projects, some of which we list here:
   on an open source project called Moby, which implements a number of 
   specifications authored by the OCI (Open Containers Initiative)[@OCI], mainly 
   the Runtime Specification (which describes how to run a container from a local 
-  filesystem) and the Image Specification (which describes the format of image 
+  file system) and the Image Specification (which describes the format of image 
   data and metadata). Over time, projects that provide alternative 
   implementations for parts of the OCI-specified functionality have emerged, 
   such as Podman[@Podman] or Buildah[@Buildah]. The main use case supported by 
@@ -324,7 +324,7 @@ differentiate them by the bounding factor in their performance -- the speed of
 the CPU, memory accesses or IO operations.
 
 The performance of CPU-bound programs is primarily limited by the speed at which 
-the procesor can execute instructions. An example of this class are exercises 
+the processor can execute instructions. An example of this class are exercises 
 that require students to perform a computation with small input data, such as 
 iterative approximation of values of mathematical functions.
 
@@ -346,7 +346,7 @@ included in CPU time (but it is included in wall-clock time).
 
 Exercises in parallel computing (both CPU and GPU based) mostly fall into the 
 CPU and memory-bound categories, but, like in the IO-bound case, we cannot use 
-CPU time to grade them -- the CPU time of a multithreaded program is the sum of 
+CPU time to grade them -- the CPU time of a multi threaded program is the sum of 
 the CPU times of its threads. Therefore, we cannot use it to measure the speedup 
 gained from parallelization and we are left with wall-clock time. Moreover, we 
 can expect a larger time measurement instability due to the inherent 
@@ -357,12 +357,12 @@ and only check its correctness. For those, the evaluation process is similar to
 unit testing. A de-facto subclass of these assignments are those where the 
 solution is not a computer program in the classical sense -- for example, some 
 courses require the students to train and submit a neural network that reaches 
-some level of accuraccy on a chosen dataset. Usually, the processing time is not 
+some level of accuracy on a chosen dataset. Usually, the processing time is not 
 interesting in such assignments, even though it is still necessary to limit it 
 to avoid leaving the evaluation system stuck in an infinite loop.
 
 We will concentrate on two basic groups of workloads -- CPU-bound and 
-memory-bound. We expect that the runtimes of memory-bound tasks will be less 
+memory-bound. We expect that the run times of memory-bound tasks will be less 
 stable due to factors such as cache and page misses (these effects are further 
 amplified by virtualization technologies). Apart from that, there are factors 
 that are detrimental even to the measurement stability of purely CPU-bound tasks 
@@ -374,13 +374,13 @@ analysis. IO-bound tasks are difficult to run in parallel because of shared
 access to external memory. Also, there are many factors to take into account 
 when running them in a virtualized environment, making their evaluation too 
 complicated for this experiment. Parallel tasks typically require a dedicated 
-machine with a multicore CPU that should not be used by other measurements. 
+machine with a multi-core CPU that should not be used by other measurements. 
 Finally, we do not have to be concerned with the stability of measurements for 
 assignments that are not graded with respect to measured time.
 
 It is also worth noting that being CPU or memory bound is a characteristic of 
 the submitted program and not the assignment. In many tasks, the students can 
-choose the degree of the memory-speed tradeoff they want to make (for example, 
+choose the degree of the memory-speed trade-off they want to make (for example, 
 the number of intermediate results stored in a lookup table to avoid 
 recalculation). Also, students might choose to solve problems intended e.g., as 
 CPU-bound with memory-bound programs.
@@ -425,7 +425,7 @@ The input sizes are as follows:
 - `exp`: 65536 random exponents between 0 and 32 with `n=1000` (performed with 
   both `float` and `double` data types)
 - `gray2bin`: 1048576 random 32-bit integers
-- `bsearch`: 1048576 lookups in a 65536-item array of 32-bit integers
+- `bsearch`: 1048576 look-ups in a 65536-item array of 32-bit integers
 - `sort/insertion_sort`: 16384 32-bit integers
 - `sort/qsort`: 1048576 32-bit integers
 
@@ -506,7 +506,7 @@ any potential discrepancies between the values.
 
 Along with the measurements themselves, we will collect performance data using 
 the `perf` tool that provides access to performance counters in the Linux 
-kernel. We will focus on events that are known to cause unstable runtimes, such 
+kernel. We will focus on events that are known to cause unstable run times, such 
 as cache misses and page faults (although our workloads are not very likely to 
 generate a notable amount of page faults). The measurements with `perf` enabled 
 will be run separately to make sure that the profiling does not influence our 
@@ -538,7 +538,7 @@ assignment evaluation in a university, for example. The exact specifications are
 as follows:
 
 - CPU: 2* Intel(R) Xeon(R) CPU E5-2630 v4 @ 2.20GHz (A total of 20 physical CPUs 
-  with hyperthreading) in a NUMA setup
+  with HyperThreading) in a NUMA setup
 - Memory: 256GB DDR4 (8 DIMMs by 32GB) \@2400Mhz
 
 The server runs CentOS 7 with Linux 3.10.0 kernel. CentOS is a freely available 

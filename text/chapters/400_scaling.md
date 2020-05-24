@@ -33,5 +33,5 @@ traffic when they happen. In systems for evaluation of programming assignments,
 the frequency of submissions can vary wildly, which means we might benefit from 
 using these techniques. This is confirmed by submission data from ReCodEx, which 
 shows that there is more traffic during evenings (as shown by Figure 
-\ref{submission-hour-histogram}) and that traffic decreases on fridays and 
-saturdays (as shown by Figure \ref{submission-day-histogram}).
+\ref{submission-hour-histogram}) and that traffic decreases on Fridays and 
+Saturdays (as shown by Figure \ref{submission-day-histogram}).

@@ -3,7 +3,7 @@
 ### Evaluation of Isolate Measurements
 
 As mentioned in Section \ref{measured-data}, our measurements that run in 
-isolate yield four values: the cpu and wall clock times as measured by isolate 
+isolate yield four values: the CPU and wall clock times as measured by isolate 
 and by the program itself. It is safe to assume that there will be some 
 discrepancies between the results from isolate and from the program -- isolate 
 also takes into account the time it takes to load the binary and start the 
@@ -329,7 +329,7 @@ groups where it got smaller is very similar to the number of groups where it got
 higher. Since the comparison did not yield any positive results, we will not 
 consider the single-core `taskset` setup any further.
 
-Finally, the multicore way of using `taskset` seems to improve both the mean and 
+Finally, the multi-core way of using `taskset` seems to improve both the mean and 
 the standard deviation in more than three quarters of the compared groups. This 
 seems like a notable breakthrough. Upon closer inspection, we found that the 
 results seem much more stable without any isolation technology (as shown by 
@@ -339,12 +339,12 @@ execution time still rises with the increasing setup size. For example,
 (20% more).
 
 Furthermore, it can be seen in Figure \ref{taskset-points-isolate} that using
-multicore `taskset` does not cause any improvement when we use `isolate` for 
+multi-core `taskset` does not cause any improvement when we use `isolate` for 
 process isolation. The results of measurements in Docker without `isolate` look 
 similar to those of measurements with no isolation at all. Docker with `isolate` 
 performs similarly to `isolate`.
 
-From these observations, we can conclude that using multicore taskset could help 
+From these observations, we can conclude that using multi-core taskset could help 
 stabilize measurements on the bare metal or in Docker in case they were run in 
 batches with a fixed number of workers. However, setting the CPU (or NUMA) 
 affinity does not bring any improvement in the case of ReCodEx, where the number 
@@ -395,7 +395,7 @@ mean and standard deviation that those with logical cores enabled in almost all
 cases.
 
 The results are not as conclusive when we compare measurements performed with 
-the multicore taskset setting (again, we compare measurements with logical cores 
+the multi-core taskset setting (again, we compare measurements with logical cores 
 disabled to those that use logical cores). While the mean is decreased in the 
 majority cases and increased in none of them, the standard deviation increases 
 in about 20% of the cases.

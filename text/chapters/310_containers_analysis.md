@@ -2,7 +2,7 @@
 
 The evaluation process in a system for programming assignment evaluation 
 resembles the way a continuous integration service (a service that ensures the 
-quality of a codebase with each change, typically by building it and running 
+quality of a code base with each change, typically by building it and running 
 unit tests or various static analyzers) works. Submitted source code is built 
 using a pre-configured toolchain and then subjected to tests. Based on its 
 performance, the solution is awarded a rating. The main difference from a 
@@ -17,7 +17,7 @@ continuous integration.
 ### Secure Execution
 
 Public continuous integration servers run thousands of builds on completely 
-untrusted codebases every day. Just as in our case, there are two basic 
+untrusted code bases every day. Just as in our case, there are two basic 
 scenarios to address -- intentional attacks and programming errors that lead to 
 system failures.
 
@@ -28,7 +28,7 @@ affects the overall stability of measurements as well.
 
 ### User-defined Runtime Environments
 
-The steps required to build and test a codebase can vary enormously. The number 
+The steps required to build and test a code base can vary enormously. The number 
 of existing programming languages, build toolkits, testing frameworks and third 
 party libraries is so large that this process is almost unique for every 
 project.
@@ -39,7 +39,7 @@ enough to satisfy the needs of any project.
 
 It seems that the situation is simpler for programming assignment evaluation 
 systems. The assignments are usually much less complex than a typical project 
-that requires continous integration. Thanks to this, we do not usually need to 
+that requires continuous integration. Thanks to this, we do not usually need to 
 set up complicated build pipelines for every new exercise. However, in some 
 areas such as web development, it is common to use a large number of third-party 
 libraries. Over time, this trend has also found its way into ReCodEx. For 

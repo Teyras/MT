@@ -8,7 +8,7 @@ implementation of this functionality.
 Since Docker is one of the most well-known container technologies and all the 
 continuous integration services we surveyed support it in some way, we will use 
 it in our implementation. However, the ideas we present here should be trivially 
-transferrable to any container platform based on the OCI[@OCI] (the Open 
+transferable to any container platform based on the OCI[@OCI] (the Open 
 Containers Initiative) specification.
 
 ### Docker Overview
@@ -93,7 +93,7 @@ Because Docker cannot be used for securely measuring assignment solutions on its
 own, it will probably not replace `isolate` in ReCodEx in the near future. 
 However, there are ways in which it could complement it -- for example, it could 
 be leveraged to add precise definitions of runtime environments -- in ReCodEx, 
-they all rely on the dilligence of administrators to function correctly.
+they all rely on the diligence of administrators to function correctly.
 
 ### Deployment of New Runtime Environments
 
@@ -120,7 +120,7 @@ exercises (for example running a program on a remotely controlled cluster of
 servers). Also, while adding a new runtime environment would mean extending the 
 worker image and deploying it everywhere, we would not have to change the worker 
 selection algorithm in the broker -- the available runtime environments could 
-still be enumerated in the configuration broadcasted by the worker bundled in 
+still be enumerated in the configuration broadcast by the worker bundled in 
 the image.
 
 However, extending a particular environment with a library only for a set of 
@@ -133,8 +133,8 @@ also be a challenge.
 An advantage of the worker-less, single purpose image approach is that we would 
 not need to maintain a large worker image with all the desired runtime 
 environments. The images would be smaller, easier to review and faster to build. 
-Also, a single worker could handle mutliple versions of a runtime environment 
-without significant effort, which would contribute to the reproducibility of 
+Also, a single worker could handle multiple versions of a runtime environment 
+without significant effort, which would contribute to the repeatability of 
 assignment evaluations. A drawback of this approach is that support for fetching 
 and updating these single purpose images would have to be added to the worker 
 daemon.
@@ -241,7 +241,7 @@ every exercise type. There have even been exercises based on communication with
 a daemon-like service created by the exercise author.
 
 The current job configuration format consumed by the worker does not allow this. 
-With Docker, we can easily start a set of preconfigured containers using 
+With Docker, we can easily start a set of pre-configured containers using 
 publicly available images (or, if needed, images from our private registry used 
 for runtime environments) for each test and shut them down afterwards. These 
 services will run in an isolated network namespace into which the tested program 
@@ -269,7 +269,7 @@ implemented three core parts of it:
 
 1. fetching the contents of an image from a Docker registry,
 2. unpacking an image into a directory by copying its layers, and
-3. mounting the image layers using the `overlay2` filesystem driver.
+3. mounting the image layers using the `overlay2` file system driver.
 
 The reason why we decided to also implement the image fetching is that it allows 
 our solution to work on systems without a Docker installation. This is an 
@@ -297,7 +297,7 @@ and a NVMe SSD hard drive (Toshiba KSG60ZMV256) running Linux 5.6.8.
 
 The measurement results are depicted in Figure \ref{container-unpack-results}. 
 We can safely conclude that unpacking an image by copying its content onto the 
-filesystem is slower than mounting it, even though the difference is not as 
+file system is slower than mounting it, even though the difference is not as 
 large as we have presumed. A more important result is that accessing image 
 contents usually takes less than a second (and much less than that for small 
 images), which is a reasonable amount of overhead in the case of programming 

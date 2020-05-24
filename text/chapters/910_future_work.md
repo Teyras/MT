@@ -15,7 +15,7 @@ comparison to e.g., server machines. Due to these facts, we could increase the
 overall throughput of the system much more easily and without concerns about 
 measurement stability.
 
-Furthemore, implementing on demand scaling using switched power supplies could 
+Furthermore, implementing on demand scaling using switched power supplies could 
 be a way to make the system more cost-effective while maintaining an acceptable 
 throughput during traffic peaks.
 
@@ -25,7 +25,7 @@ Proposing a process that summarizes these results for grading and evaluating it
 in various settings is an interesting research topic. If such process was found, 
 it would allow us to use multi-core CPUs and cloud virtual machines more freely, 
 without risking awarding a solution with an unfair grade due to measurement 
-interference. Additionaly, the influence of this mechanism on scheduling should 
+interference. Additionally, the influence of this mechanism on scheduling should 
 be studied, since the amount of work to be distributed over the worker machines 
 would become larger.
 

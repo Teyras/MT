@@ -1,6 +1,6 @@
 ## Custom Algorithms
 
-In this section, we explore the possibility of modifiyng two well-known online 
+In this section, we explore the possibility of modifying two well-known online 
 load balancing algorithms that could not be directly applied to our use case.
 
 ### Earliest Deadline First Approach \label{custom-edf}

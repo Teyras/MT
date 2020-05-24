@@ -22,5 +22,5 @@ Amazon EC2 (a service included in AWS) also provides a service that does not
 seem to have an equivalent in the other platforms: Predictive 
 Scaling[@AWSScalingPlans]. It is advertised to use machine learning to predict 
 traffic spikes and react to them. This allows the end user to specify a 
-utilization target (e.g., CPU utilization should be 80%) which will be maintaned 
-by the autoscaler without a need to configure other thresholds.
+utilization target (e.g., CPU utilization should be 80%) which will be 
+maintained by the auto-scaler without a need to configure other thresholds.

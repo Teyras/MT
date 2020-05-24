@@ -65,7 +65,7 @@ results for grading, because the resulting grade could be different each time.
 Memory usage is another important measure of the efficiency of a program. While 
 it sometimes cannot be directly controlled by the programmer (due to garbage 
 collection and implementation specifics of memory allocators), a high memory 
-usage can be an inidicator of an inefficient algorithm. Moreover, a 
+usage can be an indicator of an inefficient algorithm. Moreover, a 
 malfunctioning program could bring down the evaluation computer by allocating 
 too much memory for other programs to function correctly. 
 
@@ -197,7 +197,7 @@ specification of the requirements on the worker that is going to process the job
 is a responsibility of the broker to select an appropriate worker.
 
 While this provides a great deal of flexibility, it also presents a challenge in 
-efficient scheduling of evaluation jobs. Currently, the broker maintans a 
+efficient scheduling of evaluation jobs. Currently, the broker maintains a 
 separate queue of pending jobs for each worker and incoming jobs are assigned to 
 these queues in a simple round-robin fashion.
 

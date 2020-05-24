@@ -88,7 +88,7 @@ pre-computing some values during compilation or feature complex compile time
 metaprogramming, such as C++.
 
 Despite this fact, we might be able to estimate the processing time well enough 
-e.g., by analysing runtimes of previous similar jobs. Therefore, we should 
+e.g., by analysing run times of previous similar jobs. Therefore, we should 
 definitely evaluate algorithms for the semi-clairvoyant variant, along with 
 those for the non-clairvoyant variant.
 
@@ -118,8 +118,8 @@ However, the requirements of the nested variant can be easily satisfied by a
 setup where there is a large pool of general purpose workers and a handful of 
 specialized worker groups that do not accept any of the regular jobs. The 
 requirements hold even when the general purpose group is composed of workers 
-with different hardware groups (as described in TODO), provided that jobs that 
-allow multiple hardware groups are not issued.
+with different hardware groups, provided that jobs that allow multiple hardware 
+groups are not issued.
 
 A set of machines satisfies the **Tree-hierarchical** criterion if it can be 
 arranged into a tree so that the processing set of each job is a path from the 
@@ -146,7 +146,7 @@ also possible to restrict the job routing model (and the diversity of the worker
 pool) so that it conforms to the nested or interval variants of the problem. If 
 we find any interesting results for these varieties (such as a hypothetical 
 algorithm that would perform well on interval processing sets), we will consider 
-this tradeoff.
+this trade-off.
 
 ### Machine Characteristics
 

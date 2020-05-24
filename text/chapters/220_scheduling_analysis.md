@@ -1,7 +1,7 @@
 ## Analysis
 
-- TODO forward link to Docker section? it will justify some of our workload 
-  choices (thanks to Docker, most workers know how to do everything)
+In this section, we describe the requirements for a scheduling algorithm and 
+propose a method of comparing these algorithms experimentally.
 
 ### Requirements \label{scheduling-requirements}
 

@@ -25,13 +25,13 @@ precision measurements are required. Of course, this phenomenon should be
 researched further, possibly with newer versions of the kernel.
 
 Second, setting the CPU affinity explicitly does not generally yield any 
-improvements to the overall measurement stability, even though the multicore 
+improvements to the overall measurement stability, even though the multi-core 
 affinity setting policy seems to improve the stability for batch measurements on 
 the bare metal. The results with `isolate` are less conclusive
 
 Third, disabling logical cores also seems to improve measurement stability on 
 the bare metal when the number of parallel workers is constant. Same as in the 
-case of multicore affinity setting, this phenomenon is less evident when
+case of multi-core affinity setting, this phenomenon is less evident when
 `isolate` is used, and therefore less likely to bring any practical 
 improvements.
 

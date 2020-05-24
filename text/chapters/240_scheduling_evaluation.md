@@ -69,7 +69,7 @@ and `1/oagm`). These algorithms will be evaluated twice, once with the `oracle`
 estimator and once with the `imprecise` estimator (`1/edf/oracle`, 
 `1/spt/imprecise`, etc.).
 
-The multi-level queue family contains examples of more sophisticated deleayed 
+The multi-level queue family contains examples of more sophisticated delayed 
 dispatch algorithms. The MLFQ algorithm depends heavily on preemption, which 
 disqualifies it from our experiment. We could evaluate the modification 
 described in Section \ref{custom-mlfq}, but it would require extensive 
@@ -110,7 +110,7 @@ Throughout the experiment, we use the following job types:
 
 The delays between jobs are sampled from an exponential distribution with a mean 
 that varies with the workload types (although 100ms is a common value), which is 
-a common assumption when modelling queueing scenarios. For some workloads, the 
+a common assumption when modelling queuing scenarios. For some workloads, the 
 mean delay was used to adjust the intensity of incoming jobs and thus help 
 realize the scenario tested by the workload (e.g., fully saturating a particular 
 group of workers).
@@ -143,7 +143,7 @@ and `common_long` types in a 1:5 ratio (chosen empirically).
 The workload is executed on 40 identical workers with a mean delay of 550ms in 
 the large variant and on 4 workers with a 45ms mean delay in the small variant. 
 The values of the mean delay were chosen empirically to make sure that the 
-workers are not oversaturated at the end of the first phase. The purpose of this 
+workers are not over-saturated at the end of the first phase. The purpose of this 
 workload is to see how different queue managers react to a sudden change in the 
 character of incoming jobs.
 
@@ -206,7 +206,7 @@ partially based on the wait time requirements outlined in Section
 \ref{scheduling-requirements}. The justification for the split between short and 
 long jobs is that it would be unreasonable to classify a 500 millisecond job as 
 extremely late if it was delayed by 5 seconds (a relative wait time of 10). 
-Analogoues to this, it would not be accurate if we classified a 10 minute job as 
+Analogous to this, it would not be accurate if we classified a 10 minute job as 
 extremely late if it got delayed by one minute (which is however a substantial 
 delay for a job that is processed in mere seconds).
 
@@ -263,7 +263,7 @@ other algorithms. In the case of `1/least_flex/-`, this should be attributed to
 coincidence, since this workload employs identical workloads and all jobs are 
 considered equal by the queue manager.
 
-Another occurence of this trend is the `common+para_small` workload, whose 
+Another occurrence of this trend is the `common+para_small` workload, whose 
 lateness classification can be seen in Figure 
 \ref{lb-lateness-common-para-small}. The results show `1/spt` to be the best 
 performing algorithm, with `1/oagm` on the second place. In this case, `1/spt` 

@@ -62,7 +62,7 @@ that this is caused by inadequately chosen parameters for determining job
 deadlines or by test inputs not being similar enough to real world jobs.
 
 On-demand scaling of infrastructure is a topic that is related to load 
-balancing. After a survey that explored the implementation possibilites ranging 
+balancing. After a survey that explored the implementation possibilities ranging 
 from physical server machines to containers and virtual machines provided by 
 cloud computing platforms, we concluded that a practical implementation is out 
 of the scope of this thesis. Nonetheless, we compiled a set of guidelines that 

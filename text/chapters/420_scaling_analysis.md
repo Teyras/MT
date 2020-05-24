@@ -25,7 +25,7 @@ justified by both the intended use case and the low overall power consumption.
 However, the device boots at the moment the power supply is plugged in, so it 
 should be feasible to build a monitor machine that would manage the cluster by 
 interrupting and restoring the power supply of each individual device. Another 
-option is using a prebuilt switched PDU (power distribution unit) for USB.
+option is using a pre-built switched PDU (power distribution unit) for USB.
 
 An obvious drawback of using physical machines owned by the maintainer of the 
 system is that we cannot scale them up infinitely on demand -- we are always 
@@ -107,13 +107,13 @@ balancing in a system for assignment evaluation. From these, only the need to
 handle arbitrary machine eligibility constraints is relevant to the auto-scaling 
 problem.
 
-The problem of autoscaling workers with different capabilities is more difficult 
-than when every worker can process any job. If a worker gets overloaded because 
-it is the only one that can process some class of jobs, the autoscaler needs to 
-know what exact requirements the jobs have to launch a machine of the correct 
-type and actually improve the situation. In the case of ReCodEx, this can be a 
-substantial amount of information in the form of headers (key-value pairs with 
-diverse semantics).
+The problem of auto-scaling workers with different capabilities is more 
+difficult than when every worker can process any job. If a worker gets 
+overloaded because it is the only one that can process some class of jobs, the 
+auto-scaler needs to know what exact requirements the jobs have to launch a 
+machine of the correct type and actually improve the situation. In the case of 
+ReCodEx, this can be a substantial amount of information in the form of headers 
+(key-value pairs with diverse semantics).
 
 Interpreting arbitrary headers for efficient auto-scaling appears to be a 
 difficult problem and we failed to find any prior art on this topic. This fact 
@@ -125,7 +125,7 @@ processing power and capabilities.
 
 With this restriction in place, we cannot provide as much flexibility as we 
 could if we supported arbitrary job requirements. However, it makes the work of 
-the autoscaler (and also the scheduler) much easier. If we employ container 
+the auto-scaler (and also the scheduler) much easier. If we employ container 
 technologies to automatically deploy new runtime environments as laid out in 
 Chapter \ref{containers}, we will also eliminate the only cause of diverse 
 worker headers within a single hardware group encountered in ReCodEx until now.
@@ -140,9 +140,9 @@ able to combine both execution models could also be valuable.
 It is evident that low level metrics such as CPU utilization or network traffic 
 do not reflect the actual worker utilization in a programming assignment 
 evaluation system. The queue length, which is a more promising indicator, cannot 
-be inferred by the autoscaler itself from these low level metrics, and if we are 
-to use it, we will have to implement support for reporting it to the autoscaler 
-from the broker.
+be inferred by the auto-scaler itself from these low level metrics, and if we 
+are to use it, we will have to implement support for reporting it to the 
+auto-scaler from the broker.
 
 Using arbitrary routing headers to select a machine for a job is likely to prove 
 difficult to combine with on-demand scaling. Maintaining several scalable groups 
