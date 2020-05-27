@@ -108,13 +108,14 @@ plot.wait.time.trends <- function() {
 
 		# Lateness graph
 		file <- tex.unsafe(paste(dir, "/lateness,", group$setup, ",", group$workload, sep=""))
-		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=6)
+		tikz(file=paste(file, ".tex", sep=""), width=5.5, height=7)
 
 		plot <- ggplot(data, aes(arrival.discrete)) +
 			geom_bar(aes(fill=lateness.class), position=position_fill()) +
-			scale_fill_manual(values=c("On time"="darkgreen", "Delayed"="green", "Late"="pink", "Extremely late"="red"), name="Lateness\nclassification") +
+			scale_fill_manual(values=c("On time"="darkgreen", "Delayed"="green", "Late"="pink", "Extremely late"="red"), name="Lateness classification") +
 			theme(
 			      axis.ticks.y=element_blank(), axis.text.y=element_blank(),
+			      legend.position="bottom", legend.direction="vertical"
 		        ) + 
 			ggtitle(paste("Workload: ", group$workload, sep="")) +
 			scale_x_discrete(breaks=c(0, 5, 10, 15, 20)) +

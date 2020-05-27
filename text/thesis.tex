@@ -74,7 +74,7 @@
 %%% Basic information on the thesis
 
 % Thesis title in English (exactly as in the formal assignment)
-\def\ThesisTitle{Load Balancing in an Evaluation System for Programming Assignments}
+\def\ThesisTitle{Load Balancing in Evaluation Systems for Programming Assignments}
 
 % Author of the thesis
 \def\ThesisAuthor{Jan Buchar}
@@ -105,7 +105,7 @@
 \def\Dedication{%
 I would like to express my thanks to my supervisor, \Supervisor, for his
 guidance in writing this thesis, and the patience and valuable knowledge he
-demonstrated on so many occasions. I also highly appreciate that the Department
+demonstrated on many occasions. I also highly appreciate that the Department
 of Software Engineering provided me with hardware for my experiments.
 
 The ReCodEx team, namely Mgr. Martin Polanka, Bc. Šimon Rozsíval and Mgr. Petr
@@ -121,11 +121,13 @@ me during my studies and helped me stay on track.
 % Abstract (recommended length around 80-200 words; this is not a copy of your
 % thesis assignment!)
 \def\Abstract{%
-In teaching of programming, systems for the automated evaluation of assignments
-are a valuable aid that benefits both the teachers and the students. The
-objective of this thesis is to examine the possibilities of deploying such
-systems in a large-scale distributed environment and the challenges of such
-endeavors.
+Systems for automated evaluation of assignments are a valuable aid for
+both teachers of programming courses and their students.
+The objective of this thesis is to examine the possibilities
+of deploying such systems in a large-scale distributed environment and
+the challenges of such endeavors. A sizable part of the requirements
+comes from experience with ReCodEx -- an assignment evaluation system
+developed at the department of the supervisor.
 
 Modern server multi-core processors provide considerable computing power that
 can be used for assignment evaluation. However, parallel measurements can
@@ -196,7 +198,7 @@ of evaluation workers, which simplifies the task of the scheduler.
 \appendix
 \chapter*{Attachments}
 
-\include{build/thesis_attachments.combined}
+\input{build/thesis_attachments.combined}
 
 \openright
 \end{document}

@@ -88,7 +88,8 @@ evaluation experiment. In the future, more sophisticated algorithms could be
 devised, for example using machine learning techniques.
 
 ![Histograms of relative estimation errors divided into facets by job processing 
-times (in seconds) 
+times (in seconds). The rightmost bin of each histogram contains all errors 
+larger than 100\\%.
 \label{estimation-error-histograms}](img/lb/estimation-error-histograms.tex)
 
 ### Estimation in Simulated Experiments \label{estimation-in-simulation}

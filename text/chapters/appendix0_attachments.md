@@ -1,9 +1,10 @@
-# Attached Files
-
 The following is a description of files contained in the attachments. The files 
 are laid out as follows:
 
 - `/measurement_stability` -- scripts for evaluation of measurement stability
+- `/measurement_stability/distribute_workers.sh` -- a script that implements the 
+  placement of measurements on CPU cores as described in 
+  Section&nbsp;\ref{hw-and-os}
 - `/measurement_stability/workloads` -- the programs measured in the experiments 
   and test inputs
 - `/measurement_stability/plots` -- scripts for processing and plotting results
