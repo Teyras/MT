@@ -217,17 +217,16 @@ make.comparison.plot <- function() {
 		coord_flip() +
 		labs(x="", y="") +
 		scale_x_discrete(labels=labels.metric) +
-		scale_fill_discrete(name="Comparison result", labels=c(
+		scale_fill_discrete(name="Comparison\nresult", labels=c(
 					"Higher",
 					"Lesser",
 					"Equal"
 				       )) +
-		facet_wrap(. ~ label, ncol=1, scales="free") +
-		theme(legend.position="bottom")
+		facet_wrap(. ~ label, ncol=1, scales="free")
 	print(plot)
 	dev.off()
 
-	tikz("taskset/taskset-comparison-noht.tex", width=5.5, height=4)
+	tikz("taskset/taskset-comparison-noht.tex", width=5.5, height=3)
 
 	plot.data <- gather(comparisons, key, value, mean.noht, sd.noht, mean.noht.multi, sd.noht.multi)
 	#plot.data <- drop_na(plot.data, value)
@@ -239,13 +238,12 @@ make.comparison.plot <- function() {
 		coord_flip() +
 		labs(x="", y="") +
 		scale_x_discrete(labels=labels.metric) +
-		scale_fill_discrete(name="Comparison result", labels=c(
+		scale_fill_discrete(name="Comparison\nresult", labels=c(
 					"Higher",
 					"Lesser",
 					"Equal"
 				       )) +
-		facet_wrap(. ~ label, ncol=1, scales="free") +
-		theme(legend.position="bottom")
+		facet_wrap(. ~ label, ncol=1, scales="free")
 	print(plot)
 	dev.off()
 }
@@ -285,7 +283,7 @@ make.default.vs.multi.plot <- function(isolation) {
 		scale_color_manual(name="", values=c("#444444", "#ff0000"), labels=c("No affinity settings", "Multi-core taskset")) +
 		labs(x="Iteration", y="CPU time") +
 		facet_grid(setup_size ~ wl.short + noht, labeller=labeller(wl.short=wl.labels, noht=noht.labels)) +
-		theme(legend.position="bottom")
+		theme(legend.position="bottom", legend.direction="vertical")
 	print(plot)
 	dev.off()
 }
@@ -294,7 +292,7 @@ if (sys.nframe() == 0) {
 	make.comparison.plot()
 	make.default.vs.multi.plot("bare")
 	make.default.vs.multi.plot("isolate")
-	make.default.vs.multi.plot("docker-bare")
-	make.default.vs.multi.plot("docker-isolate")
+	#make.default.vs.multi.plot("docker-bare")
+	#make.default.vs.multi.plot("docker-isolate")
 }
 

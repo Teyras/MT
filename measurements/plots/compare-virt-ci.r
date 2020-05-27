@@ -31,7 +31,7 @@ cmp$sd.bare.vs.docker <- apply(results, 1, function (row) compare.fnc.ci(my.sd, 
 cmp$sd.bare.vs.vbox <- apply(results, 1, function (row) compare.fnc.ci(my.sd, row["wl.short"], row["setup"], "bare", "vbox-bare"))
 cmp$sd.docker.vs.vbox <- apply(results, 1, function (row) compare.fnc.ci(my.sd, row["wl.short"], row["setup"], "docker-bare", "vbox-bare"))
 
-tikz(file="virt-ci-comparison.tex", width=5.5, height=5)
+tikz(file="virt-ci-comparison.tex", width=5.5, height=3)
 cmp <- gather(cmp, mean.bare.vs.docker, mean.bare.vs.vbox, mean.docker.vs.vbox, sd.bare.vs.docker, sd.bare.vs.vbox, sd.docker.vs.vbox, key="key", value="result")
 cmp$type <- ifelse(grepl("^mean", cmp$key), "Mean", "Standard deviation")
 cmp <- drop_na(cmp, result)
@@ -49,7 +49,7 @@ ggplot(data=cmp, aes(x=key, fill=result)) +
 				  "sd.bare.vs.vbox" = "B \\textless V",
 				  "sd.docker.vs.vbox" = "D \\textless V"
 				  )) +
-	scale_fill_discrete(name="Comparison result", labels=c(
+	scale_fill_discrete(name="Comparison\nresult", labels=c(
 				  "False",
 				  "True",
 				  "Equal"

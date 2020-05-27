@@ -21,28 +21,24 @@ make.correlation.plot <- function (metric) {
 	tikz(file=paste("iso-", metric, "-err.tex", sep=""), width=5.5, height=8)
 	setups <- c("single", "parallel-homogenous")
 
-	plot <- function(wl, title) {
-		#subset <- data[data$workload == wl & data$setup_type %in% setups & data$worker == "cpu-0",]
-		subset <- data[data$workload == wl & data$setup_type %in% setups,]
-		return (ggplot(subset[sample(nrow(subset), 1000, prob=1 / subset$setup_size), ], 
-		       aes_string(x=metric, y=paste("iso_", metric, sep=""))) 
-			+ geom_point(shape=19) 
-			+ geom_abline(colour='red', slope=1, intercept=0)
-			+ labs(x="time[s]", y="isolate time[s]") 
-			+ ylim(c(0, NA))
-			+ ggtitle(title))
-	}
-
-	ggarrange(
-		plot('exp/exp_float', "exp\\_float"),
-		plot('bsearch/bsearch', "bsearch"),
-		plot('gray/gray2bin', "gray2bin"),
-		plot('sort/qsort', "qsort"),
-		plot('sort/qsort_java.sh', "qsort.java"),
-		plot('sort/qsort.py', "qsort.py"),
-		ncol=2,
-		nrow=3
-	)
+	subset <- data[data$workload %in% c(
+		'exp/exp_float',
+		'bsearch/bsearch',
+		'gray/gray2bin',
+		'sort/qsort',
+		'sort/qsort_java.sh',
+		'sort/qsort.py'
+	),]
+	metric.display <- ifelse(metric == "cpu", "CPU time [s]", "Wall-clock time [s]")
+	plot <- ggplot(subset[sample(nrow(subset), 1000, prob=1 / subset$setup_size), ], 
+	        aes_string(x=metric, y=paste("iso_", metric, sep=""))) +
+		geom_point(shape=19) +
+		geom_abline(colour='red', slope=1, intercept=0) +
+		labs(x=metric.display, y=paste("Isolate ", metric.display, sep="")) +
+		ylim(c(0, NA)) +
+		facet_wrap(~ wl.short.safe, ncol=2, scales="free")
+	print(plot)
+	dev.off()
 }
 
 set.seed(999)

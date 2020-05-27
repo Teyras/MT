@@ -11,8 +11,7 @@ cp stability-illustration.tex $target_dir/img/stability/
 echo === Dependence on input
 Rscript plot-dependence-on-input.r $input_dep_results > /dev/null
 #cp dependence-on-input-sds-histogram.png $target_dir/img/stability/
-cp dependence-on-input-means.png $target_dir/img/stability/
-cp dependence-on-input-sds.png $target_dir/img/stability/
+cp dependence-on-input.tex $target_dir/img/stability/
 
 echo === Warmup
 Rscript check-warmup.r $results > /dev/null
@@ -33,8 +32,7 @@ cp isolate-ci-comparison.tex $target_dir/img/stability/
 
 echo === Paralelization
 Rscript plot-paralelization.r $results > /dev/null
-cp isolation-comparison.png $target_dir/img/stability/
-cp isolation-comparison-taskset.png $target_dir/img/stability/
+cp isolation-comparison.tex $target_dir/img/stability/
 
 Rscript plot-means-by-setup-size.r $results > /dev/null
 cp means_by_setup_size/bsearch-over-isolations.tex $target_dir/img/stability/

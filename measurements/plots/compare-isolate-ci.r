@@ -33,7 +33,7 @@ cmp$mean.bare <- apply(results, 1, function (row) compare.fn.ci(my.mean, row["wl
 cmp$mean.docker <- apply(results, 1, function (row) compare.fn.ci(my.mean, row["wl.short"], row["setup"], "docker-isolate", "docker-bare"))
 cmp$mean.vbox <- apply(results, 1, function (row) compare.fn.ci(my.mean, row["wl.short"], row["setup"], "vbox-isolate", "vbox-bare"))
 
-tikz(file="isolate-ci-comparison.tex", width=5.5, height=5)
+tikz(file="isolate-ci-comparison.tex", width=5.5, height=3)
 cmp <- gather(cmp, sd.bare, sd.docker, sd.vbox, mean.bare, mean.docker, mean.vbox, key="key", value="result")
 cmp$type <- ifelse(grepl("^mean", cmp$key), "Mean", "Standard deviation")
 cmp <- drop_na(cmp, result)
@@ -51,7 +51,7 @@ ggplot(data=cmp, aes(x=key, fill=result)) +
 				  "sd.docker" = "D + I \\textless D",
 				  "sd.vbox" = "V + I \\textless V"
 				  )) +
-	scale_fill_discrete(name="Comparison result", labels=c(
+	scale_fill_discrete(name="Comparison\nresult", labels=c(
 				  "False",
 				  "True",
 				  "Equal"

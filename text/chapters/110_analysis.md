@@ -270,7 +270,7 @@ students start submitting solutions to the same assignment at the same time (for
 example when the deadline is close). This execution setup type is called 
 `parallel-homogeneous` in plots and measurement scripts.
 
-Second, we can use a tool that generates system load with configurable 
+Second, we can use a tool that generates system load with configurable  
 characteristics. Such experiment does not imitate real traffic as well as the 
 `parallel-homogeneous` variant, but the results might prove easier to interpret 
 and reproduce. Moreover, the ability to configure the characteristics of the 
@@ -279,7 +279,7 @@ measurement stability the most.
 
 To implement this type of execution setups, we will use the 
 `stress-ng`[@StressNG] utility, and along with that, we will run measurements of 
-a single exercise type. In plots and measurement scripts, the names of these 
+a single exercise type. In plots and measurement scripts, the names of these C
 setups start with `parallel-synth`.
 
 In order to examine the behavior of the system under varying levels of system 
@@ -565,10 +565,10 @@ Due to the CPU topology, we will measure the following parallel configurations:
   last-level cache)
 
 There are two ways of distributing the measured exercises over CPU cores when 
-measuring with `taskset`. Both are implemented by the `distribute_workers.sh` 
-script. The main idea (shared by both of these approaches) is that the numbers 
-of parallel workers running on each physical CPU should be balanced. The same 
-should apply to logical cores in a physical CPU.
+measuring with `taskset`. Both are implemented by the
+`distribute_workers.sh` script. The main idea (shared by both of these 
+approaches) is that the numbers of parallel workers running on each physical CPU 
+should be balanced. The same should apply to logical cores in a physical CPU.
 
 The first approach to workload distribution is illustrated in Figure
 \ref{taskset-naive}. Each workload is assigned to a single core and using two 

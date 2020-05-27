@@ -91,27 +91,14 @@ plot.bsearch <- function() {
 plot.selection <- function() {
 	tikz(file="warmup.tex", width=5.5, height=4)
 
-	ggarrange(
-		plot.points(values[
-			values$metric == "cpu" & 
-			values$workload == "exp/exp_float"
-		, ], title="exp\\textunderscore float"),
-		plot.points(values[
-			values$metric == "cpu" & 
-			values$workload == "bsearch/bsearch"
-		, ], title="bsearch"),
-		plot.points(values[
-			values$metric == "cpu" & 
-			values$workload == "gray/gray2bin"
-		, ], title="gray2bin"),
-		plot.points(values[
-			values$metric == "cpu" & 
-			values$workload == "sort/qsort"
-		, ], title="qsort"),
-		common.legend=T,
-		ncol=2,
-		nrow=2
-	)
+	subset <- values[values$metric == "cpu" & 
+			values$workload %in% c("exp/exp_float", "bsearch/bsearch", "gray/gray2bin", "sort/qsort"),]
+
+	plot <- ggplot(subset, aes(x=iteration)) +
+		geom_point(aes(y=value)) +
+		facet_wrap(~ wl.short.safe, ncol=2) +
+		labs(x="Iteration", y="CPU time [s]")
+	print(plot)
 
 	#dev.off()
 }

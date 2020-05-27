@@ -250,7 +250,7 @@ the \texttt{two\_phase\_large} workload
 
 ![Lateness classification for each queue manager over time for the 
 \texttt{common+para\_small} workload 
-\label{lb-lateness-simple-para-small}](img/lb/lateness,two_types_small,common+para_small.tex)
+\label{lb-lateness-common-para-small}](img/lb/lateness,two_types_small,common+para_small.tex)
 
 Our second observation is that the `1/spt` algorithm performs better or 
 similarly well as the others on all measured workloads, as long as we are 

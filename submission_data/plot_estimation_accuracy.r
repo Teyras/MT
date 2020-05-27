@@ -8,6 +8,7 @@ library("dplyr")
 file <- filename.from.args()
 values <- read.csv(file, sep="\t")
 values$error <- 100 * (values$prediction - values$processing_time) / (values$processing_time)
+values$error.corrected <- ifelse(values$error > 100, 105, values$error)
 print(c(
       nrow(values[abs(values$error) < 10,]) / nrow(values),
       nrow(values[abs(values$error) < 20,]) / nrow(values),
@@ -26,7 +27,7 @@ breaks <- c(0, .1, .25, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, Inf)
 values$processing_time_category <- cut(values$processing_time, breaks, right=F)
 
 error_breaks <- c(2, 5, 10, 20, 50, 75, 100, 200, 300, 400, 800, 1600, 3200, 6400, Inf)
-error_breaks <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, Inf)
+error_breaks <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110)
 error_breaks <- c(-rev(error_breaks), 0, error_breaks)
 values$error_category <- cut(values$error, error_breaks, right=F)
 
@@ -57,11 +58,11 @@ make.error.histogram <- function() {
 make.error.density.plots <- function() {
 	counts <- values %>% count(processing_time_category)
 	tikz("estimation-error-histograms.tex", width=5.5, height=8)
-	plot <- ggplot(values, aes(x=error_category)) +
-		geom_histogram(stat="count") +
-		geom_text_repel(data=counts, aes(x=0, y=Inf, label=paste("n=", n, sep=""), hjust="left", vjust="top"), inherit.aes=F, parse=F, size=3) +
+	plot <- ggplot(values, aes(error.corrected)) +
+		geom_histogram(breaks=error_breaks) +
+		geom_text_repel(data=counts, aes(x=-100, y=Inf, label=paste("n=", n, sep=""), hjust="left", vjust="top"), inherit.aes=F, parse=F, size=3) +
 		facet_wrap(~processing_time_category, scales="free", ncol=3) +
-		theme(axis.text.x = element_text(angle=90, hjust=1, size=4), axis.title.y = element_blank()) +
+		theme(axis.title.y = element_blank()) +
 		labs(x="Relative error [\\%]", y="Observation count")
 
 	print(plot)

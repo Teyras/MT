@@ -19,20 +19,17 @@ that the measurements take the same amount of time on every repetition.
 To see if the input sizes we chose are sufficient, we measured the execution 
 time of each workload (100 iterations) on 300 randomly generated input files and 
 calculated the mean and standard deviation of the measurements for each of the 
-inputs. As we see in Figure \ref{dep-input-mean}, the mean execution time almost 
-does not vary -- even the outliers are within milliseconds from the median of 
-the means. However, as shown by Figure \ref{dep-input-sd}, the range of standard 
-deviations is rather large, reaching up to 11ms. Upon closer inspection, we 
-found that this is due to a small number of outliers. We conclude that the input 
-data has a negligible effect on the execution time, even though there is a handful 
-of inputs for the `qsort`, `bsearch` and `gray2bin` exercise types on which the 
+inputs. As we see in Figure \ref{dep-input}, the mean execution time almost does 
+not vary -- even the outliers are within milliseconds from the median of the 
+means. However, as shown in the same figure, the range of standard deviations is 
+rather large, reaching up to 11ms. Upon closer inspection, we found that this is 
+due to a small number of outliers. We conclude that the input data has a 
+negligible effect on the execution time, even though there is a handful of 
+inputs for the `qsort`, `bsearch` and `gray2bin` exercise types on which the 
 time measurements exhibit a notably higher standard deviation.
 
-![A box plot of the iteration means of CPU time for each workload 
-\label{dep-input-mean}](img/stability/dependence-on-input-means.png)
-
-![A box plot of the iteration standard deviations of CPU time for each workload 
-\label{dep-input-sd}](img/stability/dependence-on-input-sds.png)
+![A box plot of the iteration means and standard deviations of CPU time for each 
+workload \label{dep-input}](img/stability/dependence-on-input.tex)
 
 ### Behavior of Repeated Measurements
 

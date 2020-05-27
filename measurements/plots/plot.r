@@ -2,6 +2,8 @@
 library("ggplot2")
 library("ggpubr")
 library("ggrepel")
+library("tikzDevice")
+library("patchwork")
 
 source("helpers.r")
 
@@ -14,7 +16,7 @@ isolations <- unique(values$isolation)
 setup_types <- unique(values$setup_type)
 setups <- unique(values$setup)
 
-plot_hist <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_hist <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	plot <- ggplot(subset_single, aes(subset_single$value)) +
 		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
 		theme(text=element_text(size=6)) +
@@ -24,7 +26,7 @@ plot_hist <- function(subset, subset_single, title, metric, limit, limit_min=0, 
 	return(plot)
 }
 
-plot_boxplot <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_boxplot <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	plot <- ggplot(subset_single, aes(x="", y=value)) +
 		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
 		theme(text=element_text(size=6)) +
@@ -35,7 +37,7 @@ plot_boxplot <- function(subset, subset_single, title, metric, limit, limit_min=
 	return(plot)
 }
 
-plot_violin_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_violin_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	plot <- ggplot(subset, aes(x="", y=value)) +
 		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
 		theme(text=element_text(size=6)) +
@@ -46,7 +48,7 @@ plot_violin_by_setup_size <- function(subset, subset_single, title, metric, limi
 	return(plot)
 }
 
-plot_hist_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_hist_by_setup_size <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	plot <- ggplot(subset, aes(subset$value)) +
 		labs(title=title, y=paste(metric, " [s]", sep=""), x="") +
 		theme(text=element_text(size=6)) +
@@ -56,18 +58,18 @@ plot_hist_by_setup_size <- function(subset, subset_single, title, metric, limit,
 	return(plot)
 }
 
-plot_points <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_points <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	iters <- max(subset$iteration)
 
 	plot <- ggplot(subset, aes(x=iteration, y=value)) +
-		labs(title=title, y=paste(metric, " [s]", sep=""), x="iteration") +
+		labs(title=title, y=paste(ylab, " [s]", sep=""), x="Iteration") +
 		scale_x_continuous(breaks=c(0, iters/2, iters)) +
 		ylim(limit_min, limit) +
 		facet_grid(cols=vars(category))
 
 	if (rainbow) {
 		plot <- plot + 
-			geom_point(shape=19, aes(color=subset$worker), size=0.1) +
+			geom_point(shape=19, aes(color=worker), size=0.1) +
 			theme(legend.position="none")
 	} else {
 		plot <- plot +
@@ -78,7 +80,7 @@ plot_points <- function(subset, subset_single, title, metric, limit, limit_min=0
 	return(plot)
 }
 
-plot_mad_over_setup <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_mad_over_setup <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	data <- aggregate(value ~ category, subset, mad)
 	data_single <- aggregate(value ~ category, subset_single, mad)
 	plot <- ggplot(data, aes(x=category, y=value, group=1)) +
@@ -95,7 +97,7 @@ plot_mad_over_setup <- function(subset, subset_single, title, metric, limit, lim
 	return(plot)
 }
 
-plot_median_over_setup <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE) {
+plot_median_over_setup <- function(subset, subset_single, title, metric, limit, limit_min=0, rainbow=FALSE, ylab=NULL) {
 	data <- aggregate(value ~ category, subset, median)
 	data_single <- aggregate(value ~ category, subset_single, median)
 	plot <- ggplot(data, aes(x=category, y=value, group=1)) +
@@ -122,7 +124,7 @@ make_na_plot <- function(title, metric, limit) {
 }
 
 # Plots a subset of the data (see the arguments)
-make_plot_by_setup <- function (plot.function, setup_type, metric, workload, isolation, limit, taskset=FALSE) {
+make_plot_by_setup <- function (plot.function, setup_type, metric, workload, isolation, limit, taskset=FALSE, ylab=NULL) {
 	subset <- values[
 			 values$metric == metric & 
 			 values$workload == workload & 
@@ -151,7 +153,7 @@ make_plot_by_setup <- function (plot.function, setup_type, metric, workload, iso
 	return(plot.function(subset, subset_single, title, metric, limit))
 }
 
-make_plot_by_isolation <- function (plot.function, metric, workload, setup, title=NULL, rainbow=FALSE, subset=NULL) {
+make_plot_by_isolation <- function (plot.function, metric, workload, setup, title=NULL, rainbow=FALSE, subset=NULL, ylab=NULL) {
 	if (is.null(subset)) {
 		subset <- values[values$metric == metric & values$workload == workload & values$setup == setup, ]
 	}
@@ -170,7 +172,7 @@ make_plot_by_isolation <- function (plot.function, metric, workload, setup, titl
 	subset$category <- factor(subset$isolation.short, levels=unique(subset$isolation.short))
 	subset_single <- subset[subset$worker == subset$worker[1],]
 
-	return(plot.function(subset, subset_single, title, metric, limit_max, limit_min, rainbow))
+	return(plot.function(subset, subset_single, title, metric, limit_max, limit_min, rainbow, ylab))
 }
 
 # Plots a metric for a workload into a file
@@ -293,21 +295,39 @@ plot_times_by_setup_size <- function() {
 
 plot_paralelization <- function() {
 # A selection of plots that show the effect of homogenous parallelization on chosen workloads for each isolation technique
-	ggarrange(
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp_float, 1 worker"),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker"),
+	tikz(file="isolation-comparison.tex", width=5.5, height=9)
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,2", "exp_float, 2 workers"),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,2", "bsearch, 2 workers"),
+	plot <- make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "single,1", "exp\\_float, 1 worker", ylab="CPU time") +
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "single,1", "bsearch, 1 worker") +
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,4", "exp_float, 4 workers"),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,4", "bsearch, 4 workers"),
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,2", "exp\\_float, 2 workers", ylab="CPU time") +
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,2", "bsearch, 2 workers") +
 
-		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,10", "exp_float, 10 workers"),
-		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,10", "bsearch, 10 workers"),
-		  nrow=4, ncol=2
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,4", "exp\\_float, 4 workers", ylab="CPU time") +
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,4", "bsearch, 4 workers") +
+
+		  make_plot_by_isolation(plot_points, "cpu", "exp/exp_float", "parallel-homogenous,10", "exp\\_float, 10 workers", ylab="CPU time") +
+		  make_plot_by_isolation(plot_points, "cpu", "bsearch/bsearch", "parallel-homogenous,10", "bsearch, 10 workers") +
+
+		  plot_layout(ncol=2)
+
+	hide.x <- theme(axis.title.x=element_blank())
+	hide.y <- theme(axis.title.y=element_blank())
+	hide.axes <- theme(
+		axis.title.x=element_blank(),
+		axis.title.y=element_blank()
 	)
 
+	plot[[1]] = plot[[1]] + hide.x
+	plot[[2]] = plot[[2]] + hide.axes
+	plot[[3]] = plot[[3]] + hide.x
+	plot[[4]] = plot[[4]] + hide.axes
+	plot[[5]] = plot[[5]] + hide.x
+	plot[[6]] = plot[[6]] + hide.axes
+	plot[[8]] = plot[[8]] + hide.y
+
+	print(plot)
+	dev.off()
 	ggsave("isolation-comparison.png", width=5.5, height=9, units="in")
 
 # The same as above, but with taskset

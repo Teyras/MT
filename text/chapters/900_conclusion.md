@@ -3,14 +3,16 @@
 We have presented and examined several problems related to large-scale 
 deployments of programming assignment evaluation systems. Most of the results 
 can be directly applied to the ReCodEx system, but they are general enough to 
-also benefit other similar systems.
+also benefit other similar systems and even applications outside of the 
+programming assigment evaluation domain where features like precise measurements 
+or scheduling focused on delivering quick feedback for short jobs are desired.
 
 Measuring the influence of running multiple measurements in parallel and using 
 various isolation technologies on the stability of results provided us with 
 insights about using modern CPUs for assignment evaluation. We found that 
 simultaneous measurements interfere with each other, causing a decline in 
-stability. A plausible explanation is that this is caused by contention for the 
-memory controller and last level of the CPU cache.
+stability. A plausible explanation is that this is caused by concurrent usage of 
+the memory controller and the last level of the CPU cache.
 
 The most profound consequence of this is that it is not advisable to use CPUs 
 with many cores and cloud platforms when stable measurements are required (e.g., 
@@ -25,10 +27,10 @@ machine.
 
 Although we have shown that multi-core CPUs are not particularly suitable where 
 precise measurements are required, they can be very useful for numerous other 
-exercise types where a correct answer the focus, and not performance. It is a 
-responsibility of administrators to allocate resources in a way suitable for the 
-workload being processed by the system. However, the measurement framework we 
-laid out can be a substantial aid in this task.
+exercise types where returning the correct answer is more important than 
+performance. It is a responsibility of administrators to allocate resources in a 
+way suitable for the workload being processed by the system. However, the 
+measurement framework we laid out can be a substantial aid in this task.
 
 We also found that using isolation technologies affects the results of 
 measurements, both in terms of overall speed and stability. Using the `isolate` 
@@ -41,12 +43,10 @@ which is one of the key elements of fair grading.
 
 Our survey of online scheduling algorithms and a subsequent experimental 
 examination yielded results that allow more efficient utilization of evaluation 
-hardware.
-
-In addition to existing algorithms applicable to the problem, we have proposed 
-two custom algorithms -- one based on multi-level feedback queues and another 
-based on the earliest-deadline-first approach. We have also contributed a 
-practical implementation of the latter algorithm and included it in our 
+hardware. In addition to existing algorithms applicable to the problem, we have 
+proposed two custom algorithms -- one based on multi-level feedback queues and 
+another based on the earliest-deadline-first approach. We have also contributed 
+a practical implementation of the latter algorithm and included it in our 
 experiment.
 
 The experiment revealed that an algorithm that processes the job with the 
@@ -86,6 +86,6 @@ environment images).
 
 In summary, the presented results can serve as a foundation for building a
 large-scale system for evaluation of programming assignments that is efficient 
-in terms of both cost and performance. This, in turn, can help make programming
+in terms of both cost and performance. This can help make programming
 education more efficient and accessible.
 

@@ -1,6 +1,6 @@
 ## Result Analysis
 
-### Evaluation of Isolate Measurements
+### Evaluation of Isolate Measurements \label{isolate-measurements-evaluation}
 
 As mentioned in Section \ref{measured-data}, our measurements that run in 
 isolate yield four values: the CPU and wall clock times as measured by isolate 
@@ -75,7 +75,7 @@ isolate, with $y=x$ as a reference line
 ### Method of Comparison
 
 In the following sections, we will need to compare groups of measurements made 
-under different conditions (e.g. with CPU affinity settings or under varying 
+under different conditions (e.g., with CPU affinity settings or under varying 
 degrees of system load). We cannot make assumptions about the distribution of 
 the data, which disqualifies well-known tests such as the pairwise t-test, which 
 requires normally distributed data. 
@@ -99,19 +99,19 @@ provided by the `boot` package for the R statistic toolkit.
 ### Isolation and Measurement Stability
 
 To visualize the effects of isolation technologies, we made scatter plots of CPU 
-time (we chose not to examine the wall-clock time because it seems that isolate 
-cannot measure it reliably) measurements for each system load level, exercise 
-type and isolation technology so that the plots for each isolation technology 
-are side by side for every exercise type. Because most of the measurements were 
-made in parallel, we colorized the measurements from one chosen worker process 
-so that we could get an idea about how the measurements differ between the 
-parallel workers. The plots revealed a handful of possible trends in the 
-measured data. A selection from these plots can be seen in Figure 
-\ref{isolation-comparison}.
+time (we chose not to examine the wall-clock time because, according to Section 
+\ref{isolate-measurements-evaluation}, it seems that isolate cannot measure it 
+reliably) measurements for each system load level, exercise type and isolation 
+technology so that the plots for each isolation technology are side by side for 
+every exercise type. Because most of the measurements were made in parallel, we 
+colorized the measurements from one chosen worker process so that we could get 
+an idea about how the measurements differ between the parallel workers. The 
+plots revealed a handful of possible trends in the measured data. A selection 
+from these plots can be seen in Figure \ref{isolation-comparison}.
 
 ![A scatter plot of time measurements grouped by isolation for chosen setups and 
 exercise types with results from a single worker highlighted in red 
-\label{isolation-comparison}](img/stability/isolation-comparison.png)
+\label{isolation-comparison}](img/stability/isolation-comparison.tex)
 
 The most prominent trend is that the measured values are centered around 
 different means under different isolation technologies for some exercise types.

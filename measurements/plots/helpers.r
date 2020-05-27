@@ -34,6 +34,7 @@ load.stability.results <- function(file) {
 	values$numa <- grepl("numa", values$setup)
 	values$noht <- grepl("-noht", values$setup)
 	values$wl.short <- gsub("^[^/]*/", "", values$workload)
+	values$wl.short.safe <- tex.safe(values$wl.short)
 	values$isolation.short <- values$isolation %>%
 		gsub("^bare$", "B", .) %>%
 		gsub("^isolate$", "I", .) %>%
