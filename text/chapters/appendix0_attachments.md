@@ -33,3 +33,7 @@ are laid out as follows:
 This description is not exhaustive. Each of the top-level folders mentioned here 
 contain a `README.md` file with a detailed description of the contents and usage
 instructions.
+
+The contents of the thesis and its attachments (excluding measurement results) 
+can be found in a git repository at 
+[https://github.com/Teyras/MT](https://github.com/Teyras/MT).
