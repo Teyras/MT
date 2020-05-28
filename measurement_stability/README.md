@@ -3,7 +3,6 @@
 This folder contains scripts for launching measurements of time measurement 
 stability under varying levels of system load and isolation technologies:
 
-## measurements/
 - `build_docker.sh` -- Build a Docker image for Docker measurement workers
 - `build_vbox.sh` -- Build a VirtualBox measurement worker template and then use 
   it to create VMs for all the workers
@@ -27,11 +26,11 @@ stability under varying levels of system load and isolation technologies:
 - `workloads.txt` -- A list of workloads to be measured (allows for multiple 
   configurations of measurements)
 
-## measurements/docker
+## docker/
 
 The Dockerfile used to build the container image used for measurements
 
-## measurements/runners
+## runners/
 
 Scripts that run a specified amount of iterations of a workload in a specific 
 environment
@@ -39,14 +38,14 @@ environment
 - `run_baremetal.sh` -- Run a set of measurements on the bare metal
 - `run_isolate.sh` -- Run a set of measurements in isolate
 
-## measurements/vagrant
+## vagrant/
 
 - `vbox_template/Vagrantfile` -- Used to build a template file used for our 
   measurement worker VM images
 - `vbox_multi/Vagrantfile` -- Contains the definitions of our measurement worker 
   images
 
-## measurements/workloads
+## workloads/
 
 Sources of our workload programs. Each workload folder contains a 
 `generate_data.sh` script and a `Makefile`.
