@@ -3,7 +3,7 @@ library("ggplot2")
 library("tidyr")
 library("dplyr")
 
-source("../../measurements/plots/helpers.r")
+source("../../plot_helpers/helpers.r")
 
 values <- load.lb.results(filename.from.args())
 values$wait.time <- values$processing.start - values$arrival

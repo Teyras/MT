@@ -4,7 +4,7 @@ library("ggpubr")
 library("tidyr")
 library("tikzDevice")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 options(width = 150)
 theme_set(theme_grey(base_size=7))

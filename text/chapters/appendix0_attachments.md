@@ -23,9 +23,9 @@ are laid out as follows:
   images
 - `/containers/plots` -- evaluation and plotting of results of performance 
   measurements
-- `/user_behaviour` -- scripts for collection and evaluation of data about user 
-  behaviour
-- `/user_behaviour/predict_processing_times.py` -- an implementation of the 
+- `/user_behavior` -- scripts for collection and evaluation of data about user 
+  behavior
+- `/user_behavior/predict_processing_times.py` -- an implementation of the 
   processing time estimation formula described in Section 
   \ref{processing-time-estimation}
 - `/thesis.pdf` -- an electronic version of this thesis

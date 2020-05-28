@@ -5,7 +5,7 @@ library("ggplot2")
 library("ggpubr")
 library("tikzDevice")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 values <- load.stability.results(filename.from.args())
 values <- values[

@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 library("boot")
 library("tikzDevice")

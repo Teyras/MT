@@ -1,4 +1,4 @@
-source("../measurements/plots/helpers.r")
+source("../../plot_helpers/helpers.r")
 
 library("ggplot2")
 library("tikzDevice")

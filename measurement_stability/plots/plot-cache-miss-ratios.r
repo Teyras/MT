@@ -2,7 +2,7 @@ library("ggplot2")
 library("tidyr")
 library("tikzDevice")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 results <- load.stability.results(filename.from.args())
 values <- spread(results, key=metric, value=value)

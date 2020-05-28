@@ -6,7 +6,7 @@ library("boot")
 library("tidyr")
 library("tikzDevice")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 data <- load.stability.results(filename.from.args())
 data$setup_type_raw <- data$setup_type %>% 

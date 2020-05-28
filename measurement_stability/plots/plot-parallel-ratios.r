@@ -1,7 +1,7 @@
 library("ggplot2")
 library("tikzDevice")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 ratios <- read.csv(filename.from.args())
 

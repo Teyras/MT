@@ -4,7 +4,7 @@ library("ggpubr")
 library("tikzDevice")
 library("boot")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 values <- load.stability.results(filename.from.args())
 workloads <- c("exp/exp_float", "bsearch/bsearch", "gray/gray2bin", "sort/qsort", "sort/qsort_java.sh", "sort/qsort.py")

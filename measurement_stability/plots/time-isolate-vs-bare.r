@@ -5,7 +5,7 @@ library("tikzDevice")
 library("ggplot2")
 library("ggpubr")
 
-source("helpers.r")
+source("../../plot_helpers/helpers.r")
 
 options(width = 200)
 
