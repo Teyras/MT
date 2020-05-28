@@ -46,3 +46,14 @@ A C++ compiler that supports C++17 is required to build the code, along with
 - GNU parallel
 - Isolate
 - perf
+
+## Contents
+
+- `measurement_stability` -- scripts for examining the stability of time 
+  measurements with various isolation technologies and degrees of system load
+- `scheduling` -- implementation of a handful of scheduling algorithms and a 
+  simulation environment for their evaluation
+- `containers` -- programs for container manipulation (as described in the 
+  Advanced Usage of Containers chapter)
+- `user_behavior` -- scripts for gathering and evaluating information about 
+  ReCodEx submissions
